@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="icon" href="data:," />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RE9 AI Property Insights — Interactive Prototype v0.3</title>
+<style>
+  :root{
+    --ink:#111827; --muted:#6B7280; --line:#E5E7EB; --bg:#F5F6F7;
+    --blue:#1A73E8; --blue-dark:#0B57D0; --blue-soft:#E8F0FE;
+    --amber:#B45309; --amber-soft:#FFFBEB; --green:#0F9D58; --red:#C5221F;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"PingFang SC",Arial,sans-serif;}
+  a{color:var(--blue-dark);text-decoration:none}
+  button{font-family:inherit}
+  .page-head{padding:32px 48px 24px;background:#fff;border-bottom:1px solid var(--line)}
+  .page-head .kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  .page-head h1{margin:9px 0 7px;font-size:28px;font-weight:700;letter-spacing:-.02em}
+  .page-head p{margin:0;max-width:1020px;color:var(--muted);font-size:13px;line-height:1.7}
+  .page-head .meta{margin-top:13px;display:flex;gap:7px;flex-wrap:wrap}
+  .pill{padding:5px 10px;border:1px solid var(--line);border-radius:999px;font-size:10.5px;color:var(--muted);background:#fff}
+
+  .demo-wrap{max-width:1180px;margin:0 auto;padding:30px 32px 10px;display:grid;grid-template-columns:410px 1fr;gap:34px;align-items:start}
+  .demo-wrap.pam{display:block;max-width:1180px}
+  .demo-wrap.pam .stage{max-width:1050px}
+  .demo-wrap.pam .console{max-width:1050px;margin-top:16px}
+  .stage{min-width:0}
+  .phone{width:390px;height:844px;background:#fff;border-radius:36px;border:1px solid #DADCE0;
+    box-shadow:0 8px 24px rgba(0,0,0,.08);overflow:hidden;position:relative;display:flex;flex-direction:column}
+  .status{height:42px;flex:0 0 42px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600}
+  .status .right{display:flex;gap:4px;align-items:center}
+  .status .bar{width:3px;background:var(--ink);border-radius:1px}
+  .status .b1{height:5px}.status .b2{height:8px}.status .b3{height:11px}
+  .status .battery{width:20px;height:10px;border:1.4px solid var(--ink);border-radius:3px;position:relative;margin-left:4px}
+  .status .battery:after{content:"";position:absolute;inset:1.4px;width:70%;background:var(--ink);border-radius:1px}
+  .nav{flex:0 0 46px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--line);background:#fff}
+  .nav .back{font-size:20px;width:26px;cursor:pointer}
+  .nav .mid{text-align:center}
+  .nav .t{font-size:15px;font-weight:650}
+  .nav .s{font-size:9px;color:var(--muted);margin-top:2px}
+  .nav .r{font-size:10px;color:var(--blue);min-width:40px;text-align:right;cursor:pointer}
+  .phone-body{flex:1;overflow-y:auto;padding:10px 16px 86px;scrollbar-width:none}
+  .phone-body::-webkit-scrollbar{display:none}
+  .homebar{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:116px;height:4px;background:#111;border-radius:2px;z-index:5}
+  .appbar{flex:0 0 auto;padding:2px 16px 8px;display:flex;align-items:center;justify-content:space-between}
+  .appbar h3{margin:0;font-size:21px;font-weight:700;letter-spacing:-.02em}
+  .appbar .right{display:flex;gap:6px;align-items:center}
+  .demo-pill{font-size:7px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9A3412;background:#FFF7ED;border:1px solid #FED7AA;padding:2px 5px;border-radius:999px}
+  .icon-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink);background:#fff;cursor:pointer}
+
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 9px}
+  .tabs button{border:0;background:none;padding:8px 2px;margin-right:16px;font-size:11px;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer}
+  .tabs button.on{color:var(--ink);font-weight:650;border-bottom-color:var(--blue)}
+  .hero{border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:9px;padding:10px 11px;margin-bottom:9px;cursor:pointer}
+  .hero .eyebrow{font-size:7.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  .hero h4{margin:4px 0 4px;font-size:14.5px;line-height:1.35;font-weight:700;letter-spacing:-.01em}
+  .hero .meta{font-size:8px;color:var(--muted)}
+  .hero .more{font-size:8.5px;color:var(--blue);font-weight:650;margin-top:6px;display:inline-block}
+  .section{display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px}
+  .section b{font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .section span{font-size:8px;color:var(--blue)}
+  .pcard{display:flex;gap:9px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:8px;margin-bottom:8px;cursor:pointer}
+  .thumb{width:44px;height:44px;border-radius:7px;background:#F1F3F4;flex:0 0 44px;display:flex;align-items:center;justify-content:center;color:#9AA0A6;font-size:8px}
+  .pcard .t{font-size:10.5px;font-weight:650}
+  .pcard .s{font-size:8px;color:var(--muted);margin-top:2px}
+  .pcard .badge{margin-left:auto;font-size:7.5px;color:var(--blue-dark);background:var(--blue-soft);padding:2px 5px;border-radius:999px;font-weight:650}
+  .row{padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer}
+  .row:last-child{border-bottom:0}
+  .row .t{font-size:10.2px;line-height:1.45;font-weight:550;margin-bottom:3px}
+  .row .m{display:flex;gap:5px;align-items:center;font-size:7.5px;color:var(--muted)}
+  .tag{display:inline-block;font-size:7px;font-weight:650;padding:1px 5px;border-radius:999px;background:#F1F3F4;color:#4B5563;white-space:nowrap}
+  .tag.blue{background:var(--blue-soft);color:var(--blue-dark)}
+  .tag.amber{background:var(--amber-soft);color:var(--amber)}
+  .tag.green{background:#E6F4EA;color:var(--green)}
+  .tag.red{background:#FCE8E6;color:var(--red)}
+  .tag.demo{background:#FFF7ED;color:#9A3412}
+  .tag.internal{background:var(--blue-soft);color:var(--blue-dark)}
+  .tag.approved{background:#E8F0FE;color:#0B57D0}
+  .ops-context{border-bottom:1px solid var(--line);background:#F8FAFC;padding:7px 18px 7px 18px}
+  .ops-context .row1{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:8px;color:var(--muted)}
+  .ops-context .who{font-size:9px;font-weight:700;color:var(--ink)}
+  .ops-context .who span{font-weight:500;color:var(--muted)}
+  .ops-context .crumb{font-size:6.8px;color:var(--blue-dark);font-weight:600;text-align:right;max-width:58%;line-height:1.4;white-space:normal}
+  .ops-context .perms{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
+  .demo-perms{margin-top:4px;font-size:6.5px;color:var(--muted)}
+  .demo-perms summary{cursor:pointer;color:var(--blue-dark);font-weight:600;outline:none;list-style:none}
+  .demo-perms summary::-webkit-details-marker{display:none}
+  .demo-perms[open] summary{margin-bottom:3px}
+  .demo-context-label{font-size:6px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-right:4px}
+  .permchip{font-size:6.5px;padding:1px 4px;border-radius:3px;background:#fff;border:1px solid var(--line);color:#4B5563;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .permchip.off{opacity:.45;text-decoration:line-through}
+  .noaccess{max-width:520px;margin:60px auto;text-align:center;border:1px solid var(--line);border-radius:10px;padding:24px;background:#fff}
+  .noaccess .ic{font-size:26px;color:var(--muted)}
+  .noaccess h3{margin:8px 0 5px;font-size:16px}
+  .noaccess p{margin:0;color:var(--muted);font-size:9px;line-height:1.6}
+  .noaccess code{font-size:8px;background:#F1F3F4;padding:1px 4px;border-radius:3px}
+  .duty-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .duty-grid button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px 7px;text-align:left;font-size:8px;font-weight:600;cursor:pointer;color:var(--ink)}
+  .duty-grid button.on{background:var(--blue-soft);border-color:#C6D9FB;color:var(--blue-dark)}
+  .duty-grid button small{display:block;font-weight:400;color:var(--muted);font-size:6.5px;margin-top:1px}
+  .infobox{background:#F8FAFC;border:1px solid var(--line);border-radius:8px;padding:8px 9px;font-size:8px;line-height:1.55;color:#374151;margin:8px 0}
+  .infobox b{font-weight:650}
+  .skeleton{height:11px;border-radius:4px;background:linear-gradient(90deg,#F1F3F4 25%,#E8EAED 37%,#F1F3F4 63%);background-size:400% 100%;animation:sk 1.4s ease infinite;margin:7px 0}
+  .skeleton.w70{width:70%}.skeleton.w45{width:45%}.skeleton.h28{height:28px}
+  @keyframes sk{0%{background-position:100% 50%}100%{background-position:0 50%}}
+  .empty-state{border:1px dashed #DADCE0;border-radius:9px;padding:18px 12px;text-align:center;color:var(--muted);font-size:9px;line-height:1.6;margin:10px 0}
+  .empty-state b{display:block;color:var(--ink);font-size:10.5px;margin-bottom:4px}
+  .empty-state button{margin-top:8px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 9px;font-size:8px;font-weight:650;color:var(--blue-dark);cursor:pointer}
+  .pam-filters{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  .pam-filters input,.pam-filters select{border:1px solid var(--line);border-radius:5px;padding:5px 6px;font-size:7.5px;background:#fff;color:var(--ink);font-family:inherit}
+  .navbar{flex:0 0 56px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;padding-bottom:10px;font-size:7.5px;color:var(--muted)}
+  .navbar .item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+  .navbar .dot{width:16px;height:16px;border-radius:5px;border:1.4px solid #9AA0A6}
+  .navbar .item.on{color:var(--blue-dark);font-weight:650}
+  .navbar .item.on .dot{background:var(--blue-soft);border-color:var(--blue)}
+
+  .article-kicker{font-size:7.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:6px}
+  .article h1{font-size:19px;line-height:1.28;margin:5px 0 5px;font-weight:750;letter-spacing:-.02em}
+  .dek{font-size:9px;line-height:1.45;color:var(--muted);margin:0 0 7px}
+  .demobanner{background:#FFF7ED;border:1px solid #FED7AA;color:#9A3412;border-radius:7px;padding:6px 8px;font-size:7.5px;line-height:1.5;margin:0 0 8px}
+  .stats{display:flex;gap:5px;margin-bottom:7px}
+  .stat{flex:1;border:1px solid var(--line);border-radius:7px;padding:5px 6px}
+  .stat .v{font-size:11.5px;font-weight:700;color:var(--blue-dark)}
+  .stat .k{font-size:6.8px;color:var(--muted);margin-top:1px}
+  .h5{font-size:9.5px;font-weight:700;margin:7px 0 3px}
+  .bodytext{font-size:8.5px;line-height:1.6;color:#374151}
+  .bodytext p{margin:0 0 5px}
+  .bodytext ul{margin:2px 0 5px;padding-left:13px}
+  .bodytext li{margin-bottom:2px}
+  .sources{border:1px solid var(--line);border-radius:7px;padding:7px 8px;margin-top:6px}
+  .source{padding:4px 0;border-bottom:1px solid #F1F3F4;font-size:7.5px;line-height:1.45}
+  .source:last-child{border-bottom:0}
+  .source .top{display:flex;justify-content:space-between;gap:6px}
+  .source .n{font-weight:600}
+  .source .d{color:var(--muted);white-space:nowrap}
+  .source .ev{color:var(--muted);font-size:6.8px;margin-top:1px}
+  .disc{margin-top:7px;background:#FAFAFA;border:1px solid var(--line);border-radius:7px;padding:6px 7px;font-size:6.6px;line-height:1.5;color:var(--muted)}
+  .ask{margin-top:7px}
+  .qchip{display:block;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:7px;padding:7px 8px;font-size:8px;margin-bottom:4px;color:var(--ink);cursor:pointer;line-height:1.4}
+  .qchip:hover{border-color:#C6D9FB;background:#F8FBFF}
+  .cta{position:absolute;left:0;right:0;bottom:0;padding:7px 16px 16px;background:#fff;border-top:1px solid var(--line);z-index:6}
+  .cta button{width:100%;border:0;border-radius:8px;padding:10px;background:var(--blue);color:#fff;font-size:10.5px;font-weight:650;cursor:pointer}
+  .chat-head{display:flex;align-items:center;gap:8px;padding:3px 16px 8px;border-bottom:1px solid var(--line)}
+  .avatar{width:30px;height:30px;border-radius:50%;background:var(--blue-soft);color:var(--blue-dark);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+  .chat-head .who{font-size:11px;font-weight:650}
+  .chat-head .sub{font-size:8px;color:var(--muted)}
+  .chat-body{flex:1;overflow-y:auto;padding:10px 16px 12px;scrollbar-width:none}
+  .chat-body::-webkit-scrollbar{display:none}
+  .ctx{font-size:7.5px;color:var(--muted);background:#F1F3F4;border-radius:999px;padding:4px 8px;display:inline-block;margin-bottom:8px;line-height:1.4}
+  .bub{max-width:88%;padding:8px 10px;border-radius:13px;font-size:9.5px;line-height:1.55;margin-bottom:6px}
+  .bub.user{margin-left:auto;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
+  .bub.ai{background:#F8FAFC;border:1px solid var(--line);border-bottom-left-radius:4px;color:#1F2937}
+  .cite{display:block;margin-top:5px;font-size:6.8px;color:var(--blue-dark);border-top:1px solid var(--line);padding-top:4px;line-height:1.4}
+  .follow{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+  .follow .qchip{width:auto;margin:0;font-size:7.5px;padding:5px 7px}
+  .composer{flex:0 0 auto;padding:7px 14px 17px;border-top:1px solid var(--line);display:flex;gap:6px;align-items:center}
+  .composer input{flex:1;background:#F1F3F4;border:0;border-radius:999px;padding:9px 12px;font-size:9px;color:var(--ink);outline:none;min-width:0}
+  .composer .cbtn{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--line);background:#fff;cursor:pointer}
+  .composer .cbtn.send{background:var(--blue);border-color:var(--blue);color:#fff}
+
+  .setrow{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)}
+  .setrow:last-child{border-bottom:0}
+  .setrow .t{font-size:10px;font-weight:600}
+  .setrow .s{font-size:7.5px;color:var(--muted);margin-top:2px}
+  .toggle{width:36px;height:21px;border-radius:999px;background:#D1D5DB;position:relative;flex:0 0 36px;cursor:pointer}
+  .toggle:after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+  .toggle.on{background:var(--blue)}
+  .toggle.on:after{left:17px}
+
+  /* PAM */
+  .pam:not(.demo-wrap){width:1050px;height:760px;background:#fff;border:1px solid #DADCE0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.08);overflow:hidden;display:flex}
+  .pam-side{width:180px;background:#F8FAFC;border-right:1px solid var(--line);padding:15px 9px;display:flex;flex-direction:column;gap:2px}
+  .pam-side .brand{font-size:12px;font-weight:700;padding:0 9px;margin-bottom:12px}
+  .pam-side .navi{font-size:10px;color:#4B5563;padding:8px 9px;border-radius:7px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+  .pam-side .navi.on{background:var(--blue-soft);color:var(--blue-dark);font-weight:650}
+  .pam-side .badge{background:var(--blue);color:#fff;font-size:8px;border-radius:999px;padding:1px 5px}
+  .pam-main{flex:1;display:flex;flex-direction:column;min-width:0}
+  .pam-top{height:50px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px 0 18px}
+  .pam-top h3{margin:0;font-size:14px;font-weight:650}
+  .pam-top .u{font-size:8.5px;color:var(--muted)}
+  .pam-body{flex:1;overflow-y:auto;padding:12px 30px 18px 18px;scrollbar-width:none}
+  .pam-body::-webkit-scrollbar{display:none}
+  .kpis{display:flex;gap:8px;margin-bottom:10px}
+  .kpi{flex:1;border:1px solid var(--line);border-radius:8px;padding:8px 9px}
+  .kpi .v{font-size:17px;font-weight:700;color:var(--blue-dark)}
+  .kpi .k{font-size:7.5px;color:var(--muted);margin-top:1px}
+  .pam-table{border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .ptr{display:grid;grid-template-columns:1.6fr 100px 50px 92px 90px 48px;gap:6px;padding:7px 9px;border-bottom:1px solid var(--line);font-size:8.5px;align-items:center;cursor:pointer}
+  .ptr:last-child{border-bottom:0}
+  .ptr.head{background:#F8FAFC;font-size:7px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);cursor:default}
+  .ptr:hover:not(.head){background:#F8FBFF}
+  .ptr .ti{font-weight:550;line-height:1.35}
+  .ptr .sub{font-size:7px;color:var(--muted);margin-top:1px}
+  .pam-grid{display:block}
+  .pam-grid>div{min-width:0}
+  .pam-card{border:1px solid var(--line);border-radius:8px;padding:10px 11px;margin-bottom:8px;max-width:100%;overflow:hidden}
+  .pam-card .h{font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;font-weight:700}
+  .pam-card h2{font-size:15px;line-height:1.35;margin:0 0 5px}
+  .pam-preview{font-size:8.5px;line-height:1.6;color:#374151;max-height:250px;overflow-y:auto;border-top:1px solid var(--line);padding-top:7px}
+  .pam-preview p{margin:0 0 5px}
+  .pam-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .pam-btn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:7px 9px;font-size:8.5px;font-weight:650;cursor:pointer;color:var(--ink)}
+  .pam-btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  .pam-btn.danger{color:var(--red)}
+  .pam-btn:disabled{opacity:.45;cursor:not-allowed}
+  .pam-input,.pam-select,.pam-textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:8.5px;font-family:inherit;color:var(--ink);background:#fff}
+  .pam-textarea{min-height:70px;resize:vertical;line-height:1.5}
+  .pam-row{display:flex;justify-content:space-between;gap:8px;font-size:8.5px;padding:3px 0;border-bottom:1px solid #F1F3F4}
+  .pam-row:last-child{border-bottom:0}
+  .pam-row .k{color:var(--muted)}
+  .pam-row .v{font-weight:600;text-align:right;max-width:60%;overflow-wrap:anywhere}
+  .project-card{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:7px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+  .project-card .t{font-size:10px;font-weight:650}
+  .project-card .s{font-size:7.5px;color:var(--muted);margin-top:1px}
+  .project-card .right{display:flex;gap:5px;align-items:center}
+  .pam-note{font-size:7.5px;color:var(--muted);line-height:1.5;margin-top:6px}
+  .toast{background:var(--blue-soft);border:1px solid #D2E3FC;color:var(--blue-dark);border-radius:6px;padding:6px 8px;font-size:8px;margin-bottom:8px}
+
+  .console{background:#fff;border:1px solid var(--line);border-radius:12px;padding:17px 17px 15px}
+  .console h2{font-size:15px;margin:0 0 3px}
+  .console .sub{font-size:10px;color:var(--muted);line-height:1.6;margin-bottom:10px}
+  .mode-tabs{display:flex;gap:5px;margin-bottom:12px}
+  .mode-tabs button{flex:1;border:1px solid var(--line);background:#fff;border-radius:7px;padding:7px 8px;font-size:9px;font-weight:650;cursor:pointer;color:var(--ink)}
+  .mode-tabs button.on{background:var(--blue-soft);border-color:#C6D9FB;color:var(--blue-dark)}
+  .label{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:11px 0 5px}
+  .scenarios{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .scenarios button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:7px 8px;text-align:left;font-size:9px;font-weight:600;cursor:pointer;color:var(--ink)}
+  .scenarios button:hover{border-color:#C6D9FB;background:#F8FBFF}
+  .statebox{border:1px solid var(--line);border-radius:8px;background:#F8FAFC;padding:8px 9px;font-size:8px;line-height:1.65}
+  .statebox .kv{display:flex;justify-content:space-between;gap:8px}
+  .statebox .k{color:var(--muted)}
+  .statebox .v{font-weight:650;text-align:right}
+  .checklist{font-size:8.5px;line-height:1.65;color:#374151}
+  .checklist div{padding:3px 0;border-bottom:1px solid #F1F3F4}
+  .checklist div:last-child{border-bottom:0}
+  .checklist b{font-weight:650}
+  .console .footnote{font-size:7.5px;color:var(--muted);line-height:1.55;margin-top:9px;border-top:1px solid var(--line);padding-top:7px}
+  .phone-cap{font-size:10.5px;color:var(--muted);margin-top:7px;display:flex;justify-content:space-between}
+  .phone-cap b{color:var(--ink);font-weight:600}
+  .coverage{max-width:1180px;margin:0 auto;padding:8px 32px 60px}
+  .coverage h2{font-size:18px;margin:25px 0 10px}
+  table.cov{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  table.cov th,table.cov td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:10px;vertical-align:top;line-height:1.55}
+  table.cov th{background:#F8FAFC;font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  table.cov tr:last-child td{border-bottom:0}
+  .rules{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 18px;font-size:10.5px;line-height:1.75;color:#374151}
+  .rules ol{margin:6px 0 0;padding-left:18px}
+  .rules li{margin-bottom:5px}
+  .footer-note{max-width:1180px;margin:0 auto;padding:0 32px 50px;font-size:9px;color:var(--muted);line-height:1.6}
+  @media(max-width:1200px){.pam:not(.demo-wrap){width:100%;min-width:0}.demo-wrap.pam{grid-template-columns:1fr;justify-items:start}}
+  @media(max-width:900px){.pam-side{width:150px}}
+
+/* RE8/RE9 App preview: source color #0355D5, existing Home/Services/Lio/Message/Me structure. */
+.phone{--blue:#0355D5;--blue-dark:#0346AC;--blue-soft:#EAF1FC;--ink:#181818;--muted:#666;--bg:#F5F5F5}
+.phone .nav{min-height:54px;flex-basis:54px}.phone .nav .t{font-size:17px}.phone .nav .s{font-size:11px}
+.phone .nav .back,.phone .nav .r{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.phone .nav .r{font-size:13px}.phone .phone-body{padding:16px 16px 100px;line-height:1.55}
+.phone .small,.phone .hint,.phone .infobox,.phone .demo-note{font-size:12px;line-height:1.55}
+.phone .btn,.phone .qchip{min-height:44px;font-size:14px;border-radius:8px}.phone .field .l{font-size:14px}
+.phone .input,.phone .inputwrap input{font-size:16px;min-height:44px}.phone .unit button,.phone .seg button{min-height:44px;font-size:13px}
+.phone .disc{font-size:11px;line-height:1.55}.phone .tag{font-size:10px}.phone .factgrid{font-size:12px}.phone .factgrid .k{font-size:10px}
+.phone .sec{font-size:14px}.phone .card{padding:14px;margin-bottom:12px}.phone .basis{font-size:11px}.phone .basis th{font-size:9px}
+.phone .trow{grid-template-columns:1.1fr .8fr .9fr 1.1fr .9fr;font-size:10px;gap:4px;padding:9px 5px}.phone .trow.head{font-size:9px}
+.phone .bottombar{padding-bottom:24px}.phone button:focus-visible,.phone [role=button]:focus-visible,.phone a:focus-visible{outline:3px solid #0355D5;outline-offset:2px}
+.phone .app-context{padding:16px;background:#F5F5F5;flex:1;overflow:auto}
+.phone .app-context h1{font-size:26px;line-height:1.2;margin:8px 0 6px}.phone .app-context h2{font-size:18px;margin:22px 0 10px}
+.phone .app-eyebrow{font-size:12px;color:#666}.phone .app-project{font-size:18px;font-weight:700;margin-bottom:6px}
+.phone .app-card{padding:18px;background:#fff;border-radius:8px;margin-top:14px;border:1px solid #E5E5E5}
+.phone .app-card p{font-size:14px;margin:6px 0 14px;color:#666}.phone .app-card h3{font-size:18px;margin:0}
+.phone .app-link-row{display:flex;align-items:center;justify-content:space-between;min-height:54px;border:0;border-bottom:1px solid #eee;background:white;color:#181818;width:100%;font:inherit;font-size:15px;text-align:left;padding:10px 0;text-decoration:none}
+.phone .app-dock{flex:0 0 80px;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;padding:4px 8px 18px;background:#fff;border-top:1px solid #eee}
+.phone .app-dock a,.phone .app-dock button{min-height:48px;border:0;background:none;display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:10px;color:#666;gap:3px;cursor:pointer;font-family:inherit}
+.phone .app-dock .selected{color:#0355D5}.phone .app-dock img{width:24px;height:24px;object-fit:contain}.phone .app-dock .lio img{width:48px;height:48px}
+.phone .app-context-note{font-size:12px;color:#666;line-height:1.5;margin-top:16px}
+.phone .hero h4{font-size:20px}.phone .hero{padding:16px}.phone .hero .eyebrow,.phone .hero .meta,.phone .hero .more{font-size:12px}
+.phone .tabs button{font-size:14px;min-height:44px}.phone .row{padding:16px 0}.phone .row .t{font-size:15px}.phone .row .m{font-size:11px;flex-wrap:wrap}
+.phone .pcard{padding:14px;margin-bottom:12px}.phone .pcard .t{font-size:15px}.phone .pcard .s{font-size:12px}.phone .badge{font-size:11px}.phone .section b,.phone .section span{font-size:11px}
+.phone .phone-body h1{font-size:25px;line-height:1.3}.phone .dek{font-size:15px}.phone .bodytext{font-size:15px;line-height:1.75}.phone .bodytext p{margin:14px 0}
+.phone .stats .stat .v{font-size:18px}.phone .stats .stat .k{font-size:11px}.phone .h5{font-size:15px}.phone .source .n{font-size:13px}.phone .source .d,.phone .source .ev{font-size:11px}
+.phone .article-kicker,.phone .demobanner{font-size:11px}.phone .chat-body{padding:16px}.phone .bub{font-size:14px;line-height:1.65;padding:13px;max-width:94%}
+.phone .cite{font-size:11px}.phone .ctx{font-size:12px;border-radius:8px}.phone .chat-head .who{font-size:16px}.phone .chat-head .sub{font-size:12px}
+.phone .follow .qchip{font-size:13px;min-height:44px}.phone .composer input{font-size:16px;min-height:44px}.phone .composer .cbtn{min-width:44px;min-height:44px;font-size:13px}
+.phone .cta button{min-height:48px;font-size:15px}.phone .setrow .t{font-size:15px}.phone .setrow .s{font-size:12px}.phone .setrow{min-height:64px}
+.phone .toggle{outline-offset:6px}.phone .empty-state{font-size:13px}.phone .empty-state b{font-size:16px}.phone .empty-state button{font-size:14px;min-height:44px}
+@media(max-width:600px){
+ body[data-preview-mode="cend"] .page-head,body[data-preview-mode="cend"] .console,body[data-preview-mode="cend"] .coverage,body[data-preview-mode="cend"] .caption{display:none}
+ body[data-preview-mode="cend"] .demo-wrap{display:block;padding:0;margin:0;max-width:none}
+ body[data-preview-mode="cend"] .phone-col{position:static}
+ body[data-preview-mode="cend"] .phone{width:100%;height:100dvh;min-height:0;border-radius:0;border:0;box-shadow:none}
+ body[data-preview-mode="cend"] .stage{width:100%;max-width:none}
+}
+
+
+.phone .btn{display:flex;align-items:center;justify-content:center;width:100%;padding:12px;border:1px solid #E5E5E5;background:#fff;color:#181818;font-family:inherit;font-weight:650;text-align:center;cursor:pointer;text-decoration:none}
+.phone .btn.blue{background:#0355D5;border-color:#0355D5;color:#fff}
+.phone .linkbtn{border:0;background:transparent;color:#0355D5;min-height:44px;font-family:inherit;font-size:13px;cursor:pointer;padding:0 4px}
+
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <div class="kicker">RE9 · AI Property Insights · Interactive prototype v0.3</div>
+  <h1>AI 舆情 — 可操作原型</h1>
+  <p>按本地 RE9 快照（版本 3）补齐：双轨内容、3–4 个推荐问题、Article_ID 上下文交接、PAM 项目配置与四态审核、驳回原因与重写、发布与推送状态区分、每日频控与关闭 Push 后列表仍可读。所有文章、来源、人数与推送均为演示数据，不是真实新闻或真实送达。</p>
+  <div class="meta">
+    <span class="pill">2026-11-13</span>
+    <span class="pill">RE8／RE9快照 · 本轮确认规则已同步</span>
+    <span class="pill">可点击 · 本地模拟</span>
+    <span class="pill">Demo data</span>
+  </div>
+</header>
+
+<main class="demo-wrap" id="demoWrap">
+  <div class="stage" id="stage"></div>
+
+  <aside class="console">
+    <h2>Review console</h2>
+    <div class="sub">切换场景只用于评审，不是产品流程。C 端与 PAM 各自保留本地状态。</div>
+    <div class="mode-tabs" id="modeTabs">
+      <button data-action="mode" data-mode="cend" class="on">C-end app</button>
+      <button data-action="mode" data-mode="pam">PAM ops</button>
+    </div>
+
+    <div class="label">Demo actions</div>
+    <div class="scenarios" id="actions"></div>
+
+    <div class="label">Current state</div>
+    <div class="statebox" id="statebox"></div>
+
+    <div class="label">What to verify</div>
+    <div class="checklist" id="checklist"></div>
+
+    <div class="label">Demo links</div>
+    <div style="font-size:9px;line-height:1.9">
+      <div><a href="https://kcnd4ywblq18.feishu.cn/wiki/CQyIwzgVeiyebvkdBQNcsV6XnDc" target="_blank" rel="noopener">Open requirement mapping →</a></div>
+      <div><a href="index.html">Back to review index →</a></div>
+    </div>
+
+    <div class="footnote">本地模拟不含真实抓取、AI 调用、审核账号、推送通道或用户权限。文章、来源、推送人数与状态均为演示。PAM 的“发布”与“推送”是两条独立状态，不代表真实送达。C-end 与 PAM 使用独立演示数据，PAM 发布不会改动 C-end 列表。</div>
+  </aside>
+</main>
+
+<section class="coverage">
+  <h2>Screen & state coverage</h2>
+  <table class="cov">
+    <tr><th style="width:70px">Screen</th><th style="width:250px">What is interactive</th><th>Requirement coverage</th></tr>
+    <tr><td><b>N1</b> Property News</td><td>Daily Brief / My Projects tabs; open articles; settings.</td><td>General brief + project-specific aggregation; no user profiling; push-off still keeps list.</td></tr>
+    <tr><td><b>N2</b> Article</td><td>3 recommended questions; source list; project attribution; demo disclaimer.</td><td>3–4 questions; source count matches list; name/date/evidence; project-only isolation.</td></tr>
+    <tr><td><b>N3</b> Domus</td><td>Question → article-specific answer; different articles keep different contexts; custom input.</td><td>Silent Article_ID; 3–4 sentence answer; no article re-telling; sources separated.</td></tr>
+    <tr><td><b>N4</b> Project Insights</td><td>Only The Landmark articles; back to list; ask Domus.</td><td>Project page isolation; project attribution; no unrelated project content.</td></tr>
+    <tr><td><b>N5</b> PAM</td><td>Projects → generate → pending review; edit, reject with reason, regenerate, approve; push sent/skipped/failed.</td><td>Four states; target audience; cap check; published vs push; multi-project priority open.</td></tr>
+    <tr><td><b>N6</b> Settings</td><td>Master push, daily brief, project updates toggles.</td><td>1 general + 1 project max per day; push off still updates list; no extra project quota.</td></tr>
+  </table>
+
+  <h2>Rules still to be decided</h2>
+  <div class="rules">
+    <ol>
+      <li><b>多项目绑定优先级</b>：每天只有 1 条项目专属 Push，但有多个绑定项目时先发哪个，RE9 未定义；原型不自行排序。</li>
+      <li><b>推送时段</b>：通用简报每日何时发布未定义；原型用 07:00 仅作演示。</li>
+      <li><b>审核 SLA 与权限</b>：谁审、多久审完、驳回后谁重写、是否留痕，未定义；原型只演示最小动作。</li>
+      <li><b>编辑能力</b>：富文本编辑器是否本期需要未确定；原型只做纯文本编辑，避免把选型写成已定需求。</li>
+      <li><b>来源链接</b>：生产需要可核验原文链接或证据位置；原型全部标“Demo / unverified”，不伪造 URL。</li>
+      <li><b>目标人数</b>：原型用 420 / 310 / 280 演示，真实受众口径与去重规则未定义。</li>
+      <li><b>情感评分</b>：RE9 / RE6 快照没有定义；本次不新增，不用 Positive/Watch 伪装成评分。</li>
+      <li><b>文章生成 Prompt</b>：推荐问题、项目归属、来源优先级仍需 PRD 细化；原型只验证交互。</li>
+    </ol>
+  </div>
+
+  <div class="footer-note">本地需求快照为 2026-11-03 导出的版本 3；本页不声称已核对飞书在线最新版本。录音只用于理解“通用舆情 + 项目专属 + 人工审核 + Domus 承接”的产品定位。所有文章、来源、日期、人数和推送结果均为演示数据。</div>
+</section>
+
+<script>
+const $ = (s, r=document) => r.querySelector(s);
+const esc = v => String(v==null?'':v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function statusBar(){ return `<div class="status"><span>9:41</span><span class="right"><i class="bar b1"></i><i class="bar b2"></i><i class="bar b3"></i><span class="battery"></span></span></div>`; }
+function homebar(){ return `<div class="homebar"></div>`; }
+function nav(title, sub='', right='', back='list'){
+  return `<div class="nav"><div class="back" data-action="back" data-screen="${back}">‹</div><div class="mid"><div class="t">${title}</div>${sub?`<div class="s">${sub}</div>`:''}</div><div class="r" data-action="back" data-screen="${back}">${right||'Back'}</div></div>`;
+}
+const ART = {};
+const S = (name, date, evidence, tag='demo') => ({name, date, evidence, tag});
+const Q = (q, a) => ({q, a});
+
+ART.G1 = {
+  id:'G1', type:'general', project:null,
+  kicker:'Daily Brief · 10 Nov 2026', title:'Prices up 0.8%, volume down 6%: what October’s resale data says',
+  short:'Prices up 0.8%, volume down 6%', summary:'Slower but steadier: what October’s data means for D03 owners.',
+  read:'3 min read', updated:'07:00',
+  stats:[['+0.8%','Median resale PSF'],['−6%','Transaction volume'],['1,284','Deals in October']],
+  body:`<p>October’s resale market was slower but not weaker. Median PSF held firm while transaction volume fell for a second month, led by District 3 and District 15.</p><ul><li>Volume fell 6% month on month; the drop is in deal count, not price.</li><li>New launch pricing stayed flat, narrowing the resale–new gap.</li><li>District 3 listings are taking about 11 days longer to move than in August.</li></ul><p>For owners, the practical risk is time-on-market rather than a sharp price correction. For buyers, the quieter market means more choice and more room to negotiate.</p>`,
+  sources:[
+    S('URA — private residential data','9 Nov 2026','Median PSF and transaction volume; demo data.','internal'),
+    S('CNA — Property','8 Nov 2026','Market commentary; demo source, no live link.'),
+    S('The Business Times — Real Estate','7 Nov 2026','Resale and new-launch comparison; demo source.'),
+    S('EdgeProp — market indices','7 Nov 2026','District-level supply and price indices; demo source.'),
+    S('99.co — resale listings','6 Nov 2026','Listing counts and time-on-market; demo source.'),
+    S('MAS — SORA statement','6 Nov 2026','Rate environment; demo source.')
+  ],
+  questions:[
+    Q('Does this affect my unit’s value?','For a 3-bedroom at The Landmark, October’s median held near S$2,040 psf, so this week’s data is unlikely to move your range much. The bigger risk is supply: 412 D03 units are listed, up 9% from September. For sellers, time-on-market matters more than price today.'),
+    Q('Should I sell now or wait?','Waiting has a cost: D03 listings are taking about 11 days longer to move than in August. If you need to sell in the next six months, price to the 2,040 psf median rather than the top of the range. If you can hold, watch the next two months of supply before deciding.'),
+    Q('How does this compare with District 15?','D03’s median is S$2,010 psf; D15 is S$1,760 psf in this demo set. D03 has tighter supply but a wider price spread, so a unit-level valuation matters more than the district average.')
+  ]
+};
+
+ART.G2 = {
+  id:'G2', type:'general', project:null,
+  kicker:'Policy · 10 Nov 2026', title:'MAS holds SORA outlook steady for Q4',
+  short:'MAS holds SORA outlook steady for Q4', summary:'Rates stay elevated, but the near-term path is steadier than last quarter.',
+  read:'2 min read', updated:'07:00',
+  stats:[['3.5%','Demo 3M SORA'],['0 bps','Q4 change'],['Q4 2026','Outlook']],
+  body:`<p>MAS kept its SORA outlook steady, pointing to a slower but still elevated rate environment in Q4. That is a pause, not a cut.</p><p>For owners with floating loans, the practical takeaway is to budget for a small buffer rather than assume financing costs will fall quickly. Fixed packages may still price in a premium for certainty.</p>`,
+  sources:[
+    S('MAS — monetary policy statement','6 Nov 2026','SORA outlook; demo source, no live link.'),
+    S('CNA — Business','5 Nov 2026','Rate commentary; demo source.'),
+    S('The Business Times — Markets','4 Nov 2026','Analyst expectations; demo source.')
+  ],
+  questions:[
+    Q('What does a steady SORA mean for my mortgage?','A steady SORA means your monthly instalment is unlikely to jump in Q4, but it stays elevated versus 2021–22. If you are on a floating package, budget for a small buffer rather than assuming cuts.'),
+    Q('Should I choose fixed or floating?','Fixed packages trade certainty for a small premium; floating packages keep the downside if SORA rises. The right choice depends on your loan size and holding period, not on a market call. This is general information, not financial advice.'),
+    Q('What should I watch next?','Watch the next MAS statement and the 3M SORA print. A single steady statement is not a trend; two consecutive cuts would be more meaningful.')
+  ]
+};
+
+ART.P1 = {
+  id:'P1', type:'project', project:'The Landmark',
+  kicker:'Project insight · The Landmark · 10 Nov 2026', title:'The Landmark: two units transact above S$2,100 psf',
+  short:'Two units transact above S$2,100 psf', summary:'Two mid-floor 3-bedroom sales cleared the 24-month median. A signal, not yet a trend.',
+  read:'3 min read', updated:'2h ago',
+  stats:[['S$2,120','psf · unit 1'],['S$2,145','psf · unit 2'],['S$2,040','24M median']],
+  body:`<p>Two 3-bedroom units at The Landmark changed hands at S$2,120 and S$2,145 psf in the first week of November, both above the project’s 24-month median of S$2,040 psf.</p><p>Both were mid-floor stacks facing the city, which typically clear 4–5% above the block median. That puts the transactions in line with the better stacks rather than a new price floor for the whole project.</p><ul><li>Both sales are within the 968–1,184 sqft area band used by the valuation.</li><li>Two transactions are a useful signal; they are not enough to re-rate every mid-floor unit.</li></ul>`,
+  sources:[
+    S('URA caveats','9 Nov 2026','Two matched transactions; demo internal data.','internal'),
+    S('EdgeProp','8 Nov 2026','Project listing context; demo source.'),
+    S('99.co','7 Nov 2026','Comparable asking prices; demo source.'),
+    S('The Business Times','6 Nov 2026','District 3 market context; demo source.')
+  ],
+  questions:[
+    Q('What does this mean for my block?','Mid-floor units at The Landmark cleared S$2,120–2,145 psf, about 4–5% above the 24-month median of S$2,040. That is a real signal for similar stacks, but two transactions are not a new floor.'),
+    Q('Are these prices sustainable?','Not yet. Two sales above S$2,100 psf show buyer appetite, but the sample is too small to call a trend. Watch whether the next three mid-floor sales hold above S$2,080.'),
+    Q('Should I get a valuation?','A valuation would use the 24-month matched sample, not just these two deals. It can tell you whether your unit sits above or below the block median.')
+  ]
+};
+
+ART.P2 = {
+  id:'P2', type:'general', project:null,
+  kicker:'Market · 10 Nov 2026', title:'District 3 resale supply climbs 9% in October',
+  short:'District 3 resale supply climbs 9% in October', summary:'More choice for buyers, longer time-on-market for sellers.',
+  read:'2 min read', updated:'5h ago',
+  stats:[['412','Listings'],['+9%','Month on month'],['11 days','Longer to move']],
+  body:`<p>District 3 resale listings rose 9% in October to 412 units. The increase is broad across older 99-year projects, with the sharpest jumps in the 1,000–1,200 sqft band.</p><p>More supply usually softens the top of the range before it moves the median. Buyers gain negotiating room; sellers face longer time-on-market unless the unit is priced to the block median.</p>`,
+  sources:[
+    S('EdgeProp — market data','7 Nov 2026','D03 listing counts; demo source.'),
+    S('99.co — resale listings','6 Nov 2026','Listing mix and asking prices; demo source.'),
+    S('URA — private residential data','5 Nov 2026','Transaction context; demo internal data.','internal')
+  ],
+  questions:[
+    Q('Will this push prices down?','More supply usually softens the top of the range before it moves the median. With 412 D03 listings, up 9%, buyers have more choice and sellers have less pricing power.'),
+    Q('How long will my unit take to sell?','Time-on-market is the first thing to move. D03 listings are already taking about 11 days longer than in August; a further 9% supply increase would likely extend that.'),
+    Q('Which projects are most affected?','The pressure is broadest in D03’s resale segment, especially older 99-year projects. New launches with deferred payment or incentives can divert buyers even if their headline psf is higher.')
+  ]
+};
+
+ART.P3 = {
+  id:'P3', type:'project', project:'The Landmark',
+  kicker:'Project insight · The Landmark · 10 Nov 2026', title:'New MRT exit at Havelock: what it changes',
+  short:'New MRT exit at Havelock: what it changes', summary:'A shorter walk could support demand, but the timeline is demo content and needs verification.',
+  read:'3 min read', updated:'1d ago',
+  stats:[['420m','To Havelock MRT'],['2027','Demo timeline'],['5','Sources']],
+  body:`<p>A new Havelock MRT exit could shorten the walk from parts of The Landmark, especially the mid- and high-floor stacks facing away from the expressway.</p><p>The effect is usually gradual and partly priced in before opening. Treat the 2027 date as illustrative until LTA publishes a confirmed project timeline.</p><div class="demobanner" style="margin-top:6px">Demo/unverified: this article is not a confirmed LTA announcement. Do not use it as a factual planning basis.</div>`,
+  sources:[
+    S('LTA — network map','9 Nov 2026','Station distance and exit context; demo/unverified.'),
+    S('URA Master Plan','8 Nov 2026','Planning context; demo source.'),
+    S('CNA — Transport','7 Nov 2026','Commuter impact; demo source.'),
+    S('The Business Times','6 Nov 2026','District connectivity; demo source.'),
+    S('StackedHomes','5 Nov 2026','Project review context; demo source.')
+  ],
+  questions:[
+    Q('Which stacks benefit most?','Mid- and high-floor stacks facing away from the expressway are the most likely beneficiaries, but this is a demo assumption, not a confirmed LTA plan. Verify the exit location and timeline before pricing it in.'),
+    Q('Is the new exit confirmed?','No. The demo source is not a confirmed official announcement. Treat the 2027 date as illustrative until LTA publishes the project timeline.'),
+    Q('Should I buy now because of this?','If the exit is confirmed, the effect is usually gradual and already partly priced in. Buyers should underwrite the current commute, not a future exit that may slip.')
+  ]
+};
+
+ART.P4 = {
+  id:'P4', type:'project', project:'The Landmark',
+  kicker:'Project insight · The Landmark · 10 Nov 2026', title:'The Landmark: rental yields hold at 3.2%',
+  short:'Rental yields hold at 3.2%', summary:'Gross yield is stable; net yield is lower after costs and vacancy.',
+  read:'2 min read', updated:'1d ago',
+  stats:[['3.2%','Gross yield'],['S$4,200','Median rent'],['3','Sources']],
+  body:`<p>Gross rental yields at The Landmark are holding near 3.2%, with a median monthly rent of about S$4,200 for a 3-bedroom unit in this demo set.</p><p>Net yield after maintenance, property tax, agent fees and vacancy is lower. A conservative underwrite is closer to 2.6–2.9%.</p>`,
+  sources:[
+    S('99.co — rental listings','6 Nov 2026','Median asking rent; demo source.'),
+    S('EdgeProp — rental data','5 Nov 2026','Yield estimate; demo source.'),
+    S('URA — private residential data','4 Nov 2026','Transaction context; demo internal data.','internal')
+  ],
+  questions:[
+    Q('What yield should I expect?','Gross yields are holding near 3.2%, but net yield after maintenance, tax and vacancy is lower. Use 2.6–2.9% for a conservative underwrite.'),
+    Q('Should I rent or sell?','Renting keeps the asset and the upside; selling converts to cash but gives up future rent. Run both against your holding period and financing cost before deciding. This is general information, not financial advice.'),
+    Q('What costs reduce the yield?','Maintenance, property tax, agent fees and vacancy are the main drags. A 3.2% gross yield can fall below 2.8% net in a normal year.')
+  ]
+};
+
+ART.P5 = {
+  id:'P5', type:'project', project:'The Landmark',
+  kicker:'Project insight · The Landmark · 10 Nov 2026', title:'The Landmark: what 6 recent sales say about pricing',
+  short:'What 6 recent sales say about pricing', summary:'The 24-month median is S$2,040 psf; the spread is wider than the headline.',
+  read:'3 min read', updated:'1d ago',
+  stats:[['6','Matched sales'],['S$2,040','Median PSF'],['S$2,105','High PSF']],
+  body:`<p>Six matched transactions in the last 24 months put The Landmark’s median at S$2,040 psf, with a range from S$2,000 to S$2,105 psf.</p><p>Floor, stack and view explain most of the spread. A mid-floor unit should be priced within the band unless it has a special view or renovation.</p>`,
+  sources:[
+    S('URA caveats','9 Nov 2026','6 matched transactions; demo internal data.','internal'),
+    S('EdgeProp','8 Nov 2026','Project listing context; demo source.'),
+    S('99.co','7 Nov 2026','Comparable asking prices; demo source.'),
+    S('The Business Times','6 Nov 2026','District market context; demo source.'),
+    S('StackedHomes','5 Nov 2026','Project review context; demo source.'),
+    S('CNA','4 Nov 2026','Market commentary; demo source.')
+  ],
+  questions:[
+    Q('Is S$2,040 psf the new normal?','S$2,040 psf is the 24-month median, not a ceiling. The six sales range from S$2,000 to S$2,105, so a mid-floor unit should be priced within that band unless it has a special view or renovation.'),
+    Q('Do high-floor units always command more?','High-floor units cleared the top of the range, but floor alone does not explain the spread; stack, view and condition matter. Two high-floor sales are not enough to price every high-floor unit at S$2,105.'),
+    Q('How would a valuation use this?','A valuation should use the matched 24-month sample and the unit’s floor segment, not the headline project median alone.')
+  ]
+};
+
+const I = {
+  tab:'cend', screen:'list', listTab:'daily', articleId:null, question:null, customQ:'', customA:'',
+  settings:{master:true}, pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{master:true}},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{master:true}}},
+  boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
+  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full', readerRole:'OWNER',verifiedRoles:['OWNER','TENANT'],buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:{schedule:'08:00 Asia/Singapore', sources:'Official first: URA + MAS + LTA + gov.sg; supplementary CNA + BT + EdgeProp; news 7 days', prompt:'ai_insight_general / ai_insight_project / ai_insight_followup · drafts prepared'}
+};
+
+const PROJECT_CATALOG = [
+  {project:'The Landmark', audienceCount:420},
+  {project:'Tembusu Grand', audienceCount:310},
+  {project:'Parc Clematis', audienceCount:280},
+  {project:'Normanton Park', audienceCount:180},
+  {project:'The Continuum', audienceCount:240},
+  {project:'Sky Everton', audienceCount:160}
+];
+
+const PAM_INIT = {
+  G1:{id:'G1', title:'October resale market: prices up 0.8%, volume down 6%', project:'—', sources:6, version:3, reviewedVersion:3, monitoring:false, status:'published', push:'sent', pushBatches:[{batchId:'G1-B1',version:3,project:'—',target:'All app users',status:'sent',eligible:12400,sent:12400,skipped:0,retries:0,day:'2026-11-10',at:'08:05'}], time:'08:05', audience:'All app users', audienceCount:12400, body:'October’s resale market was slower but not weaker. Median PSF held firm while transaction volume fell for a second month...'},
+  P6:{id:'P6', title:'The Landmark: October transactions update', project:'The Landmark', sources:4, version:1, reviewedVersion:null, monitoring:true, status:'pending_review', push:'not_sent', pushBatches:[], time:'06:20', audience:'Verified owners & residents', audienceCount:420, body:'Three 3-bedroom units at The Landmark changed hands at S$2,080–2,120 psf in October, around the 24-month median of S$2,040. Mid-floor stacks led the activity, while high-floor units continued to clear at a premium. The sample is still small; this is an update, not a new price floor.', rejectReason:'', pamQuestions:['What changed in October?','Does this change my unit’s range?','How does this compare with District 3?'], editSource:'URA caveats + EdgeProp + CNA + BT'},
+  T1:{id:'T1', title:'Tembusu Grand: new MRT exit within 400m', project:'Tembusu Grand', sources:0, version:0, reviewedVersion:null, monitoring:true, status:'pending_generation', push:'not_sent', pushBatches:[], time:'—', audience:'Verified owners & residents', audienceCount:310, body:'', rejectReason:'', pamQuestions:[], editSource:'LTA + URA + CNA + BT'},
+  C1:{id:'C1', title:'Parc Clematis: rental yields slip to 3.1%', project:'Parc Clematis', sources:3, version:1, reviewedVersion:null, monitoring:true, status:'rejected', push:'not_sent', pushBatches:[], time:'06:22', audience:'Verified owners & residents', audienceCount:280, body:'Rental yields at Parc Clematis slipped to 3.1% in October as asking rents softened. The change is small and based on a thin sample; the article should be rewritten with the latest URA rental data.', rejectReason:'Source date mismatch: URA figure is from August, not October.', pamQuestions:['Are yields still falling?','What is the net yield?','Should owners rent or sell?'], editSource:'CNA + EdgeProp + URA'},
+  F1:{id:'F1', title:'Normanton Park: 3-bedroom rents up 4% QoQ', project:'Normanton Park', sources:0, version:0, reviewedVersion:null, monitoring:true, status:'generation_failed', push:'not_sent', pushBatches:[], time:'06:25', audience:'Verified owners & residents', audienceCount:180, body:'', error:'Source timeout during generation', rejectReason:'', pamQuestions:[], editSource:'CNA + URA demo'}
+};
+let PAM = JSON.parse(JSON.stringify(PAM_INIT));
+PAM.G1.publishedAt='2026-11-10T08:04:00+08:00';PAM.G1.publishedVersion=PAM.G1.version;
+const DUTIES = {
+  full:{label:'Platform full duties', role:'PLATFORM_ADMIN (System Role) · demo duty', scope:'platform',
+    perms:['ai:insight:view','ai:insight:project:configure','ai:insight:generate','ai:insight:article:read','ai:insight:article:edit','ai:insight:article:review','ai:insight:article:publish','ai:insight:push:send','ai:insight:push:read','ai:insight:config:read','ai:insight:config:write']},
+  readonly:{label:'Platform read-only', role:'PLATFORM_ADMIN · simulated read-only', scope:'platform',
+    perms:['ai:insight:view','ai:insight:article:read','ai:insight:push:read','ai:insight:config:read']},
+  editor:{label:'Content editor', role:'Platform content editor · simulated', scope:'platform',
+    perms:['ai:insight:view','ai:insight:article:read','ai:insight:article:edit','ai:insight:project:configure','ai:insight:generate']},
+  reviewer:{label:'Review & publish', role:'Platform reviewer/publisher · simulated', scope:'platform',
+    perms:['ai:insight:view','ai:insight:article:read','ai:insight:article:review','ai:insight:article:publish','ai:insight:push:send','ai:insight:push:read']},
+  project:{label:'Project-scoped editor', role:'Project editor · The Landmark only', scope:'project:The Landmark',
+    perms:['ai:insight:view','ai:insight:article:read','ai:insight:article:edit','ai:insight:project:configure','ai:insight:generate']},
+  property:{label:'Property operations', role:'ROLE_OPS_STAFF · no platform AI ops', scope:'company', perms:[]}
+};
+
+function projectIds(){ return ['P1','P3','P4','P5'].concat(ART.P6?['P6']:[]); }
+function projectCount(){ return projectIds().filter(id=>canReadArticle(ART[id])).length; }
+function publishToCend(a){
+  if(a.id!=='P6') return false;
+  const sourceNames=(a.editSource||'URA caveats + EdgeProp + CNA + BT').split('+').map(x=>x.trim()).filter(Boolean);
+  const sourceList=sourceNames.map((name,i)=>S(esc(name),'10 Nov 2026','Published from PAM v'+a.version+'; demo source.',/ura/i.test(name)?'internal':'demo'));
+  a.sources=sourceList.length;
+  const qs=(a.pamQuestions&&a.pamQuestions.length?a.pamQuestions:['What changed in this update?','Does this change my unit’s range?','How does this compare with District 3?']);
+  const first=(a.body||'').split('. ')[0]+'.';
+  const questions=qs.map((q,i)=>Q(esc(q),
+    i===0?`The approved v${a.version} update says: ${first}`:
+    i===1?`The approved change is based on the v${a.version} snapshot. It is a local demo and does not call a live model.`:
+    `Compare it with the 24-month median and the article sources; this demo does not provide a live market call.`));
+  ART.P6={
+    id:'P6', type:'project', project:'The Landmark',
+    kicker:'Project insight · The Landmark · 10 Nov 2026',
+    title:esc(a.title), short:esc(a.title),
+    summary:'Published from the PAM review flow. The article is visible in the project list; push is a separate state.',
+    read:'2 min read', updated:'just now',
+    stats:[[String(sourceList.length),'Sources'],['S$2,040','24M median PSF']],
+    body:`<p>${esc(a.body)}</p><p>This is a local demo article published from the PAM console. It is not a real news story; sources and dates are sample data.</p>`,
+    sources:sourceList, questions
+  };
+  return true;
+}
+function canReadArticle(a){return !!a&&(a.type!=='project'||I.boundProjects.includes(a.project));}
+function roleOptions(){return ['GENERAL',...(I.boundProjects.length?I.verifiedRoles:[]),...(I.buyerIntent?['BUYER']:[])];}
+function articleQuestions(a){
+ const role=roleOptions().includes(I.readerRole)?I.readerRole:'GENERAL';
+ if(role==='OWNER')return a.questions;
+ const label=role==='TENANT'?'as a tenant':role==='BUYER'?'for my current buying question':'about this update';
+ return [Q('What is supported by this article '+label+'?',a.summary+' Sources and dates are demo evidence; no real model is connected.'),Q('Which evidence should I verify '+label+'?','Verify the dated sources attached to this article before relying on its claims. Your role does not add evidence or grant access.'),Q('What are the limits of this update '+label+'?','This article is reference information, not legal or financial advice. It does not determine an individual unit price or mandate authority.')];
+}
+function accessDeniedArticle(){return `${statusBar()}${nav('Property News','Access unavailable','Back','list')}<div class="phone-body"><div class="infobox">A current effective project binding is required to read this project article or ask about it. General news remains available.</div></div>${homebar()}`;}
+function firstProjectForUser(uid){
+ return Object.values(PAM).filter(a=>a.project!=='—'&&a.status==='published'&&a.publishedAt&&a.publishedAt.slice(0,10)===I.pushDay&&a.publishedVersion===a.version&&['not_sent','failed'].includes(a.push)&&pushAudience(a).some(([id])=>id===uid)).sort((a,b)=>a.publishedAt.localeCompare(b.publishedAt)||a.id.localeCompare(b.id))[0];
+}
+
+function articleRow(id){
+  const a=ART[id];if(!canReadArticle(a))return '';
+  return `<div class="row" data-action="openArticle" data-id="${id}"><div class="t">${a.title}</div><div class="m"><span class="tag ${a.type==='project'?'blue':''}">${a.type==='project'?'Project':'Market'}</span><span>${a.sources.length} sources · ${a.updated}</span></div></div>`;
+}
+
+function articlePick(a){
+  if(!canReadArticle(a))return '';
+  return `<div class="row" data-action="openArticle" data-id="${a.id}"><div class="t">${a.title}</div><div class="m"><span class="tag ${a.type==='project'?'blue':''}">${a.type==='project'?'Project':'Market'}</span><span>${a.sources.length} sources · ${a.updated}</span></div></div>`;
+}
+
+function feedStateBlock(){
+  if(I.feedState==='loading') return `<div class="skeleton h28"></div><div class="skeleton w70"></div><div class="skeleton w45"></div><div class="skeleton h28" style="margin-top:12px"></div><div class="skeleton w70"></div><div class="skeleton w45"></div>`;
+  if(I.feedState==='error') return `<div class="empty-state"><b>Could not load Property News</b>This is a simulated feed error. The rest of the app is still available.<button data-action="retryFeed">Retry</button></div>`;
+  if(I.feedState==='empty') return `<div class="empty-state"><b>No published articles yet</b>When an article is published, it will appear here. Push is separate and is not required for reading.<button data-action="resetFeed">Reset demo feed</button></div>`;
+  return null;
+}
+function renderAppDock(selected){
+ const data=[['Home','home','ai-insights.html?view=appHome'],['Services','serves',null],['Lio','ai','ai-insights.html?view=appAssistant'],['Message','message',null],['Me','me','ai-valuation.html?view=appMe']];
+ return '<nav class="app-dock" aria-label="App main navigation">'+data.map(([label,key,url])=>{const chosen=label===selected;const img=key==='ai'?'ailogo.png':'table_'+key+'_icon'+(chosen?'_s':'')+'.png';const body='<img src="app-assets/'+img+'" alt=""/><span>'+label+'</span>';return url?'<a href="'+url+'" class="'+(chosen?'selected ':'')+(key==='ai'?'lio':'')+'" '+(chosen?'aria-current="page"':'')+'>'+body+'</a>':'<button data-action="outsidePreview" aria-label="'+label+'">'+body+'</button>';}).join('')+'</nav>';
+}
+function renderAppHome(){return `${statusBar()}<div class="app-context"><div class="app-eyebrow">LiveoHome · Preview</div><h1>Home</h1><div class="app-card"><div class="app-project">The Landmark</div><span class="tag blue">Verified binding · demo</span><p>Your project, news and property services.</p><button class="app-link-row" data-action="listTab" data-tab="projects">Project insights <span>View</span></button></div><h2>Property News</h2><div class="app-card"><h3>Daily Brief</h3><p>Singapore residential market updates, with sources and questions you can ask.</p><button class="btn blue" data-action="listTab" data-tab="daily">Read Property News</button></div><p class="app-context-note">Demo content. Published articles stay available when notifications are off.</p></div>${renderAppDock('Home')}${homebar()}`;}
+function renderAppAssistant(){return `${statusBar()}${nav('Lio','Liveo AI','','appHome')}<div class="phone-body"><div class="app-card"><img src="app-assets/ailogo.png" width="52" height="52" alt="Lio"/><h1>How can I help?</h1><p>Choose a property task to get started.</p><button class="qchip" data-action="listTab" data-tab="daily">Read the latest Property News</button><a class="qchip" href="ai-valuation.html">Get a property valuation</a></div><div class="infobox">To ask about an article, open it and select one of its questions. The article stays attached to that conversation.</div><p class="app-context-note">Preview · Property insights and valuation.</p></div>${homebar()}`;}
+
+function renderList(){
+  const a=ART.G1;
+  if(I.listTab==='projects'&&!I.boundProjects.length)return `${statusBar()}${nav('Property News','My Projects','Home','appHome')}<div class="phone-body"><div class="infobox">No active project binding. Project articles are unavailable.</div><button class="btn" data-action="listTab" data-tab="daily">Read Daily Brief</button></div>${homebar()}`;
+  const state=feedStateBlock();
+  if(state){
+    return `${statusBar()}
+    ${nav("Property News","AI insights","Home","appHome")}<div class="appbar"><span class="demo-pill">Demo feed</span><button class="linkbtn" data-action="settings">Notifications</button></div>
+    <div class="phone-body">
+      <div class="tabs"><button data-action="listTab" data-tab="daily" class="${I.listTab==='daily'?'on':''}">Daily Brief</button><button data-action="listTab" data-tab="projects" class="${I.listTab==='projects'?'on':''}">My Projects</button></div>
+      ${state}
+    </div>
+    ${homebar()}`;
+  }
+  return `${statusBar()}
+  ${nav("Property News","AI insights","Home","appHome")}<div class="appbar"><span class="demo-pill">Demo feed</span><button class="linkbtn" data-action="settings">Notifications</button></div>
+  <div class="phone-body">
+    <div class="tabs"><button data-action="listTab" data-tab="daily" class="${I.listTab==='daily'?'on':''}">Daily Brief</button><button data-action="listTab" data-tab="projects" class="${I.listTab==='projects'?'on':''}">My Projects</button></div>
+    ${I.listTab==='daily'?`
+      <div class="hero" data-action="openArticle" data-id="G1">
+        <div class="eyebrow">Daily Brief · 10 Nov</div>
+        <h4>${a.title}</h4>
+        <div class="meta">${a.read} · ${a.sources.length} sources · Updated ${a.updated}</div>
+        <span class="more">Read brief →</span>
+      </div>
+      <div class="section"><b>My Projects</b><span>${I.boundProjects.length} bound</span></div>
+      <div class="pcard" data-action="listTab" data-tab="projects">
+        <img src="app-assets/table_home_icon_s.png" width="24" height="24" alt=""/><div><div class="t">The Landmark</div><div class="s">${projectCount()} articles this week · ${unreadBadge()}</div></div><div class="badge">${unreadProjectCount()?unreadProjectCount()+' new':'All read'}</div>
+      </div>
+      <div class="section"><b>Latest</b><span>${4+(ART.P6?1:0)} updates</span></div>
+      ${articleRow('G2')}${articleRow('P1')}${articleRow('P2')}${articleRow('P4')}${ART.P6?articleRow('P6'):''}
+      <div class="infobox" style="margin-top:9px;margin-bottom:0">Daily Brief is generated at 08:00 SGT; no catch-up notification after 10:00. Project articles are reviewed before push. <span style="color:var(--blue)">Manage in Settings</span></div>
+    `:`
+      <div class="pcard" style="background:#F8FBFF;border-color:#D2E3FC;cursor:default">
+        <img src="app-assets/table_home_icon_s.png" width="24" height="24" alt=""/><div><div class="t">The Landmark</div><div class="s">173 Chin Swee Road · District 3 · ${projectCount()} articles</div></div><div class="badge">${unreadBadge()}</div>
+      </div>
+      <div class="section"><b>Project insights</b><span>${projectCount()} articles · ${unreadBadge()}</span></div>
+      ${articlePick(ART.P1)}${articlePick(ART.P3)}${articlePick(ART.P4)}${articlePick(ART.P5)}${ART.P6?articlePick(ART.P6):''}
+      <div class="infobox">Only project-specific articles appear here. General briefs stay in Daily Brief.</div>
+      <div class="section"><b>Sources monitored</b><span>This week</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px"><span class="tag">URA</span><span class="tag">CNA</span><span class="tag">BT</span><span class="tag">EdgeProp</span><span class="tag">MAS</span><span class="tag">LTA</span></div>
+      <div class="section"><b>Ask Domus</b><span>About this project</span></div>
+      <div class="qchip" data-action="openArticle" data-id="P1">How is The Landmark performing vs District 3?</div>
+    `}
+  </div>
+  
+  ${homebar()}`;
+}
+
+function renderArticle(){
+  const a=ART[I.articleId] || ART.G1;
+  if(!canReadArticle(a))return accessDeniedArticle();
+  return `${statusBar()}
+  ${nav(a.type==='project'?a.project:'Daily Brief', a.type==='project'?'Project insight':'Daily Brief', 'Back', 'list')}
+  <div class="phone-body">
+    <div class="article-kicker"><span>${a.kicker}</span><span class="tag demo">DEMO CONTENT</span></div>
+    <h1>${a.title}</h1>
+    <div class="dek">${a.summary}</div>
+    <div class="demobanner">Demo article for prototype review — not a real news story. Sources and dates are sample data.</div>
+    <div class="stats">${a.stats.map(s=>`<div class="stat"><div class="v">${s[0]}</div><div class="k">${s[1]}</div></div>`).join('')}</div>
+    <div class="bodytext">${a.body}</div>
+    <div class="h5">Sources (${a.sources.length})</div>
+    <div class="sources">${a.sources.map(s=>`<div class="source"><div class="top"><span class="n">${s.name}</span><span class="d">${s.date}</span></div><div class="ev">${s.evidence} <span class="tag ${s.tag==='internal'?'internal':'demo'}">${s.tag==='internal'?'Demo internal data':'Demo / unverified'}</span></div></div>`).join('')}</div>
+    <div class="disc">The information provided is for reference only and does not constitute official legal or financial advice.</div>
+    <div class="ask">
+      <div class="h5">Ask AI about this</div><div class="seg">${roleOptions().map(r=>`<button data-action="readerRole" data-role="${r}" class="${I.readerRole===r?'on':''}">${r}</button>`).join('')}</div>
+      ${articleQuestions(a).map((q,i)=>`<div class="qchip" data-action="ask" data-q="${i}">${q.q}</div>`).join('')}
+    </div>
+    <div class="infobox" style="margin-bottom:0">Choose a question to continue with this article attached.</div>
+  </div>
+  <div class="cta"><button data-action="openDomus">Ask AI</button></div>
+  ${homebar()}`;
+}
+
+function renderDomus(){
+  const a=ART[I.articleId] || ART.G1;
+  if(!canReadArticle(a))return accessDeniedArticle();
+  const q=articleQuestions(a)[I.question];
+  const loading=I.customState==='loading';
+  return `${statusBar()}
+  ${nav('Lio','Article question','Back','article')}
+  <div class="chat-head"><img src="app-assets/ailogo.png" width="36" height="36" alt="Lio"/><div><div class="who">Lio</div><div class="sub">AI property assistant · demo</div></div></div>
+  <div class="chat-body" aria-live="polite">
+    <div class="ctx">↩ Context attached: “${esc(a.short)}”</div>
+    ${q?`<div class="bub user">${esc(q.q)}</div><div class="bub ai">${esc(q.a)}<span class="cite">Source: ${esc(a.sources.slice(0,2).map(s=>s.name+' · '+s.date).join(' · '))}. Demo answer, not a live model.</span></div>`:`
+      <div class="bub ai">Ask me about this article. I can answer the suggested questions below with the article context attached. <span class="cite">Article context is passed silently; no real session is created.</span></div>
+    `}
+    <div class="follow">${articleQuestions(a).map((x,i)=>i===I.question?'':`<div class="qchip" data-action="ask" data-q="${i}">${esc(x.q)}</div>`).join('')}</div>
+    ${I.customQ?`<div class="bub user" style="margin-top:8px">${esc(I.customQ)}</div>${loading?`<div class="bub ai">Thinking…<span class="cite">Simulated model latency; no live call.</span></div>`:I.customA?`<div class="bub ai">${esc(I.customA)}<span class="cite">Demo answer · not a live model.</span></div>`:''}`:''}
+    ${I.customError?`<div class="infobox" style="border-color:#FAD2CF;background:#FEF7F6;color:#A50E0E">${esc(I.customError)}</div>`:''}
+    <div class="infobox" style="margin-top:8px;margin-bottom:0">The answer uses this article’s context and does not repeat the full article. This demo answers the recommended questions; a live model is not connected.</div>
+  </div>
+  <div class="composer"><input id="chatInput" maxlength="240" placeholder="Ask about this article…" /><div class="cbtn" data-action="openArticle" data-id="${a.id}">◉</div><div class="cbtn send" role="button" tabindex="0" data-action="sendCustom" ${loading?'aria-disabled="true"':''}>Send</div></div>
+  ${homebar()}`;
+}
+
+function renderSettings(){
+  return `${statusBar()}${nav('Notifications','Existing device preference','Back','list')}<div class="phone-body">
+  <div class="setrow"><div><div class="t">Push notifications</div><div class="s">Existing master preference and OS permission</div></div><button aria-label="Push notifications" class="toggle ${I.settings.master?'on':''}" data-action="toggle" data-key="master"></button></div>
+  <div class="infobox">${I.settings.master?'Push is on.':'Push is off.'} Daily Brief: at most 1/day. Project updates: at most 1/day across all bound projects. There are no separate Daily / Project preferences.</div>
+  <div class="section"><b>Current project bindings</b><span>${I.boundProjects.length} active</span></div>
+  <div class="infobox">Published general news remains readable with notifications off. Project articles require a current effective project binding; access ends after unbinding.</div></div>${homebar()}`;
+}
+
+function phone(){
+  if(I.screen==='appHome') return renderAppHome();
+  if(I.screen==='appAssistant') return renderAppAssistant();
+  if(I.screen==='list') return renderList();
+  if(I.screen==='article') return renderArticle();
+  if(I.screen==='domus') return renderDomus();
+  if(I.screen==='settings') return renderSettings();
+  return renderList();
+}
+
+function pamBadge(status){
+  return ({published:'<span class="tag green">Published</span>', approved:'<span class="tag approved">Approved · not published</span>', pending_review:'<span class="tag amber">Pending review</span>', generating:'<span class="tag amber">Generating</span>', pending_generation:'<span class="tag">Pending generation</span>', generation_failed:'<span class="tag red">Generation failed</span>', rejected:'<span class="tag red">Rejected &amp; rewrite</span>'})[status] || status;
+}
+function duty(){ return DUTIES[I.duty] || {label:'Unknown duty',role:'Denied by default',scope:'none',perms:[]}; }
+function hasPerm(code){ return duty().perms.includes(code); }
+function inScope(a){
+  const sc=duty().scope;
+  if(sc==='platform') return true;
+  if(sc.startsWith('project:')) return a && a.project===sc.split(':')[1];
+  return false;
+}
+function allowedPam(){ return Object.values(PAM).filter(inScope); }
+const N_ACTION_PERM={monitor:'ai:insight:project:configure',generate:'ai:insight:generate',edit:'ai:insight:article:edit',saveEdit:'ai:insight:article:edit',reject:'ai:insight:article:review',approve:'ai:insight:article:review',publish:'ai:insight:article:publish',push:'ai:insight:push:send',settings:'ai:insight:config:write'};
+function authN(action, art, platformOnly=false){
+  const perm=N_ACTION_PERM[action];
+  if(!perm) return {ok:false,reason:'unknown action'};
+  if(!hasPerm(perm)) return {ok:false,reason:'missing '+perm};
+  if(art && !inScope(art)) return {ok:false,reason:'object outside '+duty().scope};
+  if(platformOnly && duty().scope!=='platform') return {ok:false,reason:'platform scope required'};
+  return {ok:true};
+}
+function denyN(res){ I.pamToast='Blocked: '+res.reason+'. Local state was not changed.'; render(); return false; }
+function userPushSettings(id,u){ return id==='A' ? I.settings : (u.settings||{master:false}); }
+function pushAudience(a){ return Object.entries(I.pushUsers).filter(([id,u])=>a.project==='—'||u.projects.includes(a.project)); }
+function pushEligible(a){
+ if(a.status!=='published'||!a.publishedAt||a.publishedAt.slice(0,10)!==I.pushDay||a.publishedVersion!==a.version)return [];
+ if(a.project==='—'&&I.pushClock>='10:00')return [];
+ return pushAudience(a).filter(([uid,u])=>userPushSettings(uid,u).master&&(a.project==='—'?u.generalUsed<1:u.projectUsed<1&&firstProjectForUser(uid)?.id===a.id));
+}
+function pushBlockReason(a){
+ if(!a.publishedAt||a.publishedAt.slice(0,10)!==I.pushDay)return 'not a newly published version today; no carryover';
+ if(a.project==='—'&&I.pushClock>='10:00')return 'GENERAL catch-up cutoff 10:00 SGT; content remains readable';
+ const audience=pushAudience(a);if(!audience.length)return 'no current bound users';
+ if(audience.every(([id,u])=>!userPushSettings(id,u).master))return 'existing master preference is off';
+ return 'daily quota or an earlier published project version has priority';
+}
+function pushSummary(a){ const u=pushAudience(a); const e=pushEligible(a); return e.length+'/'+u.length+' sample users eligible'; }
+function generalPushToday(){ return Object.values(PAM).flatMap(a=>a.pushBatches||[]).filter(b=>b.project==='—'&&b.day===I.pushDay&&b.status==='sent').length; }
+function lastPushLabel(){
+  const rows=Object.values(PAM).flatMap(a=>(a.pushBatches||[]).map(b=>({a,b})));
+  if(!rows.length) return 'No push yet';
+  rows.sort((x,y)=>String(x.b.day+' '+x.b.at).localeCompare(String(y.b.day+' '+y.b.at)));
+  const r=rows[rows.length-1];
+  return r.b.batchId+' · '+r.b.day+' '+r.b.at;
+}
+function projectArticleIds(){ return ['P1','P3','P4','P5'].concat(ART.P6?['P6']:[]).filter(id=>ART[id]&&ART[id].project==='The Landmark'&&canReadArticle(ART[id])); }
+function unreadProjectCount(){ return projectArticleIds().filter(id=>!I.readArticles.includes(id)).length; }
+function unreadBadge(){ const n=unreadProjectCount(); return n?n+' unread':'All read'; }
+function firstAllowedId(){ const a=allowedPam()[0]; return a?a.id:null; }
+function setDuty(id){
+  I.duty=id; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast='';
+  const first=firstAllowedId(); I.pamSelected=first; I.pamView=hasPerm('ai:insight:view')?'queue':'noaccess';
+  render();
+}
+function noAccessPanel(code){
+  return `<div class="noaccess"><div class="ic">⊘</div><h3>No access to AI Property Services</h3><p>This simulated identity has no <code>${code}</code> permission. The menu and the page are both hidden in this state; a direct request would also be rejected by the backend guard in production.</p><p style="margin-top:8px">Current proposal: ${duty().role}；scope: ${duty().scope}. This is a local simulation, not a real account authorization.</p></div>`;
+}
+function syncInsightUrl(){ const u=new URL(location.href); if(I.tab==='pam') u.searchParams.set('mode','pam'); else u.searchParams.delete('mode'); history.replaceState(null,'',u); }
+function pushBadge(p){
+  return ({unknown:'<span class="tag amber">Unknown · quota held</span>', sent:'<span class="tag green">Submitted · not delivery</span>', not_sent:'<span class="tag">Not sent</span>', skipped:'<span class="tag amber">Skipped</span>', failed:'<span class="tag red">Failed</span>'})[p] || p;
+}
+
+function pamShell(inner){
+  const d=duty();
+  const title={projects:'Target Projects',queue:'Review Queue',review:'Review Article',pushlog:'Push Log',settings:'Generation Settings'}[I.pamView]||'Review Queue';
+  const crumb={projects:'AI Property Services / Target Projects',queue:'AI Property Services / Review Queue',review:'AI Property Services / Review Queue / Article',pushlog:'AI Property Services / Push Log',settings:'AI Property Services / Generation Settings'}[I.pamView]||'';
+  const chips=['ai:insight:view','ai:insight:article:read','ai:insight:article:review','ai:insight:push:send'];
+  return `<div class="pam">
+    <aside class="pam-side">
+      <div class="brand">Liveo Admin</div>
+      <div style="font-size:7px;color:var(--muted);padding:0 9px;margin:-8px 0 10px">AI Property Services</div>
+      <div class="navi ${I.pamView==='projects'?'on':''}" data-action="pamView" data-view="projects">Target Projects</div>
+      <div class="navi ${I.pamView==='queue'||I.pamView==='review'?'on':''}" data-action="pamView" data-view="queue">Review Queue <span class="badge">${allowedPam().filter(a=>a.status==='pending_review'||a.status==='approved').length}</span></div>
+      <div class="navi ${I.pamView==='pushlog'?'on':''}" data-action="pamView" data-view="pushlog">Push Log</div>
+      <div class="navi ${I.pamView==='settings'?'on':''}" data-action="pamView" data-view="settings">Generation Settings</div>
+      <div style="margin-top:auto;font-size:7px;color:var(--muted);padding:0 9px;line-height:1.45">SIMULATED ACCESS<br/>No real login, push or review</div>
+    </aside>
+    <div class="pam-main">
+      <div class="ops-context">
+        <div class="row1"><div><span class="demo-context-label">Demo context</span><span class="who">${d.label}</span> <span>· ${d.role} · scope: ${d.scope}</span></div><div class="crumb">${crumb}</div></div>
+        <details class="demo-perms"><summary>Simulated permissions · ${chips.filter(c=>hasPerm(c)).length}/${chips.length}</summary><div class="perms">${chips.map(c=>`<span class="permchip ${hasPerm(c)?'':'off'}">${c}</span>`).join('')}</div></details>
+      </div>
+      <div class="pam-top"><h3>${title}</h3><div class="u">SIMULATED · no backend</div></div>
+      <div class="pam-body">${inner}</div>
+    </div>
+  </div>`;
+}
+function renderPam(){
+  if(!hasPerm('ai:insight:view')) return `<div class="pam" style="height:620px"><div class="pam-main"><div class="pam-body">${noAccessPanel('ai:insight:view')}</div></div></div>`;
+  if((I.pamView==='queue'||I.pamView==='review') && !hasPerm('ai:insight:article:read')) return pamShell(noAccessPanel('ai:insight:article:read'));
+  if(I.pamView==='pushlog' && !hasPerm('ai:insight:push:read')) return pamShell(noAccessPanel('ai:insight:push:read'));
+  if(I.pamView==='settings' && !hasPerm('ai:insight:config:read')) return pamShell(noAccessPanel('ai:insight:config:read'));
+  if(I.pamView==='projects') return pamShell(renderPamProjects());
+  if(I.pamView==='pushlog') return pamShell(renderPamPushLog());
+  if(I.pamView==='settings') return pamShell(renderPamSettings());
+  if(I.pamView==='review') return pamShell(renderPamReview());
+  return pamShell(renderPamQueue());
+}
+function renderPamQueue(){
+  const all=allowedPam();
+  const q=(I.queueQuery||'').trim().toLowerCase();
+  const rows=all.filter(a=> (I.queueFilter==='all'||a.status===I.queueFilter) && (!q || (a.title+' '+a.project).toLowerCase().includes(q)));
+  const statusOptions=[['all','All statuses'],['pending_review','Pending review'],['approved','Approved · not published'],['published','Published'],['rejected','Rejected & rewrite'],['generation_failed','Generation failed'],['pending_generation','Pending generation'],['generating','Generating']];
+  return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
+  <div class="kpis">
+    <div class="kpi"><div class="v">${all.filter(a=>a.status==='pending_review').length}</div><div class="k">Pending review</div></div>
+    <div class="kpi"><div class="v">${all.filter(a=>a.status==='approved').length}</div><div class="k">Approved · not published</div></div>
+    <div class="kpi"><div class="v">${all.filter(a=>a.status==='published').length}</div><div class="k">Published</div></div>
+    <div class="kpi"><div class="v">1 + 1</div><div class="k">Push cap / user / day</div></div>
+  </div>
+  <div class="pam-filters">
+    <select id="pamQueueFilter">${statusOptions.map(([v,l])=>`<option value="${v}" ${I.queueFilter===v?'selected':''}>${l}</option>`).join('')}</select>
+    <input id="pamQueueSearch" placeholder="Search title or project" value="${esc(I.queueQuery)}" style="width:190px" />
+    <button class="pam-btn" data-action="pamQueueReset">Reset</button>
+  </div>
+  <div class="pam-table">
+    <div class="ptr head"><div>Title</div><div>Project</div><div>Ver.</div><div>Article</div><div>Push</div><div>Time</div></div>
+    ${rows.length?rows.map(a=>`<div class="ptr" data-action="pamSelect" data-id="${a.id}"><div><div class="ti">${esc(a.title)}</div><div class="sub">${a.project==='—'?'General brief · system auto-publish':a.status==='pending_generation'?'Not generated yet':a.status==='generating'?'Generating draft':a.status==='generation_failed'?'Generation failed':'Project-specific'}</div></div><div>${a.project}</div><div>v${a.version}</div><div>${pamBadge(a.status)}</div><div>${pushBadge(a.push)}</div><div>${a.time}</div></div>`).join(''):`<div class="empty-state" style="margin:0"><b>No articles match these filters</b>Reset the filters or generate a new article.<button data-action="pamQueueReset">Reset filters</button></div>`}
+  </div>
+  <div class="pam-note">Article status, version and push status are separate. “Published” does not mean every device received a notification. This list is filtered by the current simulated duty and project scope.</div>`;
+}
+
+function renderPamProjects(){
+  const canCfg=hasPerm('ai:insight:project:configure');
+  const canGen=hasPerm('ai:insight:generate');
+  const q=(I.projectQuery||'').trim().toLowerCase();
+  const target=I.targetProjects.filter(p=>inScope({project:p})).filter(p=>!q||p.toLowerCase().includes(q));
+  const addable=PROJECT_CATALOG.filter(x=>!I.targetProjects.includes(x.project) && inScope({project:x.project}));
+  const rows=target.map(project=>{
+    const a=Object.values(PAM).find(x=>x.project===project);
+    if(!a) return `<div class="project-card"><div><div class="t">${project}</div><div class="s">No article generated yet.</div></div><div class="right"><span class="tag">Not generated</span><button class="pam-btn" data-action="pamRemoveProject" data-project="${project}" ${canCfg?'':'disabled'}>Remove</button></div></div>`;
+    return `<div class="project-card"><div><div class="t">${a.project}</div><div class="s">${a.title}</div><div class="s">Source ref: lvoprop.project_info(id) · ${a.audienceCount} demo devices</div><div class="s">Last generated: ${a.time||'—'} · ${a.status}</div></div><div class="right"><span class="tag ${a.monitoring?'green':''}">${a.monitoring?'Monitoring':'Not monitored'}</span>${a.status==='pending_review'||a.status==='approved'?`<button class="pam-btn" data-action="pamSelect" data-id="${a.id}">Open review</button>`:a.status==='generating'?`<button class="pam-btn" disabled>Generating…</button>`:`<button class="pam-btn" data-action="pamGenerate" data-id="${a.id}" ${canGen?'':'disabled'}>${a.status==='pending_generation'?'Generate':a.status==='generation_failed'?'Retry generation':a.status==='rejected'?'Regenerate':'New version'}</button>`}<button class="pam-btn" data-action="pamMonitor" data-id="${a.id}" ${canCfg?'':'disabled'}>${a.monitoring?'Pause':'Monitor'}</button><button class="pam-btn danger" data-action="pamRemoveProject" data-project="${a.project}" ${canCfg?'':'disabled'}>Remove</button></div></div>`;
+  }).join('');
+  return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
+  <div class="pam-card"><div class="h">Target project configuration</div><div style="font-size:8.5px;color:#374151;line-height:1.6">Add or remove demo target projects. The first enable creates one simulated generation request. Repeat saves and re-enabling a project with existing content do not create another first request. No real scheduler or project config is called. Removing a project stops future monitoring; published articles stay in the queue and push log.</div>
+    <div class="pam-filters" style="margin-top:8px">
+      <input id="pamProjectSearch" placeholder="Search target projects" value="${esc(I.projectQuery)}" style="width:180px" />
+      <select id="pamAddProject" ${addable.length&&canCfg?'':'disabled'}>${addable.length?addable.map(x=>`<option value="${x.project}">${x.project}</option>`).join(''):'<option>All demo projects added</option>'}</select>
+      <button class="pam-btn primary" data-action="pamAddProject" ${addable.length&&canCfg?'':'disabled'}>Add project</button>
+    </div>
+    <div class="pam-note">Candidate list is limited to the current duty scope. HDB, commercial and industrial projects are excluded. Project IDs are demo labels, not real lvoprop IDs.</div>
+  </div>
+  ${rows||`<div class="empty-state"><b>No target projects</b>Add a project to start monitoring.<button data-action="pamProjectClearSearch">Clear search</button></div>`}
+  <div class="pam-note">Button disabled = current simulated duty lacks the permission; a direct request would also be rejected.</div>`;
+}
+
+function renderPamReview(){
+  const a=PAM[I.pamSelected] || PAM.P6;
+  if(!inScope(a)) return `<div class="pam-card"><div class="h">Out of scope</div><div class="pam-preview"><p>This article belongs to <b>${a.project}</b>, outside the current simulated scope <b>${duty().scope}</b>. The detail is not rendered even if the ID is supplied directly.</p></div></div>`;
+  const editing=I.pamEditing;
+  const canEdit=hasPerm('ai:insight:article:edit');
+  const canReview=hasPerm('ai:insight:article:review');
+  const canPublish=hasPerm('ai:insight:article:publish');
+  const canPush=hasPerm('ai:insight:push:send');
+  const canGen=hasPerm('ai:insight:generate');
+  const reviewOk=a.reviewedVersion===a.version;
+  const canRetrySkipped=a.push==='skipped' && pushEligible(a).length>0;
+  return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
+  <div style="margin-bottom:8px"><button class="pam-btn" data-action="pamView" data-view="queue">‹ Back to Review Queue</button></div>
+  <div class="pam-grid">
+    <div>
+      <div class="pam-card">
+        <div class="h">Preview · ${a.project==='—'?'General brief':a.project} · content v${a.version}</div>
+        <h2>${esc(a.title)}</h2>
+        <div style="font-size:8px;color:var(--muted);margin-bottom:6px">${a.sources} sources · generated ${a.time} · demo model v0.1 · review ${a.reviewedVersion?'v'+a.reviewedVersion:'pending'}</div>
+        ${editing?`<div style="font-size:8px;color:var(--muted);margin-bottom:3px">Title</div><input class="pam-input" id="pamEditTitle" value="${esc(a.title)}" /><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Body</div><textarea class="pam-textarea" id="pamEditBody">${esc(a.body)}</textarea><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Recommended questions (one per line)</div><textarea class="pam-textarea" id="pamEditQuestions">${esc((a.pamQuestions||[]).join('\n'))}</textarea><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Source correction note</div><input class="pam-input" id="pamEditSource" value="${esc(a.editSource||'')}" /><div class="pam-actions"><button class="pam-btn primary" data-action="pamSaveEdit">Save as new version</button><button class="pam-btn" data-action="pamCancelEdit">Cancel</button></div>`:`<div class="pam-preview">${a.body?`<p>${esc(a.body)}</p>`:'<p style="color:var(--muted)">Not generated yet. Start generation to create a draft for review.</p>'}${a.pamQuestions&&a.pamQuestions.length?`<div style="font-size:7.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:5px"><b>Recommended questions</b><ul style="margin:3px 0 0;padding-left:13px">${a.pamQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div>`:''}</div>`}
+      </div>
+      <div class="pam-card">
+        <div class="h">Source check</div>
+        <div class="pam-row"><span class="k">Sources attached</span><span class="v">${a.sources}</span></div>
+        <div class="pam-row"><span class="k">Source list</span><span class="v">${a.editSource||'—'}</span></div>
+        <div class="pam-row"><span class="k">No unit numbers or names</span><span class="v">✓ demo check</span></div>
+        <div class="pam-row"><span class="k">Disclaimer present</span><span class="v">✓ demo check</span></div>
+        <div class="pam-row"><span class="k">Source links verifiable</span><span class="v" style="color:var(--amber)">Demo / unverified</span></div>
+        <div class="pam-note">Production must attach real source links or evidence positions before approval.</div>
+      </div>
+      <div class="pam-card">
+        <div class="h">Version state</div>
+        <div class="pam-row"><span class="k">Current content</span><span class="v">v${a.version}</span></div>
+        <div class="pam-row"><span class="k">Reviewed version</span><span class="v">${a.reviewedVersion?'v'+a.reviewedVersion:'—'}</span></div>
+        <div class="pam-row"><span class="k">Last action</span><span class="v">demo.ops · ${a.time||'—'}</span></div><div class="pam-row"><span class="k">Publish allowed for current version</span><span class="v" style="color:${reviewOk&&a.status==='approved'?'var(--green)':'var(--amber)'}">${reviewOk&&(a.status==='approved'||a.status==='published')?'Yes':'No — review current version first'}</span></div>
+        <div class="pam-note">Editing or regenerating increments the version and clears the previous review. A published article is not reverted when a new draft is created.</div>
+      </div>
+    </div>
+    <div>
+      <div class="pam-card">
+        <div class="h">Status</div>
+        <div class="pam-row"><span class="k">Article</span><span class="v">${pamBadge(a.status)}</span></div>
+        <div class="pam-row"><span class="k">Push</span><span class="v">${pushBadge(a.push)}</span></div>
+        <div class="pam-row"><span class="k">Project</span><span class="v">${a.project}</span></div>
+        <div class="pam-row"><span class="k">Version</span><span class="v">v${a.version}</span></div><div class="pam-row"><span class="k">Source cut-off</span><span class="v">Not recorded (demo)</span></div>
+        <div class="pam-row"><span class="k">Live published</span><span class="v">${a.publishedVersion?'v'+a.publishedVersion:'—'}</span></div>
+        <div class="pam-row"><span class="k">Time</span><span class="v">${a.time}</span></div>
+      </div>
+      <div class="pam-card">
+        <div class="h">Audience &amp; cap</div>
+        <div class="pam-row"><span class="k">Audience</span><span class="v">${a.audience}</span></div>
+        <div class="pam-row"><span class="k">Demo devices</span><span class="v">${a.audienceCount.toLocaleString()}</span></div><div class="pam-row"><span class="k">Cohort sample</span><span class="v">${pushAudience(a).length} users · ${a.project==='—'?'general':'project'}</span></div>
+        <div class="pam-row"><span class="k">General push today</span><span class="v">${generalPushToday()} / 1 sent</span></div>
+        <div class="pam-row"><span class="k">Sample users</span><span class="v">${pushAudience(a).map(([id,u])=>u.label+' '+u.projectUsed+'/1').join(' · ')||'—'}</span></div>
+        <div class="pam-row"><span class="k">Eligible today</span><span class="v">${pushEligible(a).length} / ${pushAudience(a).length} sample users · ${I.pushDay}</span></div>
+        <div class="pam-note">Per-user cap: 1 general + 1 project = 2/day. Multiple bound projects do not add quota. A user already served for one project is not counted again; other eligible users can still receive the next project push.</div>
+      </div>
+      ${a.status==='generating'?`<div class="pam-card"><div class="h">Generating</div><div class="pam-note">Draft is being generated. It will move to Pending review when complete; this is a local timer, not a real model call.</div></div>`:''}
+      ${a.status==='pending_review'?`
+        <div class="pam-card"><div class="h">Review actions</div>
+          <div class="pam-actions">
+            ${canEdit?`<button class="pam-btn" data-action="pamEdit">Edit</button>`:`<button class="pam-btn" disabled>Edit · no permission</button>`}
+            ${canReview?`<button class="pam-btn danger" data-action="pamRejectOpen">Reject &amp; rewrite</button>`:`<button class="pam-btn" disabled>Reject · no permission</button>`}
+            ${canReview?`<button class="pam-btn primary" data-action="pamApprove">Approve v${a.version}</button>`:`<button class="pam-btn" disabled>Approve · no permission</button>`}
+          </div>
+          ${I.pamRejectOpen?`<div style="margin-top:8px">
+            <select class="pam-select" id="pamRejectReason"><option>Source date mismatch</option><option>Missing source</option><option>Tone / wording</option><option>Project attribution wrong</option><option>Other</option></select>
+            <textarea class="pam-textarea" id="pamRejectNote" style="margin-top:5px">${I.pamRejectNote}</textarea>
+            <div class="pam-actions"><button class="pam-btn danger" data-action="pamRejectConfirm">Confirm reject</button><button class="pam-btn" data-action="pamRejectCancel">Cancel</button></div>
+          </div>`:''}
+          <div class="pam-note">Plain-text edit for demo; rich-text editor choice is not decided. Rejection must record a reason. Whether editor and reviewer must be different people is still a business rule to confirm.</div>
+        </div>`:''}
+      ${a.status==='approved'?`
+        <div class="pam-card"><div class="h">Approved · not published</div>
+          <div class="pam-row"><span class="k">Reviewed version</span><span class="v">v${a.reviewedVersion}</span></div>
+          <div class="pam-row"><span class="k">Publish permission</span><span class="v">${canPublish?'Yes':'No'}</span></div>
+          <div class="pam-actions">${canPublish?`<button class="pam-btn primary" data-action="pamPublish">Publish v${a.version}</button>`:`<button class="pam-btn" disabled>Publish · no permission</button>`}${canEdit?`<button class="pam-btn" data-action="pamEdit">New version</button>`:''}</div>
+          <div class="pam-note">Approval only applies to v${a.version}. Publishing does not send a push; push is a separate permission and action.</div>
+        </div>`:''}
+      ${a.status==='rejected'?`
+        <div class="pam-card"><div class="h">Rejected &amp; rewrite</div><div class="pam-preview"><p><b>Reason:</b> ${esc(a.rejectReason||'Not recorded')}</p><p>The article is back in the rewrite queue. Regeneration creates a new version and returns it to pending review.</p></div><div class="pam-actions">${canGen?`<button class="pam-btn primary" data-action="pamGenerate" data-id="${a.id}">Regenerate draft</button>`:`<button class="pam-btn" disabled>Regenerate · no permission</button>`}</div></div>`:''}
+      ${a.status==='generation_failed'?`<div class="pam-card"><div class="h">Generation failed</div><div class="pam-preview"><p><b>Reason:</b> ${esc(a.error||'Not recorded')}</p><p>No draft was produced. Retry creates a new generation attempt; it does not publish anything.</p></div><div class="pam-actions">${canGen?`<button class="pam-btn primary" data-action="pamGenerate" data-id="${a.id}">Retry generation</button>`:`<button class="pam-btn" disabled>Retry · no permission</button>`}</div></div>`:''}
+      ${a.status==='pending_generation'?`
+        <div class="pam-card"><div class="h">Not generated</div><div class="pam-note">Start a simulated generation. It will move to pending review; no real AI call is made.</div><div class="pam-actions">${canGen?`<button class="pam-btn primary" data-action="pamGenerate" data-id="${a.id}">Generate article</button>`:`<button class="pam-btn" disabled>Generate · no permission</button>`}</div></div>`:''}
+      ${a.status==='published'?`
+        <div class="pam-card"><div class="h">Publish result</div>
+          <div class="pam-row"><span class="k">Article</span><span class="v" style="color:var(--green)">Published v${a.version}</span></div>
+          <div class="pam-row"><span class="k">Push</span><span class="v">${pushBadge(a.push)}</span></div>
+          <div class="pam-actions">
+            ${a.push==='not_sent'&&canPush?`<button class="pam-btn primary" data-action="pamPush">Send push</button>`:''}
+            ${a.push==='failed'&&canPush?`<button class="pam-btn primary" data-action="pamPush">Retry push</button>`:''}
+            ${a.push==='unknown'?`<div class="pam-note">Outcome unknown. Daily quota remains occupied; reconcile the original request before any further action.</div>`:''}
+            ${!canPush?`<span class="pam-note">Push send requires ai:insight:push:send.</span>`:''}${canEdit?`<button class="pam-btn" data-action="pamEdit">New version</button>`:''}
+            <button class="pam-btn" data-action="pamView" data-view="queue">Back to Review Queue</button>
+          </div>
+          ${a.push==='skipped'?`<div class="pam-note">Skipped: ${(a.pushBatches&&a.pushBatches.length?a.pushBatches[a.pushBatches.length-1].reason:'')||'no eligible users'}.</div>`:''}
+          ${a.push==='sent'?`<div class="pam-note">Batch sent to ${(a.pushBatches&&a.pushBatches.length?a.pushBatches[a.pushBatches.length-1].sent:0)}/${(a.pushBatches&&a.pushBatches.length?a.pushBatches[a.pushBatches.length-1].eligible:0)} eligible sample users; ${a.audienceCount.toLocaleString()} demo device estimate. Not a real delivery.</div>`:''}
+        </div>`:''}
+    </div>
+  </div>
+  <div class="pam-note">Publishing v${a.version} adds the article to the C-end project list when the local prototype state is shared; push is still separate. Other project articles are not auto-published. Server-side permission, idempotency and delivery are not verified.</div>`;
+}
+
+function renderPamSettings(){
+  const canWrite=hasPerm('ai:insight:config:write');
+  const d=I.pamSettings;
+  return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
+  <div class="pam-card"><div class="h">Generation settings · minimum scope</div>
+    <div style="font-size:8.5px;color:#374151;line-height:1.6">Only the minimum confirmed settings are exposed. The daily cap is fixed at 1 general + 1 project per user and is not configurable here. Source links and Prompt versions are demo values.</div></div>
+    <div class="pam-card"><div class="h">Daily generation</div><div class="pam-note">SG08:00 generation / SG10:00 GENERAL catch-up notification cutoff. Today-only project queue: published_at ASC, article_id ASC. Official first, seven-day news; unread or unknown-date sources are not verified. No mandatory two-person approval.</div>
+      <div class="pam-row"><span class="k">Schedule</span><span class="v"><input class="pam-input" id="cfgSchedule" value="${d.schedule}" style="width:180px" ${canWrite?'':'disabled'} /></span></div>
+      <div class="pam-row"><span class="k">Source scope</span><span class="v"><input class="pam-input" id="cfgSources" value="${d.sources}" style="width:300px" ${canWrite?'':'disabled'} /></span></div>
+      <div class="pam-row"><span class="k">Prompt version</span><span class="v"><input class="pam-input" id="cfgPrompt" value="${d.prompt}" style="width:220px" ${canWrite?'':'disabled'} /></span></div>
+      <div class="pam-row"><span class="k">Daily push cap</span><span class="v">1 general + 1 project = 2 / user / day</span></div>
+    </div>
+    <div class="pam-card"><div class="h">Permission check</div>
+      <div class="pam-row"><span class="k">ai:insight:config:read</span><span class="v">${hasPerm('ai:insight:config:read')?'Allowed':'Denied'}</span></div>
+      <div class="pam-row"><span class="k">ai:insight:config:write</span><span class="v">${canWrite?'Allowed':'Denied'}</span></div>
+      <div class="pam-actions">${canWrite?`<button class="pam-btn primary" data-action="pamSaveSettings">Save settings</button>`:`<button class="pam-btn" disabled>Read-only · no config:write</button>`}</div>
+      <div class="pam-note">This is a local form. It does not write a scheduler, source list or Prompt registry. The production save must create a version and an audit record.</div>
+    </div>
+    <div class="pam-card"><div class="h">Related design</div><div style="font-size:8.5px;color:#374151;line-height:1.6">Menu: AI Property Services / Property Insights / Generation Settings. Permission: <code>ai:insight:config:read</code> / <code>ai:insight:config:write</code>. See DOC-19 for the full role/menu/permission mapping.</div></div>`;
+}
+function renderPamPushLog(){
+  const rows=allowedPam().flatMap(a=>(a.pushBatches||[]).map(b=>({a,b})));
+  return `<div class="pam-table">
+    <div class="ptr head"><div>Batch / article</div><div>Project</div><div>Ver.</div><div>Target</div><div>Push</div><div>Retries</div></div>
+    ${rows.length?rows.map(({a,b})=>`<div class="ptr"><div><div class="ti">${b.batchId}</div><div class="sub">${a.title}</div></div><div>${b.project}</div><div>v${b.version}</div><div>${b.target} · ${b.sent}/${b.eligible} sent${b.skipped?' · '+b.skipped+' skipped':''}${b.reason?' · '+b.reason:''}</div><div>${pushBadge(b.status)}</div><div>${b.retries||0}</div></div>`).join(''):'<div class="pam-note" style="padding:12px">No push batch yet.</div>'}
+  </div>
+  <div class="pam-note">Each row records a simulated attempt. The article version identifies the logical batch; a definite failed retry retains that identity. Submitted does not mean device-delivered. Editing a new draft does not rewrite an old batch. No user contact details are shown.</div>`;
+}
+
+function render(){
+  document.body.dataset.previewMode=I.tab==='pam'?'ops':'cend';
+  const oldBody=document.querySelector('.phone .phone-body');if(oldBody&&oldBody.dataset.readKey){I.readingPositions=I.readingPositions||{};I.readingPositions[oldBody.dataset.readKey]=oldBody.scrollTop;}
+  $('#demoWrap').classList.toggle('pam', I.tab==='pam');
+  $('#stage').innerHTML = I.tab==='cend' ? `<div class="phone">${phone()}</div>` : renderPam();
+  document.querySelectorAll('#modeTabs button').forEach(b=>b.classList.toggle('on', b.dataset.mode===I.tab));
+  renderConsole();
+  bind();
+  const body=document.querySelector('.phone .phone-body');if(body){const key=I.screen+':'+I.listTab+':'+(I.screen==='article'?I.articleId:'');body.dataset.readKey=key;body.scrollTop=I.readingPositions&&I.readingPositions[key]||0;}
+  document.querySelectorAll('.phone [data-action]').forEach(el=>{if(!/^(BUTTON|A|INPUT|SELECT)$/.test(el.tagName)){el.setAttribute('role','button');el.tabIndex=0;el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click();}});}});
+}
+
+function renderConsole(){
+  const actions=$('#actions');
+  actions.innerHTML = I.tab==='cend'
+    ? `<button data-action="demoBinding">${I.boundProjects.length?'Unbind project (demo)':'Restore binding (demo)'}</button><button data-action="demoBuyer">Current buying intent: ${I.buyerIntent?'yes':'no'}</button><button data-action="feedLoading">Feed loading</button><button data-action="feedError">Feed error</button><button data-action="feedEmpty">Feed empty</button><button data-action="feedReady">Feed ready</button><button data-action="resetCend">Reset C-end</button><button data-action="resetAll">Reset all</button>`
+    : `<div class="duty-grid" style="grid-column:1/-1">${Object.entries(DUTIES).map(([id,d])=>`<button class="${I.duty===id?'on':''}" data-action="duty" data-duty="${id}">${d.label}<small>${d.role}</small></button>`).join('')}</div><button data-action="resetPam">Reset PAM</button><button data-action="scopeProbe">Probe out-of-scope T1</button><button data-action="nextDay">Next day · reset quota</button><button data-action="pushFail">Simulate next push failure</button><button data-action="pushUnknown">Simulate unknown submission</button><button data-action="resetAll">Reset all</button>`;
+  const a=I.articleId?ART[I.articleId]:null;
+  const q=a&&I.question!==null?articleQuestions(a)[I.question]:null;
+  const pam=PAM[I.pamSelected];
+  $('#statebox').innerHTML = I.tab==='cend'
+    ? `<div class="kv"><span class="k">Tab</span><span class="v">C-end</span></div>
+       <div class="kv"><span class="k">Screen</span><span class="v">${I.screen}</span></div>
+       <div class="kv"><span class="k">List tab</span><span class="v">${I.listTab}</span></div>
+       <div class="kv"><span class="k">Article_ID</span><span class="v">${I.articleId||'—'}</span></div>
+       <div class="kv"><span class="k">Question</span><span class="v">${q?q.q.slice(0,28)+'…':'—'}</span></div>
+       <div class="kv"><span class="k">Push master</span><span class="v">${I.settings.master?'On':'Off'}</span></div>`
+    : `<div class="kv"><span class="k">Duty</span><span class="v">${duty().label}</span></div>
+       <div class="kv"><span class="k">Role</span><span class="v">${duty().role}</span></div>
+       <div class="kv"><span class="k">Scope</span><span class="v">${duty().scope}</span></div>
+       <div class="kv"><span class="k">View</span><span class="v">${I.pamView}</span></div>
+       <div class="kv"><span class="k">Selected</span><span class="v">${I.pamSelected||'—'}</span></div>
+       <div class="kv"><span class="k">Article</span><span class="v">${pam?pam.status+' · v'+pam.version:'—'}</span></div>
+       <div class="kv"><span class="k">Reviewed</span><span class="v">${pam&&pam.reviewedVersion?'v'+pam.reviewedVersion:'—'}</span></div>
+       <div class="kv"><span class="k">Push</span><span class="v">${pam?pam.push:'—'}</span></div>
+       <div class="kv"><span class="k">Eligible users</span><span class="v">${pam&&pam.project!=='—'?pushSummary(pam):'—'}</span></div>`;
+  $('#checklist').innerHTML = I.tab==='cend'
+    ? `<div><b>N1</b> · Daily Brief / My Projects 切换，列表仍可打开项目文章。</div>
+       <div><b>N2</b> · 3 个推荐问题、来源数与列表一致、项目归属和 Demo 标识。</div>
+       <div><b>N3</b> · 点不同文章/问题，回答不串上下文；Article_ID 在右侧状态栏。</div>
+       <div><b>N4</b> · 项目页只出现 The Landmark 的专属文章。</div>
+       <div><b>N6</b> · 关 Push 后回列表，文章仍然可读。</div>`
+    : `<div><b>RBAC</b> · 未知职责 fail-closed；只读/编辑/审核/项目范围/物业无权限。</div>
+       <div><b>菜单</b> · 无 ai:insight:view 时不显示 AI Property Services。</div>
+       <div><b>动作</b> · 每个写动作检查权限 + 对象范围 + 业务状态，失败不改状态。</div>
+       <div><b>版本</b> · 编辑/重写 +1 版本并清空 review；旧审核不能发布新版本。</div>
+       <div><b>状态</b> · Approved ≠ Published；Published ≠ Push sent。</div>
+       <div><b>推送</b> · 按模拟用户/日期/项目额度；同人多项目不叠加，其他用户不被误伤。</div>
+       <div><b>闭环</b> · Publish P6 后 C-end 使用已审核快照；Push 独立批次。</div>`;
+}
+
+function bind(){
+  document.querySelectorAll('#stage [data-action]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const a=el.dataset.action;
+      if(a==='outsidePreview'){alert('This preview covers AI Property News and AI Valuation.');return;}
+      if(a==='back'){ I.screen=el.dataset.screen||'list'; I.question=null; I.customQ=''; I.customA=''; I.customError=''; I.customState='idle'; render(); return; }
+      if(a==='readerRole'){if(roleOptions().includes(el.dataset.role)){I.readerRole=el.dataset.role;I.question=null;I.customQ='';I.customA='';}render();return;}
+      if(a==='openArticle'){ if(!canReadArticle(ART[el.dataset.id])){I.screen='article';I.articleId=el.dataset.id;render();return;} I.articleId=el.dataset.id; I.screen='article'; I.question=null; I.customQ=''; I.customA=''; I.customError=''; I.customState='idle'; const art=ART[el.dataset.id]; if(art && art.project && I.boundProjects.includes(art.project) && !I.readArticles.includes(art.id)) I.readArticles.push(art.id); render(); return; }
+      if(a==='ask'){ I.question=Number(el.dataset.q); I.screen='domus'; I.customQ=''; I.customA=''; I.customError=''; I.customState='idle'; render(); return; }
+      if(a==='openDomus'){ I.screen='domus'; I.question=null; I.customQ=''; I.customA=''; I.customError=''; I.customState='idle'; render(); return; }
+      if(a==='listTab'){ I.listTab=el.dataset.tab; I.screen='list'; render(); return; }
+      if(a==='settings'){ I.screen='settings'; render(); return; }
+      if(a==='toggle'){ I.settings[el.dataset.key]=!I.settings[el.dataset.key]; render(); return; }
+      if(a==='sendCustom'){
+        if(!canReadArticle(ART[I.articleId])){render();return;}
+        if(I.customState==='loading') return;
+        const input=$('#chatInput'); const val=input?input.value.trim():'';
+        if(!val){ I.customError='Enter a question first.'; render(); return; }
+        if(val.length>240){ I.customError='Please keep the question under 240 characters.'; render(); return; }
+        const art=ART[I.articleId]||ART.G1;
+        const lower=val.toLowerCase();
+        let ans='This demo answers the recommended questions for this article. Pick one of the suggestions above; a live model is not connected.';
+        if(lower.includes('value')||lower.includes('worth')||lower.includes('range')) ans=articleQuestions(art)[0].a;
+        else if(lower.includes('sell')) ans=articleQuestions(art)[1].a;
+        else if(lower.includes('rent')||lower.includes('yield')) ans=articleQuestions(art)[2].a;
+        I.customQ=val; I.customA=''; I.customError=''; I.customState='loading';
+        const token=(I.chatToken||0)+1; I.chatToken=token; render();
+        setTimeout(()=>{ if(I.chatToken!==token) return; I.customA=ans; I.customState='ready'; render(); },650);
+        return;
+      }
+      if(a==='mode'){ I.tab=el.dataset.mode; syncInsightUrl(); render(); return; }
+      if(a==='duty'){ setDuty(el.dataset.duty); return; }
+      if(a==='scopeProbe'){
+        const art=PAM.T1;
+        if(!hasPerm('ai:insight:article:read') || !inScope(art)){ I.pamToast='Blocked: T1 is outside '+duty().scope+'. The local detail state was not changed.'; render(); return; }
+        I.pamSelected='T1'; I.pamView='review'; I.pamEditing=false; I.pamRejectOpen=false; render(); return;
+      }
+      if(a==='pamView'){
+        const vp={projects:'ai:insight:view',queue:'ai:insight:article:read',review:'ai:insight:article:read',pushlog:'ai:insight:push:read',settings:'ai:insight:config:read'}[el.dataset.view];
+        if(vp && !hasPerm(vp)){ I.pamToast='Blocked: missing '+vp+'. The local state was not changed.'; render(); return; }
+        I.pamView=el.dataset.view; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; render(); return;
+      }
+      if(a==='pamSelect'){
+        const art=PAM[el.dataset.id];
+        if(!hasPerm('ai:insight:article:read')){ I.pamToast='Blocked: missing ai:insight:article:read.'; render(); return; }
+        if(!art || !inScope(art)){ I.pamToast='Blocked: article is outside the current project scope.'; render(); return; }
+        I.pamSelected=el.dataset.id; I.pamView='review'; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; render(); return;
+      }
+      if(a==='pamEdit'){
+        const art=PAM[I.pamSelected]; const auth=authN('edit',art);
+        if(!auth.ok) return denyN(auth);
+        I.pamEditing=true; I.pamDraft=art.body; render(); return;
+      }
+      if(a==='pamCancelEdit'){ I.pamEditing=false; render(); return; }
+      if(a==='pamSaveEdit'){
+        const art=PAM[I.pamSelected]; const auth=authN('saveEdit',art);
+        if(!auth.ok) return denyN(auth);
+        const t=$('#pamEditBody'), ti=$('#pamEditTitle'), qs=$('#pamEditQuestions'), sr=$('#pamEditSource');
+        const nextTitle=ti?ti.value.trim():''; const nextBody=t?t.value.trim():'';
+        if(!nextTitle || !nextBody){ I.pamToast='Blocked: title and body are required.'; render(); return; }
+        if(t) art.body=nextBody;
+        if(ti) art.title=nextTitle;
+        if(qs) art.pamQuestions=qs.value.split('\n').map(x=>x.trim()).filter(Boolean);
+        if(sr) art.editSource=sr.value;
+        art.sources=(art.editSource||'').split('+').map(x=>x.trim()).filter(Boolean).length;
+        if(art.status==='published') art.publishedVersion=art.version;
+        art.version=(art.version||0)+1; art.reviewedVersion=null; art.status='pending_review';
+        I.pamEditing=false; I.pamToast='Saved as v'+art.version+'. Previous review cleared; new version requires review.'; render(); return;
+      }
+      if(a==='pamRejectOpen'){ const auth=authN('reject',PAM[I.pamSelected]); if(!auth.ok) return denyN(auth); I.pamRejectOpen=true; render(); return; }
+      if(a==='pamRejectCancel'){ I.pamRejectOpen=false; render(); return; }
+      if(a==='pamRejectConfirm'){
+        const art=PAM[I.pamSelected]; const auth=authN('reject',art);
+        if(!auth.ok) return denyN(auth);
+        const r=$('#pamRejectReason'), n=$('#pamRejectNote'); const note=n?n.value.trim():'';
+        if(!note){ I.pamToast='Blocked: a written reject reason is required.'; render(); return; }
+        art.status='rejected'; art.rejectReason=(r&&r.value?r.value:'Other')+' — '+note; art.reviewedVersion=null;
+        I.pamRejectOpen=false; I.pamToast='Rejected. Reason recorded; next version must be reviewed.'; render(); return;
+      }
+      if(a==='pamApprove'){
+        const art=PAM[I.pamSelected]; const auth=authN('approve',art);
+        if(!auth.ok) return denyN(auth);
+        if(art.status!=='pending_review' || art.version<1 || !art.body || !art.body.trim() || art.sources<1){
+          I.pamToast='Blocked: only a generated pending-review version with body and sources can be approved.'; render(); return;
+        }
+        art.status='approved'; art.reviewedVersion=art.version;
+        I.pamToast='Approved v'+art.version+'. Not published; publish is a separate permission.'; render(); return;
+      }
+      if(a==='pamPublish'){
+        const art=PAM[I.pamSelected]; const auth=authN('publish',art);
+        if(!auth.ok) return denyN(auth);
+        if(art.status!=='approved' || art.reviewedVersion!==art.version){ I.pamToast='Blocked: current v'+art.version+' has no matching approval.'; render(); return; }
+        art.status='published'; art.publishedVersion=art.version; art.publishedAt=I.pushDay+'T08:'+String(10+(I.publishSeq++%50)).padStart(2,'0')+':00+08:00'; art.push='not_sent'; const synced=publishToCend(art);
+        I.pamToast=synced?'Published v'+art.version+'. C-end now uses this approved snapshot; push is still separate.':'Published v'+art.version+'. No C-end page is mapped for '+art.project+'; the article is not shown on C-end. Push is separate.';
+        render(); return;
+      }
+      if(a==='pamGenerate'){ pamGenerate(el.dataset.id); return; }
+      if(a==='pamMonitor'){
+        const art=PAM[el.dataset.id]; if(!art) return;
+        const auth=authN('monitor',art); if(!auth.ok) return denyN(auth);
+        art.monitoring=!art.monitoring; I.pamToast='Monitoring '+(art.monitoring?'enabled':'paused')+' in the local demo.'; if(art.monitoring && !art.firstGenerationRequested && art.version<1){ art.firstGenerationRequested=true; pamGenerate(art.id,'PROJECT_FIRST_ENABLE'); return; } render(); return;
+      }
+      if(a==='pamSaveSettings'){
+        const auth=authN('settings',null,true); if(!auth.ok) return denyN(auth);
+        const sch=$('#cfgSchedule'), src=$('#cfgSources'), pr=$('#cfgPrompt');
+        const schedule=sch?sch.value.trim():''; const sources=src?src.value.trim():''; const prompt=pr?pr.value.trim():'';
+        if(schedule && !/^([01]\d|2[0-3]):[0-5]\d$/.test(schedule)){ I.pamToast='Blocked: schedule must be HH:MM (24h).'; render(); return; }
+        if(!sources || !prompt){ I.pamToast='Blocked: source scope and prompt version are required.'; render(); return; }
+        I.pamSettings={schedule,sources,prompt};
+        I.pamToast=schedule?'Demo settings saved; production schedule still requires business confirmation.':'Schedule remains pending confirmation. No automatic daily job is enabled.'; render(); return;
+      }
+      if(a==='pamPush'){ pamPush(I.pamSelected); return; }
+      if(a==='demoBinding'){I.boundProjects=I.boundProjects.length?[]:['The Landmark'];render();return;}
+  if(a==='demoBuyer'){I.buyerIntent=!I.buyerIntent;I.readerRole=I.buyerIntent?'BUYER':'GENERAL';I.question=null;render();return;}
+  if(a==='feedLoading'){ I.feedState='loading'; render(); return; }
+      if(a==='feedError'){ I.feedState='error'; render(); return; }
+      if(a==='feedEmpty'){ I.feedState='empty'; render(); return; }
+      if(a==='feedReady'){ I.feedState='ready'; render(); return; }
+      if(a==='retryFeed'){ I.feedState='loading'; render(); setTimeout(()=>{ I.feedState='ready'; render(); },700); return; }
+      if(a==='resetFeed'){ I.feedState='ready'; render(); return; }
+      if(a==='pamQueueReset'){ I.queueFilter='all'; I.queueQuery=''; render(); return; }
+      if(a==='pamProjectClearSearch'){ I.projectQuery=''; render(); return; }
+      if(a==='pamAddProject'){
+        const auth=authN('monitor',null); if(!auth.ok) return denyN(auth);
+        const sel=$('#pamAddProject'); const project=sel?sel.value:'';
+        if(!project || I.targetProjects.includes(project)){ I.pamToast='Blocked: project is already a target or not selected.'; render(); return; }
+        if(!inScope({project})){ I.pamToast='Blocked: project is outside '+duty().scope+'.'; render(); return; }
+        const meta=PROJECT_CATALOG.find(x=>x.project===project); if(!meta){ I.pamToast='Unknown demo project. No request was created.'; render(); return; }
+        const existing=Object.values(PAM).find(x=>x.project===project);
+        I.targetProjects.push(project);
+        if(existing){ existing.monitoring=true; I.pamSelected=existing.id; I.pamView='projects'; I.pamToast='Re-added '+project+'. Existing articles are kept.'; if(existing.version<1 && !existing.firstGenerationRequested){existing.firstGenerationRequested=true;pamGenerate(existing.id,'PROJECT_FIRST_ENABLE');return;} render(); return; }
+        const id='N'+(Object.keys(PAM).length+1);
+        PAM[id]={id,title:project+': monitoring started',project,sources:0,version:0,reviewedVersion:null,monitoring:true,status:'pending_generation',push:'not_sent',pushBatches:[],time:'—',audience:'Verified owners & residents',audienceCount:meta.audienceCount,body:'',rejectReason:'',pamQuestions:[],editSource:'URA + EdgeProp + 99.co'};
+        I.pamSelected=id; I.pamView='projects'; I.pamEditing=false; I.pamRejectOpen=false; PAM[id].firstGenerationRequested=true; pamGenerate(id,'PROJECT_FIRST_ENABLE'); return;
+      }
+      if(a==='pamRemoveProject'){
+        const auth=authN('monitor',null); if(!auth.ok) return denyN(auth);
+        const project=el.dataset.project;
+        if(!inScope({project})){ I.pamToast='Blocked: project is outside '+duty().scope+'.'; render(); return; }
+        I.targetProjects=I.targetProjects.filter(p=>p!==project);
+        Object.values(PAM).forEach(x=>{ if(x.project===project && x.status!=='published') delete PAM[x.id]; });
+        if(I.pamSelected && PAM[I.pamSelected] && PAM[I.pamSelected].project===project) I.pamSelected=firstAllowedId();
+        I.pamView='projects'; I.pamToast='Removed '+project+' from monitoring. Published articles are kept.'; render(); return;
+      }
+    });
+  });
+  const qf=$('#pamQueueFilter');
+  if(qf) qf.addEventListener('change', e=>{ I.queueFilter=e.target.value; setTimeout(render,0); });
+  const qs=$('#pamQueueSearch');
+  if(qs) qs.addEventListener('change', e=>{ I.queueQuery=e.target.value; setTimeout(render,0); });
+  const ps=$('#pamProjectSearch');
+  if(ps) ps.addEventListener('change', e=>{ I.projectQuery=e.target.value; setTimeout(render,0); });
+}
+
+function generatedBody(id){
+  if(id==='T1') return 'A new MRT exit within 400m of Tembusu Grand could shorten the walk for residents. The timeline is demo content and is not a confirmed LTA announcement. This draft needs source verification before approval.';
+  if(id==='C1') return 'Rental yields at Parc Clematis slipped to 3.1% in October as asking rents softened. The change is small and based on a thin sample; this draft uses the latest demo URA rental data and still needs source verification before approval.';
+  if(id==='F1') return 'Three-bedroom rents at Normanton Park rose about 4% quarter on quarter in this demo. The sample is thin and the source feed timed out on the first attempt; this regenerated draft still needs source verification before approval.';
+  return 'Updated draft: three 3-bedroom units at The Landmark changed hands at S$2,080–2,120 psf in October, around the 24-month median of S$2,040. Mid-floor stacks led the activity, while high-floor units continued to clear at a premium. This version was regenerated after review and still needs source verification.';
+}
+function pamGenerate(id,trigger){
+  const a=PAM[id]; if(!a) return;
+  const auth=authN(trigger==='PROJECT_FIRST_ENABLE'?'monitor':'generate',a); if(!auth.ok) return denyN(auth); if(a.status==='generating') return; a.generationTrigger=trigger||'MANUAL_REWRITE';
+  I.pamGenerating=id; I.pamSelected=id; I.pamToast='Generating draft… no real AI call.';
+  if(a.status==='published') a.publishedVersion=a.version;
+  a.status='generating'; render();
+  const token=(a.generationToken||0)+1; a.generationToken=token; const epoch=I.pamResetEpoch||0;
+  setTimeout(()=>{
+    if(a.generationToken!==token || (I.pamResetEpoch||0)!==epoch || PAM[id]!==a) return;
+    a.status='pending_review'; a.version=(a.version||0)+1; a.reviewedVersion=null; a.time='06:31';
+    a.sources=(a.editSource||'').split('+').map(x=>x.trim()).filter(Boolean).length;
+    a.body=id.startsWith('N')?'Demo draft for '+a.project+'. No live project event is asserted. Sources and project facts require verification before approval.':generatedBody(id);
+    I.pamGenerating=null; I.pamSelected=id; I.pamView='review'; I.pamToast='Draft generated. Moved to pending review.'; render();
+  }, 1100);
+}
+function pamPush(id){
+  const a=PAM[id]; if(!a) return;
+  const auth=authN('push',a); if(!auth.ok) return denyN(auth);
+  if(a.status!=='published'){ I.pamToast='Blocked: push requires a published article.'; render(); return; } if(['sent','unknown','skipped'].includes(a.push)){ I.pamToast='No new send: this version is already submitted, unknown, or skipped. Only a definite failed attempt may be retried.'; render(); return; }
+  const audience=pushAudience(a); const eligible=pushEligible(a);
+  const base={batchId:a.id+'-v'+a.publishedVersion,version:a.version,project:a.project,target:a.audience,day:I.pushDay,at:I.pushDay+' 10:12'};
+  if(!eligible.length){
+    const reason=pushBlockReason(a);
+    const batch={...base,status:'skipped',eligible:audience.length,sent:0,skipped:audience.length,retries:a.retries||0,reason};
+    a.pushBatches.push(batch); a.push='skipped'; I.pamToast='Skipped: '+reason+'.'; render(); return;
+  }
+  if(I.pamPushUnknownNext){ I.pamPushUnknownNext=false; eligible.forEach(([uid,u])=>{ if(a.project==='—')u.generalUsed+=1;else u.projectUsed+=1; }); const batch={...base,status:'unknown',eligible:audience.length,sent:0,unknown:eligible.length,skipped:audience.length-eligible.length,retries:a.retries||0,reason:'Submission outcome unknown; daily quota remains reserved; no automatic resend'}; a.pushBatches.push(batch); a.push='unknown'; I.pamToast='Submission unknown. Quota remains occupied; retry is blocked until reconciliation.'; render(); return; }
+  if(I.pamPushFailNext){
+    a.retries=(a.retries||0)+1; I.pamPushFailNext=false;
+    const batch={...base,status:'failed',eligible:audience.length,sent:0,skipped:audience.length-eligible.length,retries:a.retries,reason:'simulated push gateway failure'};
+    a.pushBatches.push(batch); a.push='failed'; I.pamToast='Push failed in the demo. The batch is recorded; retry is available.'; render(); return;
+  }
+  eligible.forEach(([uid,u])=>{ if(a.project==='—')u.generalUsed+=1;else u.projectUsed+=1; });
+  const batch={...base,status:'sent',eligible:audience.length,sent:eligible.length,skipped:audience.length-eligible.length,retries:a.retries||0};
+  a.pushBatches.push(batch); a.push='sent';
+  I.pamToast='Push simulated for '+eligible.length+'/'+audience.length+' eligible sample users; batch '+batch.batchId+'.'; render();
+}
+
+document.querySelectorAll('#modeTabs button').forEach(b=>{
+  b.addEventListener('click', ()=>{ I.tab=b.dataset.mode; syncInsightUrl(); render(); });
+});
+document.addEventListener('click', e=>{
+  const b=e.target.closest('[data-action]'); if(!b) return;
+  const a=b.dataset.action;
+  if(a==='duty'){ setDuty(b.dataset.duty); return; }
+  if(a==='scopeProbe'){
+    const art=PAM.T1;
+    if(!hasPerm('ai:insight:article:read') || !inScope(art)){ I.pamToast='Blocked: T1 is outside '+duty().scope+'. Local detail was not changed.'; render(); return; }
+    I.pamSelected='T1'; I.pamView='review'; I.pamEditing=false; I.pamRejectOpen=false; render(); return;
+  }
+  if(a==='demoBinding'){I.boundProjects=I.boundProjects.length?[]:['The Landmark'];render();return;}
+  if(a==='demoBuyer'){I.buyerIntent=!I.buyerIntent;I.readerRole=I.buyerIntent?'BUYER':'GENERAL';I.question=null;render();return;}
+  if(a==='feedLoading'){ I.feedState='loading'; render(); return; }
+  if(a==='feedError'){ I.feedState='error'; render(); return; }
+  if(a==='feedEmpty'){ I.feedState='empty'; render(); return; }
+  if(a==='feedReady'){ I.feedState='ready'; render(); return; }
+  if(a==='resetCend'){ I.screen='list'; I.listTab='daily'; I.articleId=null; I.question=null; I.customQ=''; I.customA=''; I.customError=''; I.customState='idle'; I.feedState='ready'; I.readArticles=['P3','P4']; render(); }
+  if(a==='resetPam'){
+    I.pamGenToken=(I.pamGenToken||0)+1;
+    PAM=JSON.parse(JSON.stringify(PAM_INIT));PAM.G1.publishedAt='2026-11-10T08:04:00+08:00';PAM.G1.publishedVersion=PAM.G1.version;
+    if(ART.P6) delete ART.P6;
+    I.pushDay='2026-11-10';
+    I.pushUsers={A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{master:true}},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{master:true}}};
+    I.targetProjects=['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park']; I.queueFilter='all'; I.queueQuery=''; I.projectQuery=''; I.pamView='queue'; I.pamSelected='P6'; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; I.pamPushFailNext=false; I.pamPushUnknownNext=false; I.pamResetEpoch=(I.pamResetEpoch||0)+1; render();
+  }
+  if(a==='nextDay'){
+    I.pushDay='2026-11-11';
+    Object.values(I.pushUsers).forEach(u=>{ u.generalUsed=1; u.projectUsed=0; });
+    I.pamToast='Advanced to '+I.pushDay+'; per-user project quota reset.'; render();
+  }
+  if(a==='pushUnknown'){ I.pamPushUnknownNext=true; I.pamPushFailNext=false; I.pamToast='The next submission will be unknown and will hold quota.'; render(); }
+  if(a==='pushFail'){ I.pamPushFailNext=true; I.pamToast='Next project push will fail in the demo.'; render(); }
+  if(a==='resetAll'){ location.reload(); }
+});
+
+const qp = new URLSearchParams(location.search);
+if(['appHome','appAssistant'].includes(qp.get('view'))) I.screen=qp.get('view');
+if(qp.get('mode')==='pam'){ I.tab='pam'; I.pamView=qp.get('pam')||'queue'; }
+if(qp.get('article')){ I.articleId=qp.get('article'); I.screen='article'; }
+if(qp.get('q')!==null && I.articleId){ I.question=Number(qp.get('q')); I.screen='domus'; }
+render();
+</script>
+</body>
+</html>

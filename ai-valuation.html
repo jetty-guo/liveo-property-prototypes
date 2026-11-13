@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="icon" href="data:," />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RE8 AI Valuation — Interactive Prototype v0.3</title>
+<style>
+  :root{
+    --ink:#111827; --muted:#6B7280; --line:#E5E7EB; --bg:#F5F6F7;
+    --blue:#1A73E8; --blue-dark:#0B57D0; --blue-soft:#E8F0FE;
+    --amber:#B45309; --amber-soft:#FFFBEB; --green:#0F9D58; --red:#C5221F;
+    --radius:10px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"PingFang SC",Arial,sans-serif;}
+  a{color:var(--blue-dark);text-decoration:none}
+  .page-head{padding:32px 48px 24px;background:#fff;border-bottom:1px solid var(--line)}
+  .page-head .kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  .page-head h1{margin:9px 0 7px;font-size:28px;font-weight:700;letter-spacing:-.02em}
+  .page-head p{margin:0;max-width:1020px;color:var(--muted);font-size:13px;line-height:1.7}
+  .page-head .meta{margin-top:13px;display:flex;gap:7px;flex-wrap:wrap}
+  .pill{padding:5px 10px;border:1px solid var(--line);border-radius:999px;font-size:10.5px;color:var(--muted);background:#fff}
+  .demo-wrap{max-width:1180px;margin:0 auto;padding:30px 32px 10px;display:grid;grid-template-columns:410px 1fr;gap:36px;align-items:start}
+  .phone-col{position:sticky;top:18px}
+  .phone{width:390px;height:844px;background:#fff;border-radius:36px;
+    border:1px solid #DADCE0;box-shadow:0 8px 24px rgba(0,0,0,.08);
+    overflow:hidden;position:relative;display:flex;flex-direction:column}
+  .status{height:42px;flex:0 0 42px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 20px;font-size:12px;font-weight:600;color:var(--ink)}
+  .status .right{display:flex;gap:4px;align-items:center}
+  .status .bar{width:3px;background:var(--ink);border-radius:1px}
+  .status .b1{height:5px}.status .b2{height:8px}.status .b3{height:11px}
+  .status .battery{width:20px;height:10px;border:1.4px solid var(--ink);border-radius:3px;position:relative;margin-left:4px}
+  .status .battery:after{content:"";position:absolute;inset:1.4px;width:70%;background:var(--ink);border-radius:1px}
+  .nav{flex:0 0 46px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--line);background:#fff}
+  .nav .back{font-size:20px;color:var(--ink);width:26px;cursor:pointer}
+  .nav .mid{text-align:center}
+  .nav .t{font-size:15px;font-weight:650;line-height:1.2}
+  .nav .s{font-size:9px;color:var(--muted);margin-top:2px}
+  .nav .r{font-size:13px;color:var(--blue);min-width:26px;text-align:right;cursor:pointer}
+  .phone-body{flex:1;overflow-y:auto;padding:12px 16px 92px;scrollbar-width:none}
+  .phone-body::-webkit-scrollbar{display:none}
+  .homebar{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:116px;height:4px;background:#111;border-radius:2px;z-index:5}
+  .bottombar{position:absolute;left:0;right:0;bottom:0;padding:8px 14px 17px;background:#fff;border-top:1px solid var(--line);display:flex;gap:7px;z-index:6}
+  .bottombar .btn{flex:1;padding:10px 8px;font-size:10.5px}
+
+  .card{border:1px solid var(--line);border-radius:9px;padding:10px 11px;margin-bottom:8px;background:#fff}
+  .sec{font-size:10.5px;font-weight:700;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .sec .tag{font-size:8px;font-weight:600;color:var(--blue);background:var(--blue-soft);padding:2px 6px;border-radius:999px;white-space:nowrap}
+  .muted{color:var(--muted)} .small{font-size:8.5px;line-height:1.5} .blue{color:var(--blue)}
+  .field{margin-bottom:9px}
+  .field .l{font-size:9.5px;font-weight:650;margin-bottom:4px;display:flex;justify-content:space-between}
+  .field .l span{font-weight:400;color:var(--muted)}
+  .input{border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:11.5px;background:#fff;width:100%;font-family:inherit;color:var(--ink)}
+  .input:focus{outline:2px solid #C6D9FB;border-color:var(--blue)}
+  .inputwrap{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:#fff;overflow:hidden}
+  .inputwrap input{border:0;flex:1;padding:9px 10px;font-size:11.5px;font-family:inherit;color:var(--ink);outline:none;min-width:0}
+  .inputwrap .unit{display:flex;border-left:1px solid var(--line)}
+  .inputwrap .unit button{border:0;background:#fff;padding:8px 7px;font-size:9px;color:var(--muted);cursor:pointer}
+  .inputwrap .unit button.on{background:var(--blue-soft);color:var(--blue-dark);font-weight:650}
+  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{flex:1;border:0;border-right:1px solid var(--line);background:#fff;padding:8px 0;font-size:9.5px;color:var(--muted);cursor:pointer;font-family:inherit}
+  .seg button:last-child{border-right:0}
+  .seg button.on{background:var(--blue-soft);color:var(--blue-dark);font-weight:650}
+  .hint{font-size:8px;color:var(--muted);line-height:1.45;margin-top:4px}
+  .infobox{background:#F8FAFC;border:1px solid var(--line);border-radius:8px;padding:8px 9px;font-size:8.5px;line-height:1.55;color:#374151;margin-bottom:9px}
+  .infobox b{font-weight:650}
+  .empty-state{border:1px dashed #DADCE0;border-radius:9px;padding:18px 12px;text-align:center;color:var(--muted);font-size:8px;line-height:1.6;margin:10px 0}
+  .empty-state b{display:block;color:var(--ink);font-size:10px;margin-bottom:4px}
+  .empty-state button{margin-top:8px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 9px;font-size:8px;font-weight:650;color:var(--blue-dark);cursor:pointer}
+  .err{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;border-radius:8px;padding:8px 9px;font-size:8.5px;line-height:1.5;margin-bottom:8px}
+  .btn{display:flex;align-items:center;justify-content:center;border-radius:8px;padding:10px;font-size:11px;font-weight:650;border:1px solid var(--line);background:#fff;color:var(--ink);width:100%;cursor:pointer;font-family:inherit;text-align:center}
+  .btn.blue{background:var(--blue);border-color:var(--blue);color:#fff}
+  .btn.ghost{background:#fff}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.small{padding:7px 9px;font-size:9px;width:auto}
+  .rowbtn{display:flex;gap:7px}
+  .linkbtn{border:0;background:none;color:var(--blue-dark);font-size:9px;font-weight:650;cursor:pointer;padding:0;font-family:inherit}
+
+  .range{font-size:24px;font-weight:750;color:var(--blue);letter-spacing:-.03em;text-align:center;margin:2px 0 1px}
+  .midpill{display:table;margin:0 auto 8px;border:1px solid var(--line);border-radius:999px;padding:2px 8px;font-size:8.5px;color:var(--muted)}
+  .midpill b{color:var(--ink);font-weight:650}
+  .rbar{position:relative;height:7px;margin:9px 2px 3px;background:linear-gradient(90deg,#BFDBFE,#1A73E8 55%,#0F9D58);border-radius:4px}
+  .rbar .knob{position:absolute;top:-3px;left:53%;width:13px;height:13px;border-radius:50%;background:#fff;border:3px solid var(--blue)}
+  .rlabels{display:flex;justify-content:space-between;font-size:7.5px;color:var(--muted);margin-top:4px}
+  .rlabels b{display:block;font-size:9px;color:var(--ink);font-weight:600}
+  .rmeta{display:flex;justify-content:space-between;gap:6px;border-top:1px solid var(--line);margin-top:7px;padding-top:6px;font-size:7.5px;color:var(--muted)}
+  .factgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px;font-size:8.5px;line-height:1.45}
+  .factgrid .k{color:var(--muted);font-size:7px;text-transform:uppercase;letter-spacing:.05em}
+  .factgrid .v{font-weight:600;margin-top:0}
+  .basis{width:100%;border-collapse:collapse;font-size:7.5px}
+  .basis th{font-size:6.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;padding:3px 2px;border-bottom:1px solid var(--line)}
+  .basis td{padding:4px 2px;border-bottom:1px solid #F1F3F4;vertical-align:top}
+  .basis tr:last-child td{border-bottom:0}
+  .basis td.r,.basis th.r{text-align:right}
+  .tbl{border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .trow{display:grid;grid-template-columns:46px 38px 46px 54px 40px;gap:3px;padding:5px 6px;border-bottom:1px solid var(--line);font-size:7.3px;align-items:center}
+  .trow:last-child{border-bottom:0}
+  .trow.head{background:#F8FAFC;color:var(--muted);font-size:6.3px;text-transform:uppercase;letter-spacing:.03em}
+  .trow .r{text-align:right}
+  .chart{border:1px solid var(--line);border-radius:7px;padding:5px 4px 2px}
+  .chart svg{display:block;width:100%;height:auto}
+  .axis{font-size:6px;fill:#9AA0A6}
+  .chartmeta{display:flex;justify-content:space-between;gap:6px;font-size:7px;color:var(--muted);margin-top:3px;line-height:1.4}
+  .driver{border-top:1px solid var(--line);padding:6px 0;font-size:8px;line-height:1.45}
+  .driver:first-of-type{border-top:0;padding-top:0}
+  .driver .top{display:flex;justify-content:space-between;gap:6px;align-items:flex-start}
+  .driver .t{font-weight:650;font-size:8.5px}
+  .driver .src{font-size:7px;color:var(--muted);margin-top:1px}
+  .driver .impact{margin-top:2px;color:#374151}
+  .driver .ev{margin-top:2px;font-size:7px;color:var(--muted)}
+  .tag{display:inline-block;font-size:6.8px;font-weight:650;padding:1px 5px;border-radius:999px;background:#F1F3F4;color:#4B5563;white-space:nowrap}
+  .tag.demo{background:#FFF7ED;color:#9A3412}
+  .tag.internal{background:var(--blue-soft);color:var(--blue-dark)}
+  .tag.warn{background:#FEF3C7;color:#92400E}
+  .tag.ok{background:#E6F4EA;color:var(--green)}
+  .tag.bad{background:#FCE8E6;color:var(--red)}
+  .disc{font-size:6.9px;line-height:1.5;color:#4B5563;background:#FAFAFA;border:1px solid var(--line);border-radius:7px;padding:6px 7px;margin:7px 0}
+  .disc b{color:#111827}
+  .banner{border-radius:8px;padding:8px 9px;font-size:8px;line-height:1.5;margin-bottom:8px}
+  .banner.amber{background:var(--amber-soft);border:1px solid #FDE68A;color:#92400E}
+  .banner.blue{background:var(--blue-soft);border:1px solid #D2E3FC;color:#0B57D0}
+  .banner.red{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+  .banner b{font-weight:700}
+  .step{display:flex;gap:7px;align-items:flex-start;margin-bottom:9px}
+  .step .ic{width:17px;height:17px;border-radius:50%;flex:0 0 17px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700}
+  .step.done .ic{background:var(--blue);color:#fff}
+  .step.run .ic{background:var(--blue-soft);color:var(--blue);border:1px solid #C6D9FB}
+  .step.fail .ic{background:#FCE8E6;color:var(--red);border:1px solid #FECACA}
+  .step.todo .ic{background:#F1F3F4;color:#9AA0A6}
+  .step .tt{font-size:9.5px;font-weight:600}
+  .step .ss{font-size:7.5px;color:var(--muted);margin-top:1px}
+  .sk{height:7px;background:#F1F3F4;border-radius:4px;margin-bottom:5px}
+  .hitem{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px 9px;margin-bottom:6px}
+  .hitem .d{font-size:7.5px;color:var(--muted)}
+  .hitem .r{font-size:11px;font-weight:700;color:var(--blue);margin-top:1px}
+  .hitem .acts{display:flex;gap:4px}
+  .hitem .acts button{font-size:7px;color:var(--blue-dark);border:1px solid var(--line);border-radius:5px;padding:3px 5px;background:#fff;cursor:pointer;font-family:inherit}
+  .agent{border:1px solid var(--line);border-radius:9px;padding:8px;margin-bottom:6px;display:flex;gap:7px;align-items:center;cursor:pointer}
+  .agent .av{width:30px;height:30px;border-radius:50%;background:var(--blue-soft);color:var(--blue-dark);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex:0 0 30px}
+  .agent .nm{font-size:9.5px;font-weight:650}
+  .agent .sub{font-size:7px;color:var(--muted);margin-top:1px}
+  .agent .tags{display:flex;gap:3px;margin-top:2px;flex-wrap:wrap}
+  .agent .tags span{font-size:6.5px;background:#F1F3F4;border-radius:999px;padding:1px 4px;color:#4B5563}
+  .agent .radio{width:15px;height:15px;border-radius:50%;border:1.5px solid #C4C7CC;margin-left:auto;flex:0 0 15px}
+  .agent.on .radio{border:4px solid var(--blue)}
+  .agent.on{border-color:#C6D9FB;background:#F8FBFF}
+  .countdown{display:flex;justify-content:space-between;align-items:center;font-size:7.5px;color:var(--muted);margin:5px 0 7px}
+  .countdown b{color:var(--ink);font-size:9px}
+  .statuscard{border:1px solid #D2E3FC;background:#F8FBFF;border-radius:9px;padding:10px;margin-bottom:8px}
+  .statuscard .t{font-size:10px;font-weight:700;color:#0B57D0}
+  .statuscard .s{font-size:8px;line-height:1.55;color:#374151;margin-top:2px}
+  .demo-note{font-size:7px;color:var(--muted);text-align:center;line-height:1.5;margin-top:6px}
+
+  .phone-cap{font-size:11px;color:var(--muted);margin-top:8px;display:flex;justify-content:space-between}
+  .phone-cap b{color:var(--ink);font-weight:600}
+  .mode-tabs{display:flex;gap:5px;margin-bottom:11px}
+  .mode-tabs button{flex:1;border:1px solid var(--line);background:#fff;border-radius:7px;padding:7px 8px;font-size:9px;font-weight:650;cursor:pointer;color:var(--ink)}
+  .mode-tabs button.on{background:var(--blue-soft);border-color:#C6D9FB;color:var(--blue-dark)}
+  .demo-wrap.ops{display:block;max-width:1180px}
+  .demo-wrap.ops .phone-col{display:none}
+  .demo-wrap.ops .console{max-width:1050px;margin-top:16px}
+  .ops-stage{display:none;max-width:1050px}
+  .vadmin{width:1050px;height:760px;background:#fff;border:1px solid #DADCE0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.08);overflow:hidden;display:flex}
+  .vside{width:180px;background:#F8FAFC;border-right:1px solid var(--line);padding:15px 9px;display:flex;flex-direction:column;gap:2px}
+  .vside .brand{font-size:12px;font-weight:700;padding:0 9px;margin-bottom:2px}
+  .vside .sub{font-size:7px;color:var(--muted);padding:0 9px;margin-bottom:10px}
+  .vside .navi{font-size:9.5px;color:#4B5563;padding:8px 9px;border-radius:7px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+  .vside .navi.on{background:var(--blue-soft);color:var(--blue-dark);font-weight:650}
+  .vmain{flex:1;display:flex;flex-direction:column;min-width:0}
+  .vctx{border-bottom:1px solid var(--line);background:#F8FAFC;padding:7px 18px}
+  .vctx .row1{display:flex;justify-content:space-between;gap:10px;font-size:8px;color:var(--muted)}
+  .vctx .who{font-size:9px;font-weight:700;color:var(--ink)}
+  .vctx .crumb{font-size:7.5px;color:var(--blue-dark);font-weight:600;text-align:right}
+  .vctx .perms{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
+  .demo-perms{margin-top:4px;font-size:6.5px;color:var(--muted)}
+  .demo-perms summary{cursor:pointer;color:var(--blue-dark);font-weight:600;outline:none;list-style:none}
+  .demo-perms summary::-webkit-details-marker{display:none}
+  .demo-perms[open] summary{margin-bottom:3px}
+  .demo-context-label{font-size:6px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-right:4px}
+  .vtop{height:48px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+  .vtop h3{margin:0;font-size:14px;font-weight:650}
+  .vtop .u{font-size:7.5px;color:var(--muted)}
+  .vbody{flex:1;overflow-y:auto;padding:12px 18px 18px;scrollbar-width:none}
+  .vbody::-webkit-scrollbar{display:none}
+  .vkpis{display:flex;gap:8px;margin-bottom:10px}
+  .vkpi{flex:1;border:1px solid var(--line);border-radius:8px;padding:8px 9px}
+  .vkpi .v{font-size:17px;font-weight:700;color:var(--blue-dark)}
+  .vkpi .k{font-size:7.5px;color:var(--muted);margin-top:1px}
+  .vtable{border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .vtr{display:grid;grid-template-columns:1.6fr 100px 88px 92px 70px;gap:6px;padding:7px 9px;border-bottom:1px solid var(--line);font-size:8.5px;align-items:center;cursor:pointer}
+  .vtr:last-child{border-bottom:0}
+  .vtr.head{background:#F8FAFC;font-size:7px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);cursor:default}
+  .vtr:hover:not(.head){background:#F8FBFF}
+  .vcard{border:1px solid var(--line);border-radius:8px;padding:10px 11px;margin-bottom:8px;max-width:100%;overflow:hidden}
+  .vcard .h{font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;font-weight:700}
+  .vcard h2{font-size:15px;line-height:1.35;margin:0 0 5px}
+  .vrow{display:flex;justify-content:space-between;gap:8px;font-size:8.5px;padding:3px 0;border-bottom:1px solid #F1F3F4}
+  .vrow:last-child{border-bottom:0}
+  .vrow .k{color:var(--muted)}
+  .vrow .v{font-weight:600;text-align:right;max-width:65%;overflow-wrap:anywhere}
+  .vbtn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:7px 9px;font-size:8.5px;font-weight:650;cursor:pointer;color:var(--ink)}
+  .vbtn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  .vbtn:disabled{opacity:.45;cursor:not-allowed}
+  .vacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .vnoaccess{max-width:520px;margin:60px auto;text-align:center;border:1px solid var(--line);border-radius:10px;padding:24px;background:#fff}
+  .vnoaccess h3{margin:6px 0 5px;font-size:16px}
+  .vnoaccess p{margin:0;color:var(--muted);font-size:9px;line-height:1.6}
+  .vnoaccess code{font-size:8px;background:#F1F3F4;padding:1px 4px;border-radius:3px}
+  .duty-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .duty-grid button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px 7px;text-align:left;font-size:8px;font-weight:600;cursor:pointer;color:var(--ink)}
+  .duty-grid button.on{background:var(--blue-soft);border-color:#C6D9FB;color:var(--blue-dark)}
+  .duty-grid button small{display:block;font-weight:400;color:var(--muted);font-size:6.5px;margin-top:1px}
+  .console{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 18px 16px}
+  .console h2{font-size:15px;margin:0 0 3px}
+  .console .sub{font-size:10.5px;color:var(--muted);line-height:1.6;margin-bottom:12px}
+  .console .label{font-size:8.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px}
+  .scenarios{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .scenarios button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:8px 9px;text-align:left;font-size:9.5px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--ink)}
+  .scenarios button:hover{border-color:#C6D9FB;background:#F8FBFF}
+  .scenarios button.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-dark)}
+  .statebox{border:1px solid var(--line);border-radius:8px;background:#F8FAFC;padding:9px 10px;font-size:8.5px;line-height:1.7}
+  .statebox .kv{display:flex;justify-content:space-between;gap:8px}
+  .statebox .k{color:var(--muted)}
+  .statebox .v{font-weight:650;text-align:right}
+  .checklist{font-size:9px;line-height:1.7;color:#374151}
+  .checklist div{padding:3px 0;border-bottom:1px solid #F1F3F4}
+  .checklist div:last-child{border-bottom:0}
+  .checklist b{font-weight:650}
+  .console .footnote{font-size:8px;color:var(--muted);line-height:1.55;margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+  .console a{font-weight:600}
+  .coverage{max-width:1180px;margin:0 auto;padding:8px 32px 60px}
+  .coverage h2{font-size:18px;margin:26px 0 10px}
+  table.cov{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  table.cov th,table.cov td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:10px;vertical-align:top;line-height:1.55}
+  table.cov th{background:#F8FAFC;font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  table.cov tr:last-child td{border-bottom:0}
+  .rules{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 18px;font-size:10.5px;line-height:1.75;color:#374151}
+  .rules ol{margin:6px 0 0;padding-left:18px}
+  .rules li{margin-bottom:5px}
+  .footer-note{max-width:1180px;margin:0 auto;padding:0 32px 50px;font-size:9px;color:var(--muted);line-height:1.6}
+  @media(max-width:1150px){
+    .demo-wrap.ops .console,.ops-stage{max-width:100%}
+    .vadmin{width:100%;min-width:0}
+  }
+  @media(max-width:960px){.demo-wrap{grid-template-columns:1fr;justify-items:center}.phone-col{position:static}.console{max-width:600px}}
+  @media(max-width:900px){.vside{width:150px}}
+
+/* RE8/RE9 App preview: source color #0355D5, existing Home/Services/Lio/Message/Me structure. */
+.phone{--blue:#0355D5;--blue-dark:#0346AC;--blue-soft:#EAF1FC;--ink:#181818;--muted:#666;--bg:#F5F5F5}
+.phone .nav{min-height:54px;flex-basis:54px}.phone .nav .t{font-size:17px}.phone .nav .s{font-size:11px}
+.phone .nav .back,.phone .nav .r{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.phone .nav .r{font-size:13px}.phone .phone-body{padding:16px 16px 100px;line-height:1.55}
+.phone .small,.phone .hint,.phone .infobox,.phone .demo-note{font-size:12px;line-height:1.55}
+.phone .btn,.phone .qchip{min-height:44px;font-size:14px;border-radius:8px}.phone .field .l{font-size:14px}
+.phone .input,.phone .inputwrap input{font-size:16px;min-height:44px}.phone .unit button,.phone .seg button{min-height:44px;font-size:13px}
+.phone .disc{font-size:11px;line-height:1.55}.phone .tag{font-size:10px}.phone .factgrid{font-size:12px}.phone .factgrid .k{font-size:10px}
+.phone .sec{font-size:14px}.phone .card{padding:14px;margin-bottom:12px}.phone .basis{font-size:11px}.phone .basis th{font-size:9px}
+.phone .trow{grid-template-columns:1.1fr .8fr .9fr 1.1fr .9fr;font-size:10px;gap:4px;padding:9px 5px}.phone .trow.head{font-size:9px}
+.phone .bottombar{padding-bottom:24px}.phone button:focus-visible,.phone [role=button]:focus-visible,.phone a:focus-visible{outline:3px solid #0355D5;outline-offset:2px}
+.phone .app-context{padding:16px;background:#F5F5F5;flex:1;overflow:auto}
+.phone .app-context h1{font-size:26px;line-height:1.2;margin:8px 0 6px}.phone .app-context h2{font-size:18px;margin:22px 0 10px}
+.phone .app-eyebrow{font-size:12px;color:#666}.phone .app-project{font-size:18px;font-weight:700;margin-bottom:6px}
+.phone .app-card{padding:18px;background:#fff;border-radius:8px;margin-top:14px;border:1px solid #E5E5E5}
+.phone .app-card p{font-size:14px;margin:6px 0 14px;color:#666}.phone .app-card h3{font-size:18px;margin:0}
+.phone .app-link-row{display:flex;align-items:center;justify-content:space-between;min-height:54px;border:0;border-bottom:1px solid #eee;background:white;color:#181818;width:100%;font:inherit;font-size:15px;text-align:left;padding:10px 0;text-decoration:none}
+.phone .app-dock{flex:0 0 80px;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;padding:4px 8px 18px;background:#fff;border-top:1px solid #eee}
+.phone .app-dock a,.phone .app-dock button{min-height:48px;border:0;background:none;display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:10px;color:#666;gap:3px;cursor:pointer;font-family:inherit}
+.phone .app-dock .selected{color:#0355D5}.phone .app-dock img{width:24px;height:24px;object-fit:contain}.phone .app-dock .lio img{width:48px;height:48px}
+.phone .app-context-note{font-size:12px;color:#666;line-height:1.5;margin-top:16px}
+.phone .hero h4{font-size:20px}.phone .hero{padding:16px}.phone .hero .eyebrow,.phone .hero .meta,.phone .hero .more{font-size:12px}
+.phone .tabs button{font-size:14px;min-height:44px}.phone .row{padding:16px 0}.phone .row .t{font-size:15px}.phone .row .m{font-size:11px;flex-wrap:wrap}
+.phone .pcard{padding:14px;margin-bottom:12px}.phone .pcard .t{font-size:15px}.phone .pcard .s{font-size:12px}.phone .badge{font-size:11px}.phone .section b,.phone .section span{font-size:11px}
+.phone .phone-body h1{font-size:25px;line-height:1.3}.phone .dek{font-size:15px}.phone .bodytext{font-size:15px;line-height:1.75}.phone .bodytext p{margin:14px 0}
+.phone .stats .stat .v{font-size:18px}.phone .stats .stat .k{font-size:11px}.phone .h5{font-size:15px}.phone .source .n{font-size:13px}.phone .source .d,.phone .source .ev{font-size:11px}
+.phone .article-kicker,.phone .demobanner{font-size:11px}.phone .chat-body{padding:16px}.phone .bub{font-size:14px;line-height:1.65;padding:13px;max-width:94%}
+.phone .cite{font-size:11px}.phone .ctx{font-size:12px;border-radius:8px}.phone .chat-head .who{font-size:16px}.phone .chat-head .sub{font-size:12px}
+.phone .follow .qchip{font-size:13px;min-height:44px}.phone .composer input{font-size:16px;min-height:44px}.phone .composer .cbtn{min-width:44px;min-height:44px;font-size:13px}
+.phone .cta button{min-height:48px;font-size:15px}.phone .setrow .t{font-size:15px}.phone .setrow .s{font-size:12px}.phone .setrow{min-height:64px}
+.phone .toggle{outline-offset:6px}.phone .empty-state{font-size:13px}.phone .empty-state b{font-size:16px}.phone .empty-state button{font-size:14px;min-height:44px}
+@media(max-width:600px){
+ body[data-preview-mode="cend"] .page-head,body[data-preview-mode="cend"] .console,body[data-preview-mode="cend"] .coverage,body[data-preview-mode="cend"] .caption{display:none}
+ body[data-preview-mode="cend"] .demo-wrap{display:block;padding:0;margin:0;max-width:none}
+ body[data-preview-mode="cend"] .phone-col{position:static}
+ body[data-preview-mode="cend"] .phone{width:100%;height:100dvh;min-height:0;border-radius:0;border:0;box-shadow:none}
+ body[data-preview-mode="cend"] .stage{width:100%;max-width:none}
+}
+
+
+.phone .btn{display:flex;align-items:center;justify-content:center;width:100%;padding:12px;border:1px solid #E5E5E5;background:#fff;color:#181818;font-family:inherit;font-weight:650;text-align:center;cursor:pointer;text-decoration:none}
+.phone .btn.blue{background:#0355D5;border-color:#0355D5;color:#fff}
+.phone .linkbtn{border:0;background:transparent;color:#0355D5;min-height:44px;font-family:inherit;font-size:13px;cursor:pointer;padding:0 4px}
+
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <div class="kicker">RE8 · AI Dynamic Property Valuation · Interactive prototype v0.3</div>
+  <h1>AI 估价 — 可操作原型</h1>
+  <p>按本地 RE8 快照（版本 3）补齐：面积单位换算、生成与降级状态、完整证据链、A4 PDF 样张、历史快照、出售/出租委托与经纪人选择。所有价格、成交、来源与经纪人都是演示数据，不是真实市场结果。旧 RE5 估价图只借版式，不借数字与口径。</p>
+  <div class="meta">
+    <span class="pill">2026-11-13</span>
+    <span class="pill">RE8／RE9快照 · 本轮确认规则已同步</span>
+    <span class="pill">可点击 · 本地模拟</span>
+    <span class="pill">Demo data · confirmed PILOT policy</span>
+  </div>
+</header>
+
+<main class="demo-wrap" id="demoWrap">
+  <div class="ops-stage" id="opsStage"></div>
+  <div class="phone-col">
+    <div class="phone" id="phone"></div>
+    <div class="phone-cap"><span>Interactive demo</span><span id="screenLabel">V1 · Input</span></div>
+  </div>
+
+  <aside class="console">
+    <h2>Review console</h2>
+    <div class="mode-tabs" id="modeTabs"><button data-action="vmode" data-mode="cend" class="on">C-end app</button><button data-action="vmode" data-mode="ops">Valuation ops</button></div>
+    <div class="sub">场景切换仅用于评审，不是产品流程。C-end 与后台使用独立本地状态。</div>
+
+    <div class="label">Scenario</div>
+    <div class="scenarios" id="scenarios"></div>
+
+    <div class="label">Current state</div>
+    <div class="statebox" id="statebox"></div>
+
+    <div class="label">What to verify</div>
+    <div class="checklist" id="checklist">
+      <div><b>V1</b> · 面积 sqft/sqm 来回切，数值不重复换算；缺项目/无效面积会拦住。</div>
+      <div><b>V2</b> · 基准先出时是“仅成交参考”，不是完整 AI 报告；AI 失败、PDF 失败各有降级。</div>
+      <div><b>V3/V4</b> · 匹配样本、项目、区域、AI 区间四套数不混；6 笔可比可展开；图表写清是历史成交 PSF。</div>
+      <div><b>V5</b> · 样本不足和完全无样本都走得到；回退同邮区同类型24M±10%已确认；项目5／区域10为PILOT试运行参数。</div>
+      <div><b>V6</b> · 历史快照重开不重新生成；主动重新估值会新增记录，旧记录保留。</div>
+      <div><b>V7</b> · 出售/出租、经纪人都不默认；手动确认后不再自动派单；超时自动指派可演示。</div>
+      <div><b>PDF</b> · 打开 A4 样张，检查分页、页脚、免责声明、数字与网页一致。</div>
+    </div>
+
+    <div class="label">Demo links</div>
+    <div style="font-size:9.5px;line-height:1.9">
+      <div><a href="valuation-report-demo.pdf" target="_blank" rel="noopener">Open A4 PDF sample →</a></div>
+      <div><a href="https://kcnd4ywblq18.feishu.cn/wiki/CQyIwzgVeiyebvkdBQNcsV6XnDc" target="_blank" rel="noopener">Open requirement mapping →</a></div>
+      <div><a href="index.html">Back to review index →</a></div>
+    </div>
+
+    <div class="footnote">本地模拟不含真实 AI 调用、数据库、PDF 服务或经纪人派单。页面上的“CEA/ACN”均为演示标签，不代表真实资质。服务端防并发与真实权限未验证。</div>
+  </aside>
+</main>
+
+<section class="coverage">
+  <h2>Screen & state coverage</h2>
+  <table class="cov">
+    <tr><th style="width:70px">Screen</th><th style="width:230px">What is interactive</th><th>Requirement coverage</th></tr>
+    <tr><td><b>V1</b> Input</td><td>Project, area, unit switch, optional floor segment, validation, bound-asset shortcut.</td><td>Project + area required; sqft/sqm conversion; floor Low/Mid/High optional; no unit number; private residential only.</td></tr>
+    <tr><td><b>V2</b> Generating</td><td>Baseline → AI → PDF sequence; baseline-only view; AI failure; PDF failure; no-sample branch.</td><td>Separate baseline, AI analysis, web report and PDF states; no “Ready” while AI is still running.</td></tr>
+    <tr><td><b>V3</b> Report · top</td><td>Range, midpoint explanation, PSF range, report meta, top disclaimer.</td><td>Range + PSF range; midpoint defined as arithmetic midpoint; generated time and data cut-off.</td></tr>
+    <tr><td><b>V4</b> Report · evidence</td><td>Basis table, 6 comps expand, historical PSF chart, sourced AI drivers, insight.</td><td>24M window; ±10% area; sample count, median/min/max; separate sample/project/area/district medians; source name/date/evidence.</td></tr>
+    <tr><td><b>V5</b> Low confidence</td><td>Project-thin and no-data variants; regional reference; no range when data is insufficient.</td><td>District fallback and no-data path; assumptions marked demo; no fake confidence algorithm.</td></tr>
+    <tr><td><b>V6</b> History</td><td>Open saved report/PDF; start a new valuation; old snapshots remain.</td><td>Permanent snapshot; reopening does not regenerate; new report creates a new record; no charge promise.</td></tr>
+    <tr><td><b>V7</b> Mandate</td><td>Sale/rent intent, 3 demo agents, no default, manual submit, waiting, confirmed, auto-assigned.</td><td>3 agents + 24h fallback; manual choice stops auto-assignment; duplicate submit blocked; server concurrency not claimed.</td></tr>
+  </table>
+
+  <h2>已确认业务规则与实施边界</h2><div class="rules"><ol>
+<li>项目5／区域10为PILOT试运行参数，须回测；区域为同邮区、同Private Condo、24M、面积±10%。不足区域阈值无AI金额。</li>
+<li>AI候选区间下沿／上沿分别与同集合MAX_PSF×0.85／1.15比较；越界降级同集合URA均价参考，不裁剪，无AI区间、中点或PDF。</li>
+<li>产权／已核准授权才可委托；真实候选按最久未指派、agent_id排序。少于3人不创建；冻结3人全失效保留PENDING，不补第四人。24h从确认提交计时。</li>
+<li>不设200～10000面积限制；复用Liveo品牌和A4内容分页、原免责声明，不显示具体门牌。永久历史重开不重算。</li>
+<li>原型只模拟。真实历史覆盖、权限、AI、来源、PDF存储、并发和业务服务待实施验收；无回测准确率承诺。</li>
+</ol></div>
+  <div class="footer-note">本地需求快照为 2026-11-03 导出的版本 3；本页不声称已核对飞书在线最新版本。录音只用于理解“报告要正规、样本与排版重要、非法律效力”的产品定位，不作为法律事实背书。</div>
+</section>
+
+<script>
+const $ = (s, r=document) => r.querySelector(s);
+const fmtM = n => 'S$' + n.toFixed(2) + 'M';
+const fmt = n => Number(n).toLocaleString('en-SG');
+const floorText = f => f ? ({low:'Low floor',mid:'Mid floor',high:'High floor'}[f]) : 'Not specified';
+const sqm = n => (n * 0.092903).toFixed(2);
+const toSqft = (v,u) => u === 'sqft' ? v : v * 10.7639;
+
+const comps = [
+  {date:'May 2026', floor:'Mid',  area:1080, price:2.25, psf:2083},
+  {date:'Apr 2026', floor:'High', area:1050, price:2.21, psf:2105},
+  {date:'Mar 2026', floor:'Low',  area:1090, price:2.18, psf:2000},
+  {date:'Feb 2026', floor:'Mid',  area:1040, price:2.11, psf:2030},
+  {date:'Jan 2026', floor:'High', area:1070, price:2.19, psf:2050},
+  {date:'Dec 2025', floor:'Mid',  area:1060, price:2.14, psf:2020}
+];
+const districtComps = [
+  {date:'Jun 2026', floor:'Mid', area:1120, price:2.28, psf:2036},
+  {date:'May 2026', floor:'High', area:1050, price:2.19, psf:2086},
+  {date:'Apr 2026', floor:'Mid', area:1080, price:2.21, psf:2046},
+  {date:'Mar 2026', floor:'Low', area:1150, price:2.24, psf:1948},
+  {date:'Feb 2026', floor:'Mid', area:1010, price:2.03, psf:2010},
+  {date:'Jan 2026', floor:'High', area:1100, price:2.22, psf:2018},
+  {date:'Dec 2025',floor:'Mid',area:1070,price:2.17,psf:2028},
+  {date:'Nov 2025',floor:'Low',area:1040,price:2.07,psf:1990},
+  {date:'Oct 2025',floor:'High',area:1090,price:2.24,psf:2055},
+  {date:'Sep 2025',floor:'Mid',area:1060,price:2.15,psf:2028}
+];
+const drivers = [
+  {kind:'pos', title:'Transport access', source:'LTA network map · accessed 9 Nov 2026 · demo source, no live link', impact:'Havelock MRT (TEL) is about 420m away. This supports buyer demand and the upper half of the range.', evidence:'Station distance is a demo value; verify against LTA before production.', tag:'Demo / unverified'},
+  {kind:'neg', title:'Resale supply is loosening', source:'EdgeProp market data · 7 Nov 2026 · demo source, no live link', impact:'District 3 resale listings rose 9% in October. More choice can lengthen time-on-market and cap the upper half.', evidence:'The 9% figure is demo data shared with the AI Insights prototype.', tag:'Demo / unverified'},
+  {kind:'neg', title:'Financing costs', source:'MAS statement · 6 Nov 2026 · demo source, no live link', impact:'SORA is expected to stay elevated in Q4. Affordability limits how far buyers can stretch.', evidence:'Rate direction is demo content; verify against the MAS release before production.', tag:'Demo / unverified'},
+  {kind:'pos', title:'Firm project median', source:'URA caveats via Liveo internal baseline · cut-off 31 Oct 2026', impact:'The 24-month project median is S$2,040 psf. This anchors the range and prevents the AI from drifting.', evidence:'6 matched transactions; sample median 2,040 psf; min 2,000; max 2,105.', tag:'Internal demo data'}
+];
+
+function driversForReport(d){
+  const base=drivers.slice(0,3);
+  if(d.mode==='low'){
+    base.push({kind:'neg', title:'Thin project sample', source:'URA caveats via Liveo internal baseline · cut-off '+d.cutoff, impact:'Only '+d.sample.n+' project sales matched; this is a District 3 reference, not a project-level valuation.', evidence:d.sample.n+' matched project sales; median '+d.sample.median+' psf; District 3 sample '+d.district.n+' transactions.', tag:'Demo / low confidence'});
+  } else {
+    base.push(drivers[3]);
+  }
+  return base;
+}
+
+const baseReport = {
+  id:'LV-2026-11-10-001', date:'10 Nov 2026, 09:41', cutoff:'31 Oct 2026',
+  range:[2.18,2.30], mid:2.24, psf:[2026,2138], midPsf:2080,
+  sample:{n:6, median:2040, min:2000, max:2105},
+  project:{n:14, median:2040, min:1970, max:2120},
+  area:{n:9, median:2020, min:1980, max:2090},
+  district:{n:126, median:2010, min:1850, max:2240},
+  comps:comps, chart:[1960,1975,1985,1995,2005,2015,2030,2040],
+  insight:'The unit sits near the upper-mid of The Landmark’s 24-month range. The transaction baseline is firm, but the market is no longer rising quickly: supply is looser than last quarter, while financing costs cap affordability. A mid-floor 1,076 sqft unit at S$2.24M is a defensible midpoint, not a ceiling.',
+  mode:'full'
+};
+
+const lowReport = {
+  ...baseReport,
+  id:'LV-2026-11-10-002', range:[2.04,2.38], mid:2.21, psf:[1896,2212], midPsf:2050,
+  sample:{n:2, median:2030, min:2000, max:2060},
+  project:{n:2, median:2030, min:2000, max:2060},
+  area:{n:2, median:2025, min:1995, max:2055},
+  district:{n:6, median:2010, min:1948, max:2086},
+  comps:districtComps,
+  insight:'The project has too few matched sales to support a project-level range. This is a District 3 reference, using the same ±10% area filter. It should not be read as a project-level valuation or used as a bank valuation.',
+  mode:'low'
+};
+
+const baselineReport = {
+  ...baseReport,
+  id:'LV-2026-11-10-003', mode:'baseline', range:null, mid:null, psf:null, midPsf:null,
+  insight:'This is the transaction baseline only. A formal AI price is unavailable when a protection guard is triggered or a runtime dependency/AI analysis is unavailable.'
+};
+
+const nodataReport = {
+  ...baseReport,
+  id:'LV-2026-11-10-004', range:null, mid:null, psf:null, midPsf:null,
+  sample:{n:0, median:null, min:null, max:null},
+  comps:[],
+  insight:'There are not enough project or regional transactions to support a reliable estimate. We do not show a number rather than present a weak guess as a valuation.',
+  mode:'nodata'
+};
+
+const V = {
+  screen:'entry', scenario:'normal',
+  project:'The Landmark', areaSqft:1076, unit:'sqft', floor:'',
+  error:'',
+  gen:{baseline:'idle', ai:'idle', pdf:'idle'},
+  reportMode:'full', compsOpen:false, pdfState:'none', pdfRetrying:false,
+  history:[
+    {id:'LV-2026-08-12-002', date:'12 Aug 2026, 14:02', cutoff:'31 Jul 2026', range:[2.12,2.26], mid:2.19, mode:'full', pdfState:'ready', data:{...baseReport, propertyName:'The Landmark',propertyArea:1076,floor:'Mid floor', id:'LV-2026-08-12-002', date:'12 Aug 2026, 14:02', cutoff:'31 Jul 2026', range:[2.12,2.26], mid:2.19}},
+    {id:'LV-2026-06-03-001', date:'03 Jun 2026, 10:18', cutoff:'31 May 2026', range:[2.10,2.24], mid:2.17, mode:'full', pdfState:'ready', data:{...baseReport, propertyName:'The Landmark',propertyArea:1076,floor:'Mid floor', id:'LV-2026-06-03-001', date:'03 Jun 2026, 10:18', cutoff:'31 May 2026', range:[2.10,2.24], mid:2.17}}
+  ],
+  activeSnapshot:null, savedCurrent:false, currentData:null,
+  intent:'', agent:'', mandate:'none', submittedAgent:'', assignedAgent:'',
+  authorityVerified:true, candidateCount:3, frozenCandidates:[], invalidAgents:[], assignmentHistoryComplete:true,
+  genToken:0, runCount:0, mandateForm:{price:'',contactPerson:'',phoneNumber:''}, mandateId:null,mandateDueAt:null,mandateRevision:0
+};
+
+const PILOT_RULES=Object.freeze({confirmedRuleSetId:'RE8_PILOT_20261113',sampleThresholdMode:'PILOT',minProjectSamples:5,minDistrictSamples:10,windowMonths:24,areaTolerance:'0.10',lowerGuardAnchor:'MAX_PSF',lowerGuardRatio:'0.85',upperGuardRatio:'1.15',outOfRangeAction:'BASELINE_MEAN'});
+function cohortStats(rows){
+  const a=rows.map(c=>c.psf).sort((a,b)=>a-b),n=a.length;
+  return {n,median:n?(n%2?a[(n-1)/2]:(a[n/2-1]+a[n/2])/2):null,mean:n?a.reduce((a,b)=>a+b,0)/n:null,min:n?a[0]:null,max:n?a[n-1]:null};
+}
+function pilotCohort(){
+  let project=comps.filter(c=>c.area>=V.areaSqft*.9&&c.area<=V.areaSqft*1.1);
+  let district=districtComps.filter(c=>c.area>=V.areaSqft*.9&&c.area<=V.areaSqft*1.1);
+  if(['low','district_short'].includes(V.scenario))project=project.slice(0,2);
+  if(V.scenario==='district_short')district=district.slice(0,9);
+  if(V.scenario==='nodata'){project=[];district=[];}
+  const scope=project.length>=5?'PROJECT':district.length>=10?'DISTRICT':'NONE';
+  return {project,district,scope,rows:scope==='PROJECT'?project:scope==='DISTRICT'?district:[],projectStats:cohortStats(project),districtStats:cohortStats(district)};
+}
+function buildValuationData(requested){
+  const c=pilotCohort(),ratio=V.areaSqft/1076;
+  let mode=c.scope==='NONE'?'nodata':requested==='baseline'?'baseline':c.scope==='DISTRICT'?'low':'full';
+  const src=mode==='nodata'?nodataReport:mode==='baseline'?baselineReport:mode==='low'?lowReport:baseReport;
+  let range=mode==='full'||mode==='low'?src.range.map(x=>Math.round(x*ratio*100)/100):null;
+  const stats=cohortStats(c.rows);let guard=null;
+  if(range){
+    if(V.scenario==='guard_low')range=[stats.max*.84*V.areaSqft/1e6,stats.max*.99*V.areaSqft/1e6];
+    if(V.scenario==='guard_high')range=[stats.max*.99*V.areaSqft/1e6,stats.max*1.16*V.areaSqft/1e6];
+    if(range[0]*1e6/V.areaSqft<stats.max*.85||range[1]*1e6/V.areaSqft>stats.max*1.15){guard='BASELINE_MEAN';mode='baseline';range=null;}
+  }
+  const sourceRows=c.rows.length?c.rows:c.project;
+  return {...src,mode,range,mid:range?(range[0]+range[1])/2:null,psf:range?range.map(x=>Math.round(x*1e6/V.areaSqft)):null,midPsf:range?Math.round((range[0]+range[1])*.5*1e6/V.areaSqft):null,propertyName:V.project,propertyArea:Number(V.areaSqft.toFixed(4)),floor:floorText(V.floor),matched:stats,sample:c.projectStats,district:c.districtStats,comps:sourceRows,baselineMeanPsf:cohortStats(sourceRows).mean,baselineScope:c.scope==='NONE'?'PROJECT':c.scope,guard,rules:{...PILOT_RULES}};
+}
+const DEMO_AGENTS=[
+ {id:'A',name:'Demo Agent A',lastAssignedAt:'2026-11-09T08:00:00+08:00',sub:'Synthetic eligible profile · not a verified CEA record',tags:['D03','English','ACN demo']},
+ {id:'B',name:'Demo Agent B',lastAssignedAt:'2026-11-08T08:00:00+08:00',sub:'Synthetic eligible profile · not a verified CEA record',tags:['D03','English / 中文','ACN demo']},
+ {id:'C',name:'Demo Agent C',lastAssignedAt:'2026-11-07T08:00:00+08:00',sub:'Synthetic eligible profile · not a verified CEA record',tags:['D03','English / Tamil','ACN demo']}
+];
+function rankedDemoAgents(){return DEMO_AGENTS.slice(0,V.candidateCount).sort((a,b)=>(a.lastAssignedAt===null?-Infinity:Date.parse(a.lastAssignedAt))-(b.lastAssignedAt===null?-Infinity:Date.parse(b.lastAssignedAt))||a.id.localeCompare(b.id));}
+
+const V_HISTORY_KEY='liveo.ai.valuation.history.v1';
+const V_HISTORY_INIT=JSON.parse(JSON.stringify(V.history));
+try { const saved=JSON.parse(localStorage.getItem(V_HISTORY_KEY)||'null'); if(Array.isArray(saved)) V.history=saved; } catch(e) {}
+function persistHistory(){ try { localStorage.setItem(V_HISTORY_KEY, JSON.stringify(V.history)); } catch(e) {} }
+
+const scenarios = [
+  ['dependency_missing','Dependency unavailable · reference only'],
+  ['normal','Full report · PILOT 5 / 10'],
+  ['low','Project 2 → district 10'],
+  ['district_short','District 9 · no AI amount'],
+  ['guard_low','Lower guard · URA mean'],
+  ['guard_high','Upper guard · URA mean'],
+  ['nodata','No data'],
+  ['ai_fail','AI analysis fails'],
+  ['pdf_fail','PDF fails']
+];
+
+function scenarioLabel(s){ return ({dependency_missing:'Dependency unavailable · reference only',normal:'Full report · PILOT 5 / 10',low:'Project sample low',nodata:'No data',ai_fail:'AI analysis fails',pdf_fail:'PDF fails'})[s] || s; }
+
+function setScenario(s){
+  V.scenario = s; V.screen='entry'; V.error=''; V.gen={baseline:'idle',ai:'idle',pdf:'idle'};
+  V.pdfState='none'; V.pdfRetrying=false; V.reportMode='full'; V.activeSnapshot=null; V.savedCurrent=false; V.currentData=null;
+  V.intent=''; V.agent=''; V.mandate='none'; V.submittedAgent=''; V.assignedAgent=''; V.compsOpen=false; V.mandateId=null;V.frozenCandidates=[];V.invalidAgents=[];V.authorityVerified=true;V.candidateCount=3;
+  V.genToken++;
+  render();
+}
+
+function resetAll(){
+  V.screen='entry'; V.scenario='normal'; V.project='The Landmark'; V.areaSqft=1076; V.unit='sqft'; V.floor='';
+  V.error=''; V.gen={baseline:'idle',ai:'idle',pdf:'idle'}; V.reportMode='full'; V.compsOpen=false; V.pdfState='none';
+  V.activeSnapshot=null; V.savedCurrent=false; V.currentData=null; V.intent=''; V.agent=''; V.mandate='none'; V.pdfRetrying=false;
+  V.submittedAgent=''; V.assignedAgent=''; V.mandateId=null;V.mandateDueAt=null;V.mandateRevision=0;V.mandateForm={price:'',contactPerson:'',phoneNumber:''}; V.genToken++;
+  V.authorityVerified=true;V.candidateCount=3;V.frozenCandidates=[];V.invalidAgents=[];V.assignmentHistoryComplete=true; V.history=JSON.parse(JSON.stringify(V_HISTORY_INIT)); try { localStorage.removeItem(V_HISTORY_KEY); } catch(e) {}
+  render();
+}
+
+function startGeneration(){
+  V.error='';const token=++V.genToken;V.screen='generating';V.gen={baseline:'run',ai:'idle',pdf:'idle'};V.pdfState='none';V.reportMode='full';V.savedCurrent=false;V.currentData=null;V.activeSnapshot=null;render();
+  setTimeout(()=>{
+    if(token!==V.genToken)return;
+    if(pilotCohort().scope==='NONE'){V.gen.baseline='fail';V.gen.ai='todo';V.gen.pdf='todo';V.reportMode='nodata';render();return;}
+    V.gen.baseline='done';
+    if(V.scenario==='dependency_missing'){V.gen.ai='todo';V.gen.pdf='todo';V.reportMode='baseline';V.pdfState='unavailable';render();return;}
+    V.gen.ai='run';render();
+    setTimeout(()=>{
+      if(token!==V.genToken)return;
+      if(V.scenario==='ai_fail'){V.gen.ai='fail';V.gen.pdf='todo';V.reportMode='baseline';V.pdfState='unavailable';render();return;}
+      V.currentData=buildValuationData('full');V.reportMode=V.currentData.mode;V.gen.ai='done';
+      if(V.currentData.guard){V.gen.pdf='todo';V.pdfState='unavailable';render();return;}
+      V.gen.pdf='run';render();
+      setTimeout(()=>{if(token!==V.genToken)return;V.gen.pdf=V.scenario==='pdf_fail'?'fail':'done';V.pdfState=V.scenario==='pdf_fail'?'failed':'ready';render();},800);
+    },2400);
+  },700);
+}
+
+function currentReport(){
+  if(V.activeSnapshot){
+    const h=V.activeSnapshot;
+    if(!h.data || !Number.isFinite(h.data.propertyArea) || h.data.propertyArea<=0) return {...nodataReport,mode:'metadata_missing'};
+    const area=h.data.propertyArea; const hasRange=Array.isArray(h.range)&&h.range.length===2;
+    return {...h.data,range:hasRange?h.range:null,mid:hasRange?h.mid:null,propertyArea:area,
+      psf:hasRange?h.range.map(x=>Math.round(x*1e6/area)):null,midPsf:hasRange?Math.round(h.mid*1e6/area):null};
+  }
+  if(V.currentData) return V.currentData;
+  const known=({full:baseReport,low:lowReport,baseline:baselineReport,nodata:nodataReport})[V.reportMode]; if(!known) return {...nodataReport,propertyName:V.project,propertyArea:V.areaSqft,floor:floorText(V.floor)}; return {...known,propertyName:V.project,propertyArea:V.areaSqft,floor:floorText(V.floor)};
+}
+
+function saveCurrent(){
+  if(V.savedCurrent) return;
+  const d = currentReport();
+  // NO_DATA and BASELINE_ONLY are saved outcomes too; they contain no AI price.
+  V.runCount++;
+  const id = d.id + (V.runCount>1 ? '-' + V.runCount : '');
+  const item = {id, date:d.date, cutoff:d.cutoff, range:d.range, mid:d.mid, mode:d.mode, pdfState:V.pdfState, data:{...d, id}};
+  V.history.unshift(item);
+  V.savedCurrent = true;
+  persistHistory();
+}
+
+function openReport(mode){
+  V.currentData=buildValuationData(mode);V.reportMode=V.currentData.mode;V.screen='report';V.activeSnapshot=null;V.pdfRetrying=false;
+  if(!V.currentData.range)V.pdfState='unavailable';saveCurrent();render();
+}
+
+function go(screen){ if(V.screen==='generating') V.genToken++; V.screen=screen; V.activeSnapshot=null; render(); }
+
+
+let MODE='cend';
+const VPERM_VIEW={tasks:'ai:valuation:view',detail:'ai:valuation:detail',retry:'ai:valuation:retry',rules:'ai:valuation:config:read',template:'ai:valuation:template:read',usage:'ai:valuation:usage:read'};
+const V_DUTIES={
+  full:{label:'Platform full duties',role:'PLATFORM_ADMIN (System Role) · demo duty',scope:'platform',perms:['ai:valuation:view','ai:valuation:detail','ai:valuation:retry','ai:valuation:config:read','ai:valuation:config:write','ai:valuation:template:read','ai:valuation:template:write','ai:valuation:usage:read']},
+  readonly:{label:'Platform read-only',role:'PLATFORM_ADMIN · simulated read-only',scope:'platform',perms:['ai:valuation:view','ai:valuation:detail','ai:valuation:config:read','ai:valuation:template:read','ai:valuation:usage:read']},
+  operator:{label:'Task operator',role:'Platform task operator · simulated',scope:'platform',perms:['ai:valuation:view','ai:valuation:detail','ai:valuation:retry']},
+  config:{label:'System config',role:'Platform config editor · simulated',scope:'platform',perms:['ai:valuation:view','ai:valuation:detail','ai:valuation:config:read','ai:valuation:config:write','ai:valuation:template:read','ai:valuation:template:write','ai:valuation:usage:read']},
+  project:{label:'Project-scoped viewer',role:'Project viewer · The Landmark only',scope:'project:The Landmark',perms:['ai:valuation:view','ai:valuation:detail']},
+  property:{label:'Property operations',role:'ROLE_OPS_STAFF · no platform AI ops',scope:'company',perms:[]}
+};
+const V_TASKS_INIT=[
+  {id:'V-T-1042',project:'The Landmark',status:'completed',pdf:'ready',duration:'6.2s',rule:'R1.2',prompt:'PRM-24M-v3',template:'PDF-T-1.4',generated:'10 Nov 2026 09:41',report:'LV-2026-11-10-001',sample:'6 matched · median 2,040 psf',error:'',retries:0,note:'Full report; owner consent verified.'},
+  {id:'V-T-1041',project:'The Continuum',status:'ai_failed',pdf:'not_generated',duration:'3.1s',rule:'R1.2',prompt:'PRM-24M-v3',template:'PDF-T-1.4',generated:'10 Nov 2026 09:32',report:'—',sample:'4 matched · median 2,210 psf',error:'AI market analysis timeout',retries:1,note:'Baseline available; AI insight missing.'},
+  {id:'V-T-1040',project:'The Landmark',status:'completed',pdf:'failed',duration:'5.8s',rule:'R1.2',prompt:'PRM-24M-v3',template:'PDF-T-1.4',generated:'10 Nov 2026 09:18',report:'LV-2026-11-10-003',sample:'6 matched · median 2,040 psf',error:'PDF render engine timeout',retries:1,note:'Web report readable; PDF retry only.'},
+  {id:'V-T-1039',project:'Tembusu Grand',status:'low_sample',pdf:'ready',duration:'7.4s',rule:'R1.2',prompt:'PRM-24M-v3',template:'PDF-T-1.4',generated:'09 Nov 2026 18:20',report:'LV-2026-11-09-004',sample:'2 matched · district fallback',error:'',retries:0,note:'Regional reference; low confidence.'},
+  {id:'V-T-1038',project:'Parc Clematis',status:'no_data',pdf:'not_generated',duration:'2.2s',rule:'R1.2',prompt:'PRM-24M-v3',template:'PDF-T-1.4',generated:'09 Nov 2026 17:05',report:'—',sample:'0 matched · district 4',error:'Insufficient transactions',retries:0,note:'No range shown.'}
+];
+let VADMIN={view:'tasks',duty:'full',selected:'V-T-1042',filter:'all',filterProject:'all',filterPdf:'all',filterTime:'all',rules:{window:'24 months',area:'±10%',protection:'Upper bound = same-cohort max PSF × 1.15; guard breach → URA mean reference; lower bound = same-cohort max PSF × 0.85; PILOT project 5 / district 10',version:'RE8_PILOT_20261113',updated:'10 Nov 2026 · demo.ops'},template:{version:'PDF-T-1.4',updated:'10 Nov 2026',updatedBy:'demo.ops'},tasks:JSON.parse(JSON.stringify(V_TASKS_INIT)),toast:''};
+function vduty(){return V_DUTIES[VADMIN.duty]||{label:'Unknown duty',role:'Denied by default',scope:'none',perms:[]};}
+function vhasPerm(code){return vduty().perms.includes(code);}
+function vinScope(t){const sc=vduty().scope;if(sc==='platform')return true;if(sc.startsWith('project:'))return t&&t.project===sc.split(':')[1];return false;}
+function vfirst(){const t=VADMIN.tasks.find(x=>vinScope(x));return t?t.id:null;}
+const V_ACTION_PERM={retryAI:'ai:valuation:retry',retryPDF:'ai:valuation:retry',saveRules:'ai:valuation:config:write',saveTemplate:'ai:valuation:template:write'};
+function authV(action,t){
+  const perm=V_ACTION_PERM[action];
+  if(!perm) return {ok:false,reason:'unknown action'};
+  if(!vhasPerm(perm)) return {ok:false,reason:'missing '+perm};
+  if(t && !vinScope(t)) return {ok:false,reason:'object outside '+vduty().scope};
+  if((action==='saveRules'||action==='saveTemplate') && vduty().scope!=='platform') return {ok:false,reason:'platform scope required'};
+  return {ok:true};
+}
+function denyV(res){ VADMIN.toast='Blocked: '+res.reason+'. Local state was not changed.'; render(); return false; }
+function setVDuty(id){VADMIN.duty=id;VADMIN.selected=vfirst();VADMIN.view=vhasPerm('ai:valuation:view')?'tasks':'noaccess';VADMIN.toast='';render();}
+function syncValuationUrl(){ const u=new URL(location.href); if(MODE==='ops') u.searchParams.set('mode','ops'); else u.searchParams.delete('mode'); history.replaceState(null,'',u); }
+function vNoAccess(code){return `<div class="vnoaccess"><div style="font-size:24px;color:var(--muted)">⊘</div><h3>No access to AI Valuation Operations</h3><p>This simulated identity lacks <code>${code}</code>. The menu entry and page would both be unavailable in production; a direct API request would also be rejected.</p><p style="margin-top:8px">Role: ${vduty().role}；scope: ${vduty().scope}. Local simulation only.</p></div>`;}
+function vStatus(t){return ({completed:'<span class="tag ok">Completed</span>',ai_failed:'<span class="tag bad">AI failed</span>',low_sample:'<span class="tag warn">Low confidence</span>',no_data:'<span class="tag">No data</span>',queued:'<span class="tag warn">Queued</span>'})[t.status]||t.status;}
+function vPdf(t){return ({ready:'<span class="tag ok">Ready</span>',failed:'<span class="tag bad">Failed</span>',not_generated:'<span class="tag">Not generated</span>',queued:'<span class="tag warn">Queued</span>'})[t.pdf]||t.pdf;}
+function renderVAdmin(){
+  if(!vhasPerm('ai:valuation:view')) return `<div class="vadmin" style="height:620px"><div class="vmain"><div class="vbody">${vNoAccess('ai:valuation:view')}</div></div></div>`;
+  if(VADMIN.view==='detail' && !vhasPerm('ai:valuation:detail')) return `<div class="vadmin">${vShell(vNoAccess('ai:valuation:detail'))}</div>`;
+  if(VADMIN.view==='rules' && !vhasPerm('ai:valuation:config:read')) return `<div class="vadmin">${vShell(vNoAccess('ai:valuation:config:read'))}</div>`;
+  if(VADMIN.view==='template' && !vhasPerm('ai:valuation:template:read')) return `<div class="vadmin">${vShell(vNoAccess('ai:valuation:template:read'))}</div>`;
+  if(VADMIN.view==='usage' && !vhasPerm('ai:valuation:usage:read')) return `<div class="vadmin">${vShell(vNoAccess('ai:valuation:usage:read'))}</div>`;
+  if(VADMIN.view==='detail') return `<div class="vadmin">${vShell(renderVDetail())}</div>`;
+  if(VADMIN.view==='rules') return `<div class="vadmin">${vShell(renderVRules())}</div>`;
+  if(VADMIN.view==='template') return `<div class="vadmin">${vShell(renderVTemplate())}</div>`;
+  if(VADMIN.view==='usage') return `<div class="vadmin">${vShell(renderVUsage())}</div>`;
+  return `<div class="vadmin">${vShell(renderVTasks())}</div>`;
+}
+function vShell(inner){
+  const title={tasks:'Tasks & Reports',detail:'Task Detail',rules:'Rules & Prompt',template:'PDF Template',usage:'Usage & Failures'}[VADMIN.view]||'Tasks & Reports';
+  const crumb={tasks:'AI Property Services / Valuation / Tasks & Reports',detail:'AI Property Services / Valuation / Tasks & Reports / Detail',rules:'AI Property Services / Valuation / Rules & Prompt',template:'AI Property Services / Valuation / PDF Template',usage:'AI Property Services / Valuation / Usage & Failures'}[VADMIN.view]||'';
+  const chips=['ai:valuation:view','ai:valuation:detail','ai:valuation:retry','ai:valuation:config:write','ai:valuation:template:write','ai:valuation:usage:read'];
+  return `<aside class="vside"><div class="brand">Liveo Admin</div><div class="sub">AI Property Services</div>
+    <div class="navi ${VADMIN.view==='tasks'||VADMIN.view==='detail'?'on':''}" data-action="vview" data-view="tasks">Tasks &amp; Reports</div>
+    <div class="navi ${VADMIN.view==='rules'?'on':''}" data-action="vview" data-view="rules">Rules &amp; Prompt</div>
+    <div class="navi ${VADMIN.view==='template'?'on':''}" data-action="vview" data-view="template">PDF Template</div>
+    <div class="navi ${VADMIN.view==='usage'?'on':''}" data-action="vview" data-view="usage">Usage &amp; Failures</div>
+    <div style="margin-top:auto;font-size:7px;color:var(--muted);padding:0 9px;line-height:1.45">SIMULATED ADMIN<br/>No real report, model or PDF</div>
+  </aside><div class="vmain">
+    <div class="vctx"><div class="row1"><div><span class="demo-context-label">Demo context</span><span class="who">${vduty().label}</span> <span>· ${vduty().role} · scope: ${vduty().scope}</span></div><div class="crumb">${crumb}</div></div>
+    <details class="demo-perms"><summary>Simulated permissions · ${chips.filter(c=>vhasPerm(c)).length}/${chips.length}</summary><div class="perms">${chips.map(c=>`<span class="permchip ${vhasPerm(c)?'':'off'}">${c}</span>`).join('')}</div></details></div>
+    <div class="vtop"><h3>${title}</h3><div class="u">SIMULATED · no backend</div></div>
+    <div class="vbody">${VADMIN.toast?`<div class="toast">${VADMIN.toast}</div>`:''}${inner}</div>
+  </div>`;
+}
+function renderVTasks(){
+  const rows=VADMIN.tasks.filter(vinScope)
+    .filter(t=>VADMIN.filter==='all'||t.status===VADMIN.filter)
+    .filter(t=>VADMIN.filterProject==='all'||t.project===VADMIN.filterProject)
+    .filter(t=>VADMIN.filterPdf==='all'||t.pdf===VADMIN.filterPdf)
+    .filter(t=>VADMIN.filterTime==='all'||t.generated.includes(VADMIN.filterTime));
+  return `<div class="vkpis">
+    <div class="vkpi"><div class="v">${VADMIN.tasks.filter(vinScope).length}</div><div class="k">Authorized tasks</div></div>
+    <div class="vkpi"><div class="v">${VADMIN.tasks.filter(vinScope).filter(t=>t.status==='ai_failed'||t.pdf==='failed').length}</div><div class="k">Failures</div></div>
+    <div class="vkpi"><div class="v">${VADMIN.tasks.filter(vinScope).filter(t=>t.status==='low_sample'||t.status==='no_data').length}</div><div class="k">Data gaps</div></div>
+    <div class="vkpi"><div class="v">${VADMIN.rules.version}</div><div class="k">Rule version</div></div>
+  </div>
+  <div class="vcard"><div class="h">Tasks &amp; Reports · desensitised metadata</div><div style="display:flex;gap:6px;align-items:center;font-size:8px;flex-wrap:wrap"><span>Filter:</span>
+    <select class="input" id="vFilter" style="width:130px;padding:5px 7px"><option value="all" ${VADMIN.filter==='all'?'selected':''}>All statuses</option><option value="ai_failed" ${VADMIN.filter==='ai_failed'?'selected':''}>AI failed</option><option value="completed" ${VADMIN.filter==='completed'?'selected':''}>Completed</option><option value="low_sample" ${VADMIN.filter==='low_sample'?'selected':''}>Low confidence</option><option value="no_data" ${VADMIN.filter==='no_data'?'selected':''}>No data</option></select>
+    <select class="input" id="vFilterProject" style="width:130px;padding:5px 7px"><option value="all">All projects</option>${[...new Set(VADMIN.tasks.map(t=>t.project))].map(p=>`<option value="${p}" ${VADMIN.filterProject===p?'selected':''}>${p}</option>`).join('')}</select>
+    <select class="input" id="vFilterPdf" style="width:110px;padding:5px 7px"><option value="all" ${VADMIN.filterPdf==='all'?'selected':''}>All PDF</option><option value="ready" ${VADMIN.filterPdf==='ready'?'selected':''}>Ready</option><option value="failed" ${VADMIN.filterPdf==='failed'?'selected':''}>Failed</option><option value="not_generated" ${VADMIN.filterPdf==='not_generated'?'selected':''}>Not generated</option></select>
+    <select class="input" id="vFilterTime" style="width:105px;padding:5px 7px"><option value="all" ${VADMIN.filterTime==='all'?'selected':''}>All dates</option><option value="10 Nov" ${VADMIN.filterTime==='10 Nov'?'selected':''}>10 Nov</option><option value="09 Nov" ${VADMIN.filterTime==='09 Nov'?'selected':''}>09 Nov</option></select>
+  </div></div>
+  <div class="vtable"><div class="vtr head"><div>Task / project</div><div>Status</div><div>PDF</div><div>Generated</div><div>Rule</div></div>
+    ${rows.length?rows.map(t=>`<div class="vtr" data-action="vselect" data-id="${t.id}"><div><div style="font-weight:600">${t.id} · ${t.project}</div><div style="font-size:7px;color:var(--muted)">${t.sample} · ${t.duration}${t.error?" · "+t.error:""}</div></div><div>${vStatus(t)}</div><div>${vPdf(t)}</div><div>${t.generated}</div><div>${t.rule}</div></div>`).join(''):`<div class="empty-state" style="margin:0"><b>No tasks match these filters</b>Reset the filters to see all authorized tasks.<button data-action="vresetFilters">Reset filters</button></div>`}
+  </div>
+  <div class="vcard" style="margin-top:8px"><div class="h">Scope &amp; privacy</div><div style="font-size:8px;color:#374151;line-height:1.6">List returns task metadata only. Owner name, unit number, full report body and PDF are not shown by default; detail access requires <code>ai:valuation:detail</code> and the same object scope. This demo includes no real owner data.</div></div>`;
+}
+function renderVDetail(){
+  const t=VADMIN.tasks.find(x=>x.id===VADMIN.selected)||VADMIN.tasks[0];
+  if(!vinScope(t)) return vNoAccess('ai:valuation:detail');
+  const canRetry=vhasPerm('ai:valuation:retry');
+  return `<div style="margin-bottom:8px"><button class="vbtn" data-action="vview" data-view="tasks">‹ Back to Tasks</button></div>
+  <div class="vcard"><div class="h">Task · ${t.id}</div><h2>${t.project} · valuation task</h2><div style="font-size:8px;color:var(--muted)">Generated ${t.generated} · duration ${t.duration} · rule ${t.rule} · prompt ${t.prompt}</div></div>
+  <div class="vcard"><div class="h">Baseline summary</div><div class="vrow"><span class="k">Matched sample</span><span class="v">${t.sample}</span></div><div class="vrow"><span class="k">Report ID</span><span class="v">${t.report}</span></div><div class="vrow"><span class="k">Owner / unit</span><span class="v">Desensitised · not shown</span></div></div>
+  <div class="vcard"><div class="h">AI &amp; PDF state</div><div class="vrow"><span class="k">AI result</span><span class="v">${vStatus(t)}</span></div><div class="vrow"><span class="k">PDF</span><span class="v">${vPdf(t)}</span></div><div class="vrow"><span class="k">Failure reason</span><span class="v">${t.error||'—'}</span></div><div class="vrow"><span class="k">Retries</span><span class="v">${t.retries}</span></div></div>
+  <div class="vcard"><div class="h">Versions &amp; authorization</div><div class="vrow"><span class="k">Rule</span><span class="v">${t.rule}</span></div><div class="vrow"><span class="k">Prompt</span><span class="v">${t.prompt}</span></div><div class="vrow"><span class="k">PDF template</span><span class="v">${t.template}</span></div><div class="vrow"><span class="k">Report body</span><span class="v">Detail permission required; owner consent checked</span></div><div class="vrow"><span class="k">Scope</span><span class="v">${t.project}</span></div></div>
+  <div class="vcard"><div class="h">Retry actions</div><div style="font-size:8px;color:#374151;line-height:1.6">AI retry creates a new task and snapshot; it never overwrites the old report. PDF retry only re-renders the PDF for the same result and does not call the AI again.</div><div class="vacts">${canRetry?`<button class="vbtn" data-action="vretryAI" data-id="${t.id}" ${t.status==='ai_failed'?'':'disabled'}>Retry AI analysis</button><button class="vbtn" data-action="vretryPDF" data-id="${t.id}" ${t.pdf==='failed'?'':'disabled'}>Retry PDF only</button>`:`<button class="vbtn" disabled>Retry · no permission</button>`}<button class="vbtn" data-action="vview" data-view="tasks">Back</button></div><div class="vnote" style="font-size:7px;color:var(--muted);margin-top:5px">Disabled = business state does not allow this retry. Permission is checked again on click.</div></div>`;
+}
+function renderVRules(){
+  const r=VADMIN.rules,canWrite=vhasPerm('ai:valuation:config:write');
+  return `<div class="vcard"><div class="h">Active rule set · read-only contract</div><div class="vrow"><span class="k">Transaction window</span><span class="v">${r.window}</span></div><div class="vrow"><span class="k">Area matching</span><span class="v">${r.area}</span></div><div class="vrow"><span class="k">Protection rule</span><span class="v">${r.protection}</span></div><div class="vrow"><span class="k">Rule version</span><span class="v">${r.version}</span></div><div class="vrow"><span class="k">Last change</span><span class="v">${r.updated}</span></div><div class="vnote" style="font-size:7.5px;color:var(--muted);margin-top:5px">±15% is a backend protection concept. It is not a user-facing setting and its upper anchor is the same-cohort maximum PSF; the lower edge uses the same-cohort maximum PSF × 0.85. A guard breach uses the URA mean reference, never a clipped AI range.</div></div>
+  <div class="vcard"><div class="h">Prompt / source version</div><div class="vrow"><span class="k">Prompt</span><span class="v">ai_valuation_report · draft prepared, not published</span></div><div class="vrow"><span class="k">Source scope</span><span class="v">URA baseline + LTA / EdgeProp / MAS / BT / CNA demo sources</span></div><div class="vrow"><span class="k">Applicable scope</span><span class="v">Private residential · demo</span></div></div>
+  <div class="vcard"><div class="h">Confirmed business rules · PILOT</div><div style="font-size:8px;color:#374151;line-height:1.6">Project minimum 5 and district minimum 10 are PILOT parameters; the lower guard is same-cohort MAX_PSF × 0.85. Same-district, same Private Condo type, 24M and area ±10% fallback is confirmed; guard breach uses the URA mean reference. Fixed rules stay at 24 months, area ±10% and the maximum-baseline +15% upper guard. An arbitrary version label cannot approve these rules.</div><div class="vnote" style="margin-top:6px">Missing runtime dependencies produce transaction reference only. Confirmed configuration will be maintained through the existing Admin configuration and Prompt pages.</div></div>`;
+}
+const V_TEMPLATE_CATALOG=[{templateId:'LIVEO_RE8_DEMO_A4',version:'PDF-T-1.4',sha256:'9dddbf1119f7493a1e2ed0545e8a442356b7e2bc9b87bfd96f272c43840fd844',samplePdfSha256:'acdbe8ef2ddcf1c4facc76b39cb1047454a589b11029215dce0dc790a11e80cb'}];
+function applyVTemplate(){
+  if(!vhasPerm('ai:valuation:template:write')){ VADMIN.toast='Blocked: missing template permission.'; render(); return; }
+  const input=document.querySelector('#vTemplateVersion');const selected=V_TEMPLATE_CATALOG.find(t=>t.version===(input?input.value:''));
+  if(!selected){ VADMIN.toast='Blocked: select a template from the controlled demo catalog.'; render(); return; }
+  VADMIN.template={...VADMIN.template,...selected,updated:'just now',updatedBy:'demo.ops'};VADMIN.toast='Selected controlled demo template; no arbitrary label or code was accepted.';render();
+}
+function escapeV(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function renderVTemplate(){
+  const t=VADMIN.template,canWrite=vhasPerm('ai:valuation:template:write');
+  return `<div class="vcard"><div class="h">PDF template</div><div class="vrow"><span class="k">Active version</span><span class="v">${t.version}</span></div><div class="vrow"><span class="k">Updated</span><span class="v">${t.updated} · ${t.updatedBy||'demo.ops'}</span></div><div class="vrow"><span class="k">Required checks</span><span class="v">Disclaimer · sources · page numbers · no unit number</span></div><div class="vrow"><span class="k">Preview</span><span class="v"><a href="valuation-report-demo.pdf" target="_blank" rel="noopener">Open A4 demo PDF →</a></span></div></div>
+  <div class="vcard"><div class="h">Version maintenance</div><div style="font-size:8px;color:#374151;line-height:1.6">Choose only from the simulated deployed-template catalog. The sample PDF hash is fixed; no production deployment is implied. No arbitrary HTML, attachment or code upload is allowed.</div><div style="display:flex;gap:6px;margin-top:6px"><select class="input" id="vTemplateVersion" style="width:160px;padding:5px 7px" ${canWrite?'':'disabled'}>${V_TEMPLATE_CATALOG.map(x=>`<option value="${x.version}" ${x.version===t.version?'selected':''}>${x.version}</option>`).join('')}</select><button class="vbtn primary" data-action="vsaveTemplate" ${canWrite?'':'disabled'}>Save template version</button></div><div class="vnote" style="font-size:7px;color:var(--muted);margin-top:5px">${canWrite?'template:write allowed.':'Read-only: missing ai:valuation:template:write.'}</div></div>`;
+}
+function renderVUsage(){
+  return `<div class="vkpis"><div class="vkpi"><div class="v">1,284</div><div class="k">Demo calls / month</div></div><div class="vkpi"><div class="v">2.4M</div><div class="k">Demo tokens</div></div><div class="vkpi"><div class="v">S$186</div><div class="k">Demo cost</div></div><div class="vkpi"><div class="v">2.8s</div><div class="k">Demo PDF p95</div></div></div>
+  <div class="vcard"><div class="h">Usage &amp; failures · demo metrics</div><div class="vrow"><span class="k">AI failure rate</span><span class="v">3.1%</span></div><div class="vrow"><span class="k">PDF failure rate</span><span class="v">1.4%</span></div><div class="vrow"><span class="k">P95 generation</span><span class="v">7.4s</span></div><div class="vrow"><span class="k">Scope</span><span class="v">${vduty().scope} · counts are not real</span></div></div>
+  <div class="vcard"><div class="h">Recent failures</div><div class="vrow"><span class="k">AI timeout</span><span class="v">2 · The Continuum</span></div><div class="vrow"><span class="k">PDF render</span><span class="v">1 · The Landmark</span></div><div class="vrow"><span class="k">No data</span><span class="v">1 · Parc Clematis</span></div><div style="font-size:7.5px;color:var(--muted);margin-top:6px">Metrics are illustrative. No production cost, token or latency is claimed.</div></div>`;
+}
+function render(){
+  document.body.dataset.previewMode=MODE==='ops'?'ops':'cend';
+  const phone = $('#phone');
+  const label = {entry:'V1 · Input', generating:'V2 · Generating', report:'V3/V4 · Report', history:'V6 · History', agents:'V7 · Mandate'}[V.screen] || '';
+  $('#screenLabel').textContent = label;
+  const ops=MODE==='ops';
+  document.querySelectorAll('#modeTabs button').forEach(b=>b.classList.toggle('on',b.dataset.mode===MODE));
+  $('#demoWrap').classList.toggle('ops',ops);
+  $('#opsStage').style.display=ops?'block':'none';
+  document.querySelector('.phone-col').style.display=ops?'none':'block';
+  if(ops){ $('#opsStage').innerHTML=renderVAdmin(); }
+  else {
+    if(V.screen==='appMe') phone.innerHTML = renderAppMe();
+    else if(V.screen==='entry') phone.innerHTML = renderEntry();
+    else if(V.screen==='generating') phone.innerHTML = renderGenerating();
+    else if(V.screen==='report') phone.innerHTML = renderReport();
+    else if(V.screen==='history') phone.innerHTML = renderHistory();
+    else if(V.screen==='agents') phone.innerHTML = renderAgents();
+  }
+  renderConsole();
+  bind();
+}
+function renderVAdminConsole(){
+  const sc=$('#scenarios');
+  sc.innerHTML=`<div class="duty-grid" style="grid-column:1/-1">${Object.entries(V_DUTIES).map(([id,d])=>`<button class="${VADMIN.duty===id?'on':''}" data-action="vduty" data-duty="${id}">${d.label}<small>${d.role}</small></button>`).join('')}</div><button data-action="vreset">Reset admin</button><button data-action="vresetAll">Reset C-end demo</button><button data-action="vprobe">Probe out-of-scope task</button>`;
+  const t=VADMIN.tasks.find(x=>x.id===VADMIN.selected);
+  $('#statebox').innerHTML=`
+    <div class="kv"><span class="k">Mode</span><span class="v">Valuation ops</span></div>
+    <div class="kv"><span class="k">Duty</span><span class="v">${vduty().label}</span></div>
+    <div class="kv"><span class="k">Role</span><span class="v">${vduty().role}</span></div>
+    <div class="kv"><span class="k">Scope</span><span class="v">${vduty().scope}</span></div>
+    <div class="kv"><span class="k">View</span><span class="v">${VADMIN.view}</span></div>
+    <div class="kv"><span class="k">Selected</span><span class="v">${VADMIN.selected||'—'}</span></div>
+    <div class="kv"><span class="k">Task</span><span class="v">${t?t.status+' · PDF '+t.pdf:'—'}</span></div>
+    <div class="kv"><span class="k">Rule</span><span class="v">${VADMIN.rules.version}</span></div>`;
+  $('#checklist').innerHTML=`
+    <div><b>V-B01</b> · Tasks 按授权项目过滤；无 view 不显示菜单。</div>
+    <div><b>V-B02</b> · 详情只给 detail 权限；列表默认脱敏。</div>
+    <div><b>V-B03</b> · AI retry 新建任务/快照；PDF retry 不重跑 AI。</div>
+    <div><b>V-B04/B05</b> · Rules/Prompt 只读 + 受控版本保存；不伪装正式阈值。</div>
+    <div><b>V-B06</b> · PDF Template 版本与检查；不做模板设计器。</div>
+    <div><b>V-B07</b> · Usage 指标为演示；不伪造真实成本。</div>
+    <div><b>Scope</b> · Project duty 只看到 The Landmark；直接换 taskId 也不渲染详情。</div>`;
+}
+
+function statusBar(){
+  return `<div class="status"><span>9:41</span><span class="right"><i class="bar b1"></i><i class="bar b2"></i><i class="bar b3"></i><span class="battery"></span></span></div>`;
+}
+function nav(title, sub='', right='', back='entry'){
+  return `<div class="nav"><div class="back" data-action="go" data-screen="${back}">‹</div><div class="mid"><div class="t">${title}</div>${sub?`<div class="s">${sub}</div>`:''}</div><div class="r" data-action="history">${right||'History'}</div></div>`;
+}
+function homebar(){ return `<div class="homebar"></div>`; }
+
+function renderAppDock(selected){
+ const data=[['Home','home','ai-insights.html?view=appHome'],['Services','serves',null],['Lio','ai','ai-insights.html?view=appAssistant'],['Message','message',null],['Me','me','ai-valuation.html?view=appMe']];
+ return '<nav class="app-dock" aria-label="App main navigation">'+data.map(([label,key,url])=>{const chosen=label===selected;const img=key==='ai'?'ailogo.png':'table_'+key+'_icon'+(chosen?'_s':'')+'.png';const body='<img src="app-assets/'+img+'" alt=""/><span>'+label+'</span>';return url?'<a href="'+url+'" class="'+(chosen?'selected ':'')+(key==='ai'?'lio':'')+'" '+(chosen?'aria-current="page"':'')+'>'+body+'</a>':'<button data-action="outsidePreview" aria-label="'+label+'">'+body+'</button>';}).join('')+'</nav>';
+}
+function renderAppMe(){return `${statusBar()}<div class="app-context"><div class="app-eyebrow">LiveoHome · Preview</div><h1>Me</h1><div class="app-card"><div class="app-project">The Landmark</div><span class="tag blue">Verified binding · demo</span><p>Property services and saved reports.</p><button class="app-link-row" data-action="go" data-screen="entry">Property Valuation <span>Open</span></button><button class="app-link-row" data-action="history">Valuation history <span>View</span></button></div><div class="app-card"><h3>AI property valuation</h3><p>Confirm the project and floor area. View the transaction reference before a complete estimate is available.</p><button class="btn blue" data-action="go" data-screen="entry">Start a valuation</button></div><p class="app-context-note">No current valuation is assumed from an older report. Saved reports retain their original date and data cutoff.</p></div>${renderAppDock('Me')}${homebar()}`;}
+
+function renderEntry(){
+  return `${statusBar()}
+  ${nav('AI Valuation','','History','appMe')}
+  <div class="phone-body">
+    <div style="font-size:18px;font-weight:700;letter-spacing:-.02em;margin:3px 0 4px">What is my home worth?</div>
+    <div class="small muted" style="margin-bottom:11px">A market estimate built on 24 months of URA transactions, with AI market context.</div>
+
+    <div class="card" style="background:#F8FBFF;border-color:#D2E3FC">
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+        <div>
+          <div style="font-size:10.5px;font-weight:700">The Landmark</div>
+          <div class="small muted" style="margin-top:1px">1,076 sqft · District 3</div>
+          <div style="font-size:7.5px;color:var(--blue);margin-top:3px">✓ Linked property (demo)</div>
+        </div>
+        <button class="linkbtn" data-action="useBound">Use</button>
+      </div>
+    </div>
+
+    ${V.error?`<div class="err">${V.error}</div>`:''}
+
+    <div class="field">
+      <div class="l">Project name</div>
+      <input class="input" id="projectInput" value="${V.project}" placeholder="e.g. The Landmark" />
+    </div>
+
+    <div class="field">
+      <div class="l">Floor area <span>required</span></div>
+      <div class="inputwrap">
+        <input id="areaInput" value="${V.unit==='sqft'?Math.round(V.areaSqft):sqm(V.areaSqft)}" inputmode="decimal" />
+        <div class="unit">
+          <button data-action="unit" data-unit="sqft" class="${V.unit==='sqft'?'on':''}">sqft</button>
+          <button data-action="unit" data-unit="sqm" class="${V.unit==='sqm'?'on':''}">sqm</button>
+        </div>
+      </div>
+      <div class="hint">We match comparable sales within ±10% of this floor area. Use sqft or sqm; switching units converts the area once.</div>
+    </div>
+
+    <div class="field">
+      <div class="l">Floor level <span>optional</span></div>
+      <div class="seg">
+        <button data-action="floor" data-floor="" class="${V.floor===''?'on':''}">Not set</button>
+        <button data-action="floor" data-floor="low" class="${V.floor==='low'?'on':''}">Low</button>
+        <button data-action="floor" data-floor="mid" class="${V.floor==='mid'?'on':''}">Mid</button>
+        <button data-action="floor" data-floor="high" class="${V.floor==='high'?'on':''}">High</button>
+      </div>
+      <div class="hint">No unit number is asked for or shown. A floor segment is enough for the report.</div>
+    </div>
+
+    <div class="infobox"><b>Private residential only.</b> HDB flats, commercial and industrial properties are not supported in this release. This is not a bank valuation or a CEA appraisal.</div>
+    <button class="btn blue" data-action="submit">Get valuation</button>
+    <div class="demo-note">Demo data only. The report and PDF are samples, not a real market result.</div>
+  </div>
+  ${homebar()}`;
+}
+
+function renderGenerating(){
+  const g=V.gen;
+  const isLow=V.reportMode==='low' || V.scenario==='low';
+  const isNoData=V.reportMode==='nodata' || V.scenario==='nodata';
+  const webLabel=g.ai==='done' ? (isLow?'Low confidence':'Full report') : (g.baseline==='fail'?'No estimate':g.baseline==='done'?'Baseline only':'Waiting');
+  const webCopy=g.ai==='done' ? (isLow?'2 matched project sales; District 3 reference with the same ±10% area filter. This is not a full project valuation.':'Range, basis, 6 comparables, sources and AI insight are ready.') : (g.baseline==='fail'?'No project or regional sample is sufficient. The report will explain what is missing.':'The report will show the baseline first, then the AI sections when they are ready.');
+  const webTagClass=g.ai==='done' ? (isLow?'warn':'ok') : 'warn';
+  const step=(key,title,sub)=>`<div class="step ${g[key]}"><div class="ic">${g[key]==='done'?'✓':g[key]==='fail'?'!':g[key]==='run'?'···':'4'}</div><div><div class="tt">${title}</div><div class="ss">${sub}</div></div></div>`;
+  const baselineReady = g.baseline==='done';
+  return `${statusBar()}
+  ${nav('Preparing report',V.project+' · '+Math.round(V.areaSqft)+' sqft','', 'entry')}
+  <div class="phone-body">
+    <div style="font-size:16px;font-weight:700;margin:3px 0 3px">Checking the numbers</div>
+    <div class="small muted" style="margin-bottom:12px">The URA baseline and the AI view are separate. You will see which part is ready.</div>
+
+    <div class="card">
+      ${step('baseline','24-month URA transactions','Project-level caveats · cut-off 31 Oct 2026')}
+      ${step('ai','AI market analysis','Supply, transport, policy · public web sources · simulated 2.4s')}
+      ${step('pdf','PDF report','Generated after the web report is ready')}
+    </div>
+
+    ${baselineReady && g.ai==='run' ? `<div class="banner blue"><b>Transaction baseline ready.</b> This is not a full AI valuation yet. You can open the baseline-only view now.</div>` : ''}
+    ${g.baseline==='fail' ? `<div class="banner amber"><b>Not enough data for a reliable estimate.</b> The project has 0 matched sales and the region has 4. We will not show a number.</div>` : ''}
+    ${V.scenario==='dependency_missing'&&baselineReady ? `<div class="banner amber"><b>Transaction reference only.</b> A complete AI estimate is not available yet. You can view the verified transaction reference below.</div>`:''}
+    ${g.ai==='fail' ? `<div class="banner red"><b>AI analysis unavailable.</b> The transaction baseline is still available. The PDF is not generated because the AI insight is missing.</div>` : ''}
+    ${g.pdf==='fail' ? `<div class="banner amber"><b>PDF generation failed.</b> The web report is still readable. Retry the PDF from the report.</div>` : ''}
+    ${g.ai==='done' && isLow ? `<div class="banner amber"><b>Regional reference ready.</b> Only 2 project sales matched; the report uses District 3 and the same ±10% area filter, not a full project valuation.</div>` : ''}
+
+    <div class="card">
+      <div class="sec">Web report <span class="tag ${webTagClass}">${webLabel}</span></div>
+      <div class="small ${g.ai==='done'?'':'muted'}" style="color:${g.ai==='done'?'#374151':'var(--muted)'}">${webCopy}</div>
+    </div>
+
+    ${baselineReady && g.ai!=='done' ? `<button class="btn" data-action="viewBaseline">View transaction-only report</button>` : ''}
+    ${g.ai==='done' ? `<button class="btn blue" data-action="viewReport">${isLow?'View regional reference':'View full report'}</button>` : ''}
+    ${g.pdf==='done' ? `<button class="btn" data-action="openPdf" style="margin-top:7px">Open PDF</button>` : ''}
+    ${g.baseline==='fail' ? `<button class="btn blue" data-action="viewNoData">See what is missing</button>` : ''}
+    <div class="demo-note">${g.pdf==='done'?'PDF ready.':g.pdf==='fail'?'PDF failed.':'PDF render is simulated locally.'}</div>
+  </div>
+  ${homebar()}`;
+}
+
+function reportBanner(d){
+  if(d.mode==='nodata') return `<div class="banner amber"><b>No reliable estimate.</b> We do not have enough project or regional transactions to produce a range.</div>`;
+  if(d.mode==='baseline') return `<div class="banner red"><b>Transaction baseline only.</b> No AI valuation is available for this snapshot. Only the transaction reference is shown; this is not a full AI valuation.</div>`;
+  if(d.mode==='low') return `<div class="banner amber"><b>Regional reference · low confidence.</b> The project has too few matched sales. This range uses District 3 data and a wider area band. Demo assumption, not an official rule.</div>`;
+  if(V.pdfState==='failed') return `<div class="banner amber"><b>PDF generation failed.</b> The web report is readable. Retry the PDF below.</div>`;
+  return '';
+}
+
+function renderReport(){
+  const d=currentReport();
+  if(d.mode==='metadata_missing') return `${statusBar()}${nav('Saved report','','','history')}<div class="phone-body"><div class="banner amber">This older demo snapshot has incomplete stored area metadata. Its PSF cannot be reconstructed safely. The record is retained; start a new valuation for a complete snapshot.</div></div>${homebar()}`;
+  const isSnapshot=!!V.activeSnapshot;
+  const showRange = !!d.range;
+  const showAI = d.mode==='full' || d.mode==='low';
+  const compsToShow = V.compsOpen ? d.comps : d.comps.slice(0,3);
+  const chart = d.chart || baseReport.chart;
+  const chartPoints = chart.map((v,i)=>`${22+i*40},${86 - (v-1900)/200*68}`).join(' ');
+  return `${statusBar()}
+  ${nav('Valuation report', isSnapshot?'Saved snapshot':'Demo report', 'History', 'entry')}
+  <div class="phone-body">
+    <div class="card" style="padding:9px 10px">
+      <div style="display:flex;justify-content:space-between;gap:6px;align-items:flex-start">
+        <div><div style="font-size:11px;font-weight:750">Liveo Valuation Report</div><div class="small muted" style="margin-top:1px">${d.id}</div></div>
+        <span class="tag demo">DEMO DATA</span>
+      </div>
+      <div class="factgrid" style="margin-top:7px">
+        <div><div class="k">Generated</div><div class="v">${d.date} SGT</div></div>
+        <div><div class="k">Data cut-off</div><div class="v">${d.cutoff}</div></div>
+        <div><div class="k">Property</div><div class="v">${d.propertyName || V.project}</div></div>
+        <div><div class="k">Area / floor</div><div class="v">${d.propertyArea || Math.round(V.areaSqft)} sqft · ${d.floor || 'Not specified'}</div></div>
+      </div>
+    </div>
+
+    ${d.rules?`<div class="infobox">${d.rules.sampleThresholdMode} · project ${d.rules.minProjectSamples} / district ${d.rules.minDistrictSamples} · 24M · area ±10%. Trial parameters; not a backtested accuracy claim.</div>`:`<div class="infobox">Historical demo snapshot: original rule metadata is unavailable. Current trial parameters are not applied to this saved record.</div>`}
+    ${isSnapshot?`<div class="banner blue"><b>Saved snapshot · ${d.date}.</b> This report uses the stored data and does not call the model again. It is not a current market value.</div>`:''}
+    ${reportBanner(d)}
+    ${d.guard?`<div class="banner amber"><b>URA mean reference · ${d.baselineScope}</b><br/>S$${Number(d.baselineMeanPsf).toFixed(2)} / sqft. The AI range exceeded a protection boundary; its range, midpoint and PDF are unavailable.</div>`:''}
+
+    <div class="disc"><b>Estimate only.</b> This AI valuation is an estimate generated based on market data and algorithms. It does not constitute an official bank valuation or a legally binding appraisal by CEA.</div>
+
+    ${d.mode==='nodata'?`<div class="card">
+      <div class="sec">What is missing</div>
+      <div class="small" style="line-height:1.7;color:#374151">No matched project evidence supports this input in the demo. Production uses the fixed 24-month, area ±10% cohort and only confirmed regional rules. No amount is shown.</div>
+      <div class="small muted" style="margin-top:6px">Project 5 / district 10 are PILOT thresholds awaiting historical backtesting. The same-district, same-type, 24M and area ±10% fallback is confirmed. This scenario does not adopt six as a production threshold.</div>
+    </div>
+    <button class="btn blue" data-action="goAgents">Talk to an agent</button>
+    <button class="btn" data-action="go" data-screen="entry" style="margin-top:6px">Change inputs</button>`:`
+    ${d.mode==='baseline'?`<div class="card"><div class="sec">Transaction reference only</div><div class="small">The confirmed transaction cohort is shown below. No AI price or midpoint is available when a guard triggers or AI analysis / a runtime dependency is unavailable.</div></div>`:`    <div class="card">
+      <div class="sec">1. Estimated value range <span class="tag">${d.mode==='low'?'Low confidence':'AI-assisted'}</span></div>
+      <div class="range">${fmtM(d.range[0])}–${fmtM(d.range[1]).replace('S$','')}</div>
+      <div class="midpill">Arithmetic midpoint <b>${fmtM(d.mid)}</b></div>
+      <div class="rbar"><span class="knob"></span></div>
+      <div class="rlabels"><span><b>${fmtM(d.range[0])}</b>Low</span><span><b>${fmtM(d.mid)}</b>Midpoint</span><span><b>${fmtM(d.range[1])}</b>High</span></div>
+      <div class="rmeta"><span>Indicative ${fmt(d.psf[0])}–${fmt(d.psf[1])} psf</span><span>${d.comps.length} matched sales</span></div>
+      <div class="small muted" style="margin-top:5px">Midpoint is the arithmetic midpoint of the range, not a model “most likely” price.</div>
+    </div>`}
+
+    <div class="card">
+      <div class="sec">2. What the range is based on</div>
+      <table class="basis">
+        <tr><th>Reference set</th><th class="r">Sample</th><th class="r">Median</th><th class="r">Low</th><th class="r">High</th></tr>
+        <tr><td>Matched sample · 24M · area ±10%</td><td class="r">${(d.matched||d.sample).n}</td><td class="r">${(d.matched||d.sample).median?fmt((d.matched||d.sample).median):'—'}</td><td class="r">${(d.matched||d.sample).min?fmt((d.matched||d.sample).min):'—'}</td><td class="r">${(d.matched||d.sample).max?fmt((d.matched||d.sample).max):'—'}</td></tr>
+        <tr><td>Project · 24M</td><td class="r">${d.project.n}</td><td class="r">${fmt(d.project.median)}</td><td class="r">${fmt(d.project.min)}</td><td class="r">${fmt(d.project.max)}</td></tr>
+        <tr><td>Area band · project</td><td class="r">${d.area.n}</td><td class="r">${fmt(d.area.median)}</td><td class="r">${fmt(d.area.min)}</td><td class="r">${fmt(d.area.max)}</td></tr>
+        <tr><td>District 3 · private residential</td><td class="r">${d.district.n}</td><td class="r">${fmt(d.district.median)}</td><td class="r">${fmt(d.district.min)}</td><td class="r">${fmt(d.district.max)}</td></tr>
+        <tr><td><b>AI estimated range</b></td><td class="r">—</td><td class="r"><b>${d.midPsf?fmt(d.midPsf):'—'}</b></td><td class="r"><b>${d.psf?fmt(d.psf[0]):'—'}</b></td><td class="r"><b>${d.psf?fmt(d.psf[1]):'—'}</b></td></tr>
+      </table>
+      <div class="small muted" style="margin-top:5px">“Matched sample” is the set used for this unit. Project, area and district are wider context sets and are not mixed into the matched-sample median. All values are demo data.</div>
+    </div>
+
+    <div class="card">
+      <div class="sec">3. Comparable transactions <span style="font-size:7px;color:var(--blue);font-weight:500">${d.comps.length} total</span></div>
+      <div class="tbl">
+        <div class="trow head"><div>Date</div><div>Floor</div><div>Area</div><div class="r">Price</div><div class="r">PSF</div></div>
+        ${compsToShow.map(c=>`<div class="trow"><div>${c.date}</div><div>${c.floor}</div><div>${fmt(c.area)}</div><div class="r">${fmtM(c.price)}</div><div class="r">${fmt(c.psf)}</div></div>`).join('')}
+      </div>
+      ${d.comps.length>3?`<button class="linkbtn" data-action="toggleComps" style="margin-top:6px">${V.compsOpen?'Show fewer':'Show all '+d.comps.length+' transactions'} →</button>`:''}
+      <div class="small muted" style="margin-top:5px">Floor segment only. No unit numbers, owner details or contact data are shown. Prices are rounded; area × PSF ≈ price.</div>
+    </div>
+
+    <div class="card">
+      <div class="sec">4. Historical transaction PSF <span class="tag">24M</span></div>
+      <div class="chart">
+        <svg viewBox="0 0 320 108" role="img" aria-label="Historical transaction PSF, quarterly">
+          <line x1="14" y1="86" x2="306" y2="86" stroke="#E5E7EB"/>
+          <line x1="14" y1="52" x2="306" y2="52" stroke="#F1F3F4"/>
+          <line x1="14" y1="18" x2="306" y2="18" stroke="#F1F3F4"/>
+          <text class="axis" x="2" y="89">1.9k</text><text class="axis" x="2" y="55">2.0k</text><text class="axis" x="2" y="21">2.1k</text>
+          <polyline fill="none" stroke="#1A73E8" stroke-width="2" stroke-linejoin="round" points="${chartPoints}"/>
+          <circle cx="302" cy="${86 - (chart[7]-1900)/200*68}" r="2.5" fill="#1A73E8"/>
+          <text class="axis" x="18" y="103">Q4'24</text><text class="axis" x="132" y="103">Q4'25</text><text class="axis" x="276" y="103">Q3'26</text>
+        </svg>
+      </div>
+      <div class="chartmeta"><span>Median transaction PSF · quarterly · Q4 2024–Q3 2026</span><span>Cut-off ${d.cutoff}</span></div>
+      <div class="small muted" style="margin-top:4px">This is historical transaction PSF for the project, not a valuation trend for this unit.</div>
+    </div>
+
+    ${showAI?`<div class="card">
+      <div class="sec">5. What the AI found</div>
+      ${driversForReport(d).map(x=>`<div class="driver"><div class="top"><div class="t"><span style="color:${x.kind==='pos'?'var(--green)':'var(--red)'}">${x.kind==='pos'?'+':'−'}</span> ${x.title}</div><span class="tag ${x.tag.includes('Internal')?'internal':'demo'}">${x.tag}</span></div><div class="src">${x.source}</div><div class="impact">${x.impact}</div><div class="ev">Evidence: ${x.evidence}</div></div>`).join('')}
+      <div class="small muted" style="margin-top:6px">Each factor is demo content. Production must attach a verifiable source link or evidence location before publication.</div>
+    </div>
+
+    <div class="card">
+      <div class="sec">6. Overall insight</div>
+      <div style="font-size:8.5px;line-height:1.6;color:#374151">${d.insight}</div>
+    </div>`:''}
+
+    <div class="card">
+      <div class="sec">7. Sources & limitations</div>
+      <div class="small" style="line-height:1.6;color:#374151">
+        <b>Sources:</b> URA caveats via internal demo baseline (cut-off ${d.cutoff}); LTA network map (9 Nov 2026, demo); EdgeProp market data (7 Nov 2026, demo); MAS statement (6 Nov 2026, demo).<br/>
+        <b>Limitations:</b> private residential only; no HDB, commercial or industrial; no unit number; AI web sources are demo/unverified; not a bank valuation or CEA appraisal.
+      </div>
+    </div>
+
+    <div class="disc">This AI valuation is an estimate generated based on market data and algorithms. It does not constitute an official bank valuation or a legally binding appraisal by CEA.</div>
+    <div class="demo-note">Demo report. Numbers, dates and sources are sample data for prototype review.</div>`}
+
+  </div>
+  <div class="bottombar">
+    ${d.mode==='nodata'?`<button class="btn" data-action="go" data-screen="entry">Back</button>`:`
+      ${(d.mode==='full'||d.mode==='low') ? (V.pdfState==='ready'?`<a class="btn" href="valuation-report-demo.pdf" target="_blank" rel="noopener">Preview PDF</a><a class="btn" href="valuation-report-demo.pdf" download>Download</a><button class="btn blue" data-action="goAgents">List property</button>`:V.pdfState==='failed'?`<button class="btn" data-action="retryPdf" ${V.pdfRetrying?'disabled':''}>${V.pdfRetrying?'Retrying PDF…':'Retry PDF'}</button><button class="btn blue" data-action="goAgents">List my property</button>`:`<button class="btn" disabled>PDF not ready</button><button class="btn blue" data-action="goAgents">List my property</button>`) : `<button class="btn" disabled>PDF unavailable</button><button class="btn blue" data-action="goAgents">List my property</button>`}
+    `}
+  </div>
+  ${homebar()}`;
+}
+
+function renderHistory(){
+  return `${statusBar()}
+  ${nav('Valuation history','The Landmark · '+V.history.length+' saved reports','', 'entry')}
+  <div class="phone-body">
+    <div class="infobox" style="background:var(--blue-soft);border-color:#D2E3FC"><b>Saved snapshots.</b> Reopening a saved report uses the stored data and does not call the model again. It is not a current market value.</div>
+    <button class="btn blue" data-action="newValuation">Start a new valuation</button>
+    <div class="section" style="margin:11px 0 6px;display:flex;justify-content:space-between"><b style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Reports</b><span class="small muted">Newest first</span></div>
+    ${V.history.length?V.history.map((h,i)=>`<div class="hitem">
+      <div><div class="d">${h.date} · cut-off ${h.cutoff}</div><div class="r">${Array.isArray(h.range)?fmtM(h.range[0])+'–'+fmtM(h.range[1]).replace('S$',''):(h.mode==='nodata'?'No reliable estimate':'Transaction reference only')}</div><div class="d">${h.mode==='low'?'Regional reference':h.mode==='baseline'?'Baseline only':'Full report'} · PDF demo</div></div>
+      <div class="acts"><button data-action="viewSnapshot" data-index="${i}">View</button>${h.pdfState==='ready'?`<button data-action="openPdf">PDF</button>`:''}</div>
+    </div>`).join(''):`<div class="empty-state"><b>No saved reports yet</b>Start a valuation to create your first snapshot.<button data-action="newValuation">Start a new valuation</button></div>`}
+    <div class="small muted" style="margin-top:8px">A new valuation creates a new record. Older snapshots are not overwritten or deleted.</div><div class="small muted" style="margin-top:5px">PDF buttons open the same static A4 sample; per-snapshot PDF generation is not implemented in this demo.</div>
+  </div>
+  ${homebar()}`;
+}
+
+function validateMandateDemo(){
+  if(!V.authorityVerified){V.error='Verified ownership or an approved mandate is required. A tenant or family role is insufficient.';return false;}
+  if(!V.assignmentHistoryComplete){V.error='Assignment history coverage is unavailable. No rotation is fabricated.';return false;}
+  if(rankedDemoAgents().length<3){V.error='Fewer than 3 eligible candidates. No request is created.';return false;}
+  if(!V.intent){V.error='Choose Sell or Rent out first.';return false;}
+  const f=V.mandateForm;
+  if(!f.price || !Number.isFinite(Number(f.price)) || Number(f.price)<=0){V.error='Confirm your asking price; no AI midpoint is pre-filled.';return false;}
+  if(!f.contactPerson.trim() || f.contactPerson.length>64 || !f.phoneNumber.trim() || f.phoneNumber.length>32){V.error='Confirm contact person and phone details.';return false;}
+  return true;
+}
+function createMandateDemo(){
+  if(V.mandateId)return true;
+  if(!validateMandateDemo())return false;
+  V.frozenCandidates=JSON.parse(JSON.stringify(rankedDemoAgents().slice(0,3)));
+  V.mandateId='DEMO-MANDATE-'+Date.now();V.mandateDueAt=Date.now()+24*60*60*1000;V.mandateRevision=0;V.mandate='waiting';return true;
+}
+function assignMandateDemo(auto){
+  if(V.mandate!=='waiting'){V.error='This request already has a decision. No second assignment was made.';return false;}
+  if(auto)V.demoClock=V.mandateDueAt;
+  const active=V.frozenCandidates.filter(a=>!V.invalidAgents.includes(a.id));
+  const selected=auto?active[0]:active.find(a=>a.id===V.agent);
+  if(!selected){V.error=auto?'All 3 frozen candidates are unavailable. The request remains PENDING for operations; no fourth candidate is added.':'Choose a still-eligible frozen candidate.';return false;}
+  V.mandateRevision++;V.assignedAgent=selected.name;V.submittedAgent=auto?'':selected.name;V.mandate=auto?'auto':'submitted';V.error='';return true;
+}
+
+function renderAgents(){
+  const agents=V.mandateId?V.frozenCandidates:rankedDemoAgents();
+  const selected=agents.find(a=>a.id===V.agent);
+  if(V.mandate==='submitted'||V.mandate==='confirmed'||V.mandate==='waiting'||V.mandate==='auto'){
+    const title = V.mandate==='submitted'?'Request submitted':V.mandate==='confirmed'?'Agent confirmed':V.mandate==='waiting'?'Waiting for assignment':'Auto-assigned';
+    const who = V.submittedAgent||V.assignedAgent||'';
+    const sub = V.mandate==='submitted'?`Sent to ${who}. Auto-assignment is cancelled. Waiting for the agent to accept.`
+      : V.mandate==='confirmed'?`${who} accepted the demo request. No auto-assignment will run.`
+      : V.mandate==='waiting'?'No agent selected. The 24-hour auto-assignment timer is running. Use the demo button below to simulate the timeout.'
+      : `No selection within 24 hours. ${who} was auto-assigned.`;
+    return `${statusBar()}
+    ${nav('List my property','The Landmark · S$2.24M midpoint','', 'report')}
+    <div class="phone-body">
+      <div class="statuscard"><div class="t">${title}</div><div class="s">${sub}</div></div>
+      <div class="card">
+        <div class="sec">Request</div>
+        <div class="factgrid">
+          <div><div class="k">Intent</div><div class="v">${V.intent==='sale'?'Sell':'Rent out'}</div></div>
+          <div><div class="k">Property</div><div class="v">The Landmark · 1,076 sqft</div></div>
+          <div><div class="k">Agent</div><div class="v">${who||'Not selected'}</div></div>
+          <div><div class="k">Auto-assignment</div><div class="v">${V.mandate==='waiting'?'Active':V.mandate==='auto'?'Completed':'Cancelled'}</div></div>
+        </div>
+      </div>
+${V.error?`<div class="err">${escapeV(V.error)}</div>`:''}
+${V.mandate==='waiting'?`<div class="small">Choose a candidate during your active window.</div>${agents.map(a=>`<div class="agent ${V.agent===a.id?'on':''}" data-action="agent" data-agent="${a.id}"><div class="av">${a.id}</div><div class="nm">${a.name}</div><div class="radio"></div></div>`).join('')}<button class="btn blue" data-action="confirmWaitingAgent">Confirm selected agent</button>`:''}
+            ${V.mandate==='waiting'?`<div class="countdown"><span>Auto-assignment if no choice · demo</span><b>23:59:59</b></div><button class="btn" data-action="simulateTimeout">Simulate 24h timeout (demo)</button>`:''}
+      ${V.mandate==='submitted'?`<button class="btn blue" data-action="simulateAccept">Simulate agent acceptance (demo)</button>`:''}
+      ${V.mandate==='confirmed'||V.mandate==='auto'?`<button class="btn" data-action="go" data-screen="report">Back to report</button>`:''}
+      <div class="demo-note">This is a local demo. No real agent, CEA record, push or mandate was created. Server-side concurrency is not verified.</div>
+    </div>
+    ${homebar()}`;
+  }
+  return `${statusBar()}
+  ${nav('List my property','The Landmark · S$2.24M midpoint','', 'report')}
+  <div class="phone-body">
+    <div style="font-size:16px;font-weight:700;margin:2px 0 3px">Sell or rent out?</div>
+    <div class="small muted" style="margin-bottom:9px">Confirm your intention, price and contact details. You may choose a candidate now or within 24 hours after submitting. Only an authorised owner or representative can submit.</div>
+    <div class="seg" style="margin-bottom:10px">
+      <button data-action="intent" data-intent="sale" class="${V.intent==='sale'?'on':''}">Sell</button>
+      <button data-action="intent" data-intent="rent" class="${V.intent==='rent'?'on':''}">Rent out</button>
+    </div>
+<div class="field"><div class="l">Your asking price (SGD)</div><input class="input" data-mandate-field="price" value="${escapeV(V.mandateForm.price)}" inputmode="decimal" placeholder="Confirm your own price" /></div>
+    <div class="field"><div class="l">Contact person</div><input class="input" data-mandate-field="contactPerson" maxlength="64" value="${escapeV(V.mandateForm.contactPerson)}" /></div>
+    <div class="field"><div class="l">Contact phone</div><input class="input" data-mandate-field="phoneNumber" maxlength="32" value="${escapeV(V.mandateForm.phoneNumber)}" /></div>
+        ${agents.map(a=>`<div class="agent ${V.agent===a.id?'on':''}" data-action="agent" data-agent="${a.id}">
+      <div class="av">${a.id}</div><div><div class="nm">${a.name}</div><div class="sub">${a.sub}</div><div class="tags">${a.tags.map(t=>`<span>${t}</span>`).join('')}</div></div><div class="radio"></div>
+    </div>`).join('')}
+    ${V.error?`<div class="err">${V.error}</div>`:''}
+    <div class="countdown"><span>24-hour choice window</span><b>Starts after submission</b></div>
+    <button class="btn blue" data-action="submitMandate">Confirm ${selected?selected.name:'agent'}</button>
+    <button class="btn" data-action="decideLater" style="margin-top:6px">Submit request · choose within 24 hours</button>
+    <div class="demo-note">The timer starts only after the confirmed request is submitted. A manual submit cancels auto-assignment. One property, one demo agent.</div>
+  </div>
+  ${homebar()}`;
+}
+
+function renderConsole(){
+  if(MODE==='ops'){ renderVAdminConsole(); return; }
+  const sc=$('#scenarios');
+  sc.innerHTML = `<button data-action="demoAuthority">Ownership evidence: ${V.authorityVerified?'verified demo':'missing'}</button><button data-action="demoPool">Eligible pool: ${V.candidateCount}</button><button data-action="demoInvalid">Invalidate frozen 3</button>` + scenarios.map(([id,label])=>`<button class="${V.scenario===id?'on':''}" data-action="scenario" data-scenario="${id}">${label}</button>`).join('');
+  const pdf = V.pdfState==='ready'?'Ready':V.pdfState==='failed'?'Failed':V.pdfState==='unavailable'?'Not available':V.gen.pdf==='run'?'Generating':V.gen.pdf==='done'?'Ready':'—';
+  $('#statebox').innerHTML=`
+    <div class="kv"><span class="k">Scenario</span><span class="v">${scenarioLabel(V.scenario)}</span></div>
+    <div class="kv"><span class="k">Screen</span><span class="v">${V.screen}</span></div>
+    <div class="kv"><span class="k">Report mode</span><span class="v">${V.reportMode}</span></div>
+    <div class="kv"><span class="k">Baseline</span><span class="v">${V.gen.baseline}</span></div>
+    <div class="kv"><span class="k">AI</span><span class="v">${V.gen.ai}</span></div>
+    <div class="kv"><span class="k">PDF</span><span class="v">${pdf}</span></div>
+    <div class="kv"><span class="k">Mandate</span><span class="v">${V.mandate}</span></div>
+    <div class="kv"><span class="k">Snapshots</span><span class="v">${V.history.length}</span></div>`;
+  const cl=$('#checklist');
+  if(cl) cl.innerHTML=`<div><b>V1</b> · 面积 sqft/sqm 来回切，数值不重复换算；缺项目/无效面积会拦住。</div><div><b>V2</b> · 基准先出时是“仅成交参考”，不是完整 AI 报告；AI 失败、PDF 失败各有降级。</div><div><b>V3/V4</b> · 匹配样本、项目、区域、AI 区间四套数不混；6 笔可比可展开；图表写清是历史成交 PSF。</div><div><b>V5</b> · 样本不足和完全无样本都走得到；回退同邮区同类型24M±10%已确认；项目5／区域10为PILOT试运行参数。</div><div><b>V6</b> · 历史快照重开不重新生成；主动重新估值会新增记录，旧记录保留。</div><div><b>V7</b> · 出售/出租、经纪人都不默认；手动确认后不再自动派单；超时自动指派可演示。</div><div><b>PDF</b> · 打开 A4 样张，检查分页、页脚、免责声明、数字与网页一致。</div>`;
+}
+
+
+function handleOps(el){
+  const a=el.dataset.action;
+  if(a==='vview'){
+    const vp={tasks:'ai:valuation:view',detail:'ai:valuation:detail',rules:'ai:valuation:config:read',template:'ai:valuation:template:read',usage:'ai:valuation:usage:read'}[el.dataset.view];
+    if(vp && !vhasPerm(vp)){ VADMIN.toast='Blocked: missing '+vp+'. Local state was not changed.'; render(); return; }
+    VADMIN.view=el.dataset.view; VADMIN.toast=''; render(); return;
+  }
+  if(a==='vselect'){
+    const t=VADMIN.tasks.find(x=>x.id===el.dataset.id);
+    if(!vhasPerm('ai:valuation:detail')){ VADMIN.toast='Blocked: missing ai:valuation:detail.'; render(); return; }
+    if(!t || !vinScope(t)){ VADMIN.toast='Blocked: task is outside '+vduty().scope+'. Local detail was not changed.'; render(); return; }
+    VADMIN.selected=t.id; VADMIN.view='detail'; VADMIN.toast=''; render(); return;
+  }
+  if(a==='vretryAI'){
+    const t=VADMIN.tasks.find(x=>x.id===el.dataset.id);
+    const auth=authV('retryAI',t); if(!auth.ok) return denyV(auth);
+    if(!t || t.status!=='ai_failed'){ VADMIN.toast='Blocked: AI retry is only available for an AI-failed task.'; render(); return; }
+    const newId=t.id+'-R'+(t.retries+1);
+    const nt={...t,id:newId,status:'queued',pdf:'queued',report:'—',duration:'0.0s',generated:'just now',error:'',retries:t.retries+1,note:'Retry created a new task and snapshot; the old task is retained.'};
+    t.retries++; t.note='Retried as '+newId+'; old snapshot retained.';
+    VADMIN.tasks.unshift(nt); VADMIN.selected=newId; VADMIN.view='detail'; VADMIN.toast='AI retry created '+newId+' — new task, no overwrite.';
+    window.setTimeout(function(){ const x=VADMIN.tasks.find(function(y){return y.id===newId;}); if(x){ x.status='completed'; x.pdf='ready'; x.duration='6.4s'; x.report='LV-2026-11-10-'+newId.replace('V-T-',''); render(); } },1200);
+    render(); return;
+  }
+  if(a==='vretryPDF'){
+    const t=VADMIN.tasks.find(x=>x.id===el.dataset.id);
+    const auth=authV('retryPDF',t); if(!auth.ok) return denyV(auth);
+    if(!t || t.pdf!=='failed'){ VADMIN.toast='Blocked: PDF retry is only available for a PDF-failed task.'; render(); return; }
+    t.pdf='queued'; t.retries++; t.note='PDF retry only; AI result unchanged.';
+    window.setTimeout(function(){ t.pdf='ready'; t.error=''; render(); },800);
+    render(); return;
+  }
+  if(a==='vsaveRules'){
+    const auth=authV('saveRules',null); if(!auth.ok) return denyV(auth);
+    const inp=document.querySelector('#vRuleVersion'); const ver=inp?inp.value.trim():'';
+    if(!ver){ VADMIN.toast='Enter a rule version label.'; render(); return; }
+    VADMIN.rules.version=ver; VADMIN.rules.updated='just now · demo.ops'; VADMIN.toast='Saved rule version '+ver+' locally; audit entry is simulated.'; render(); return;
+  }
+  if(a==='vsaveTemplate'){ applyVTemplate(); return; }
+}
+document.querySelector('#opsStage').addEventListener('click', e=>{
+  const el=e.target.closest('[data-action]');
+  if(!el) return;
+  if(['vview','vselect','vretryAI','vretryPDF','vsaveRules','vsaveTemplate'].includes(el.dataset.action)){
+    e.stopPropagation(); e.preventDefault(); handleOps(el);
+  }
+}, true);
+document.querySelector('#opsStage').addEventListener('change', e=>{
+  if(!e.target) return;
+  if(e.target.id==='vFilter') VADMIN.filter=e.target.value;
+  if(e.target.id==='vFilterProject') VADMIN.filterProject=e.target.value;
+  if(e.target.id==='vFilterPdf') VADMIN.filterPdf=e.target.value;
+  if(e.target.id==='vFilterTime') VADMIN.filterTime=e.target.value;
+  if(['vFilter','vFilterProject','vFilterPdf','vFilterTime'].includes(e.target.id)) render();
+});
+
+function bind(){
+  const roots=[$('#phone'),$('#opsStage')].filter(Boolean);
+  roots.forEach(root=>{
+  root.querySelectorAll('[data-action]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      const a=el.dataset.action;
+      if(a==='vresetFilters'){ VADMIN.filter='all'; VADMIN.filterProject='all'; VADMIN.filterPdf='all'; VADMIN.filterTime='all'; render(); return; }
+      if(a==='vview'){
+        const vp={tasks:'ai:valuation:view',detail:'ai:valuation:detail',rules:'ai:valuation:config:read',template:'ai:valuation:template:read',usage:'ai:valuation:usage:read'}[el.dataset.view];
+        if(vp && !vhasPerm(vp)){ VADMIN.toast='Blocked: missing '+vp+'. Local state was not changed.'; render(); return; }
+        VADMIN.view=el.dataset.view; VADMIN.toast=''; render(); return;
+      }
+      if(a==='vselect'){
+        const t=VADMIN.tasks.find(x=>x.id===el.dataset.id);
+        if(!vhasPerm('ai:valuation:detail')){ VADMIN.toast='Blocked: missing ai:valuation:detail.'; render(); return; }
+        if(!t || !vinScope(t)){ VADMIN.toast='Blocked: task is outside '+vduty().scope+'. Local detail was not changed.'; render(); return; }
+        VADMIN.selected=t.id; VADMIN.view='detail'; VADMIN.toast=''; render(); return;
+      }
+      if(a==='vretryAI'){
+        if(!vhasPerm('ai:valuation:retry')){ VADMIN.toast='Blocked: missing ai:valuation:retry.'; render(); return; }
+        const t=VADMIN.tasks.find(x=>x.id===el.dataset.id);
+        if(!t || t.status!=='ai_failed'){ VADMIN.toast='Blocked: AI retry is only available for an AI-failed task.'; render(); return; }
+        const newId=t.id+'-R'+(t.retries+1);
+        const nt={...t,id:newId,status:'queued',pdf:'queued',report:'—',duration:'0.0s',generated:'just now',error:'',retries:t.retries+1,note:'Retry created a new task and snapshot; the old task is retained.'};
+        t.retries++; t.note='Retried as '+newId+'; old snapshot retained.';
+        VADMIN.tasks.unshift(nt); VADMIN.selected=newId; VADMIN.view='detail'; VADMIN.toast='AI retry created '+newId+' — new task, no overwrite.'; render();
+        setTimeout(()=>{ const x=VADMIN.tasks.find(y=>y.id===newId); if(x){ x.status='completed'; x.pdf='ready'; x.duration='6.4s'; x.report='LV-2026-11-10-'+newId.replace('V-T-',''); render(); } },1200);
+        return;
+      }
+      if(a==='vretryPDF'){
+        if(!vhasPerm('ai:valuation:retry')){ VADMIN.toast='Blocked: missing ai:valuation:retry.'; render(); return; }
+        const t=VADMIN.tasks.find(x=>x.id===el.dataset.id);
+        if(!t || t.pdf!=='failed'){ VADMIN.toast='Blocked: PDF retry is only available for a PDF-failed task.'; render(); return; }
+        t.pdf='queued'; t.retries++; t.note='PDF retry only; AI result unchanged.'; render();
+        setTimeout(()=>{ t.pdf='ready'; t.error=''; render(); },800); return;
+      }
+      if(a==='vsaveRules'){
+        if(!vhasPerm('ai:valuation:config:write')){ VADMIN.toast='Blocked: missing ai:valuation:config:write.'; render(); return; }
+        const inp=$('#vRuleVersion'); const ver=inp?inp.value.trim():'';
+        if(!ver){ VADMIN.toast='Enter a rule version label.'; render(); return; }
+        VADMIN.rules.version=ver; VADMIN.rules.updated='just now · demo.ops'; VADMIN.toast='Saved rule version '+ver+' locally; audit entry is simulated.'; render(); return;
+      }
+      if(a==='vsaveTemplate'){ applyVTemplate(); return; }
+      if(a==='outsidePreview'){alert('This preview covers AI Property News and AI Valuation.');return;}
+      if(a==='go'){ go(el.dataset.screen); return; }
+      if(a==='history'){ if(V.screen==='generating') V.genToken++; V.screen='history'; V.activeSnapshot=null; render(); return; }
+      if(a==='unit'){
+        const input=$('#areaInput'); const val=parseFloat(String(input.value).replace(/,/g,''));
+        if(!isNaN(val)) V.areaSqft = V.unit==='sqft'? val : val*10.7639;
+        V.unit=el.dataset.unit; render(); return;
+      }
+      if(a==='floor'){ V.floor=el.dataset.floor; render(); return; }
+      if(a==='useBound'){ V.project='The Landmark'; V.areaSqft=1076; V.unit='sqft'; V.floor=''; V.error=''; render(); return; }
+      if(a==='submit'){
+        const p=$('#projectInput').value.trim();
+        const av=parseFloat(String($('#areaInput').value).replace(/,/g,''));
+        const sqft = isNaN(av)?0 : (V.unit==='sqft'? av : av*10.7639);
+        V.project=p; V.areaSqft=sqft;
+        if(!p){ V.error='Enter a project name to continue.'; render(); return; }
+        if(/hdb|industrial|commercial/i.test(p)){ V.error='This release supports private residential only. HDB, commercial and industrial properties are excluded.'; render(); return; }
+        if(p.toLowerCase() !== 'the landmark'){ V.error='This demo has sample data for The Landmark only. Use The Landmark to continue.'; render(); return; }
+        if(!Number.isFinite(sqft) || sqft<=0 || sqft>9999999999.9999){ V.error='Enter a positive area within the supported storage precision.'; render(); return; }
+        startGeneration(); return;
+      }
+      if(a==='viewBaseline'){ openReport('baseline'); return; }
+      if(a==='viewReport'){ openReport(V.reportMode); return; }
+      if(a==='viewNoData'){ openReport('nodata'); return; }
+      if(a==='toggleComps'){ V.compsOpen=!V.compsOpen; render(); return; }
+      if(a==='retryPdf'){ if(V.pdfRetrying) return; V.pdfRetrying=true; render(); setTimeout(()=>{ V.pdfState='ready'; V.gen.pdf='done'; V.pdfRetrying=false; render(); },700); return; }
+      if(a==='goAgents'){ V.screen='agents'; V.activeSnapshot=null; render(); return; }
+      if(a==='newValuation'){ V.screen='entry'; V.activeSnapshot=null; V.activeSnapshot=null; render(); return; }
+      if(a==='viewSnapshot'){ const h=V.history[Number(el.dataset.index)]; V.activeSnapshot=h; V.reportMode=h.mode; V.pdfState=h.pdfState===undefined?'unavailable':h.pdfState; V.screen='report'; render(); return; }
+      if(a==='intent'){ V.intent=el.dataset.intent; V.error=''; render(); return; }
+      if(a==='agent'){ V.agent=el.dataset.agent; V.error=''; render(); return; }
+      if(a==='submitMandate'){ if(!V.agent){V.error='Choose one demo agent or submit to choose later.';render();return;} if(createMandateDemo())assignMandateDemo(false);render();return; }
+      if(a==='decideLater'){createMandateDemo();render();return;}
+      if(a==='confirmWaitingAgent'){assignMandateDemo(false);render();return;}
+      if(a==='simulateAccept'){ V.mandate='confirmed'; render(); return; }
+      if(a==='simulateTimeout'){assignMandateDemo(true);render();return;}
+    });
+  });
+  });
+  document.querySelectorAll('[data-mandate-field]').forEach(input=>input.addEventListener('input',()=>{V.mandateForm[input.dataset.mandateField]=input.value;}));
+  const project=$('#projectInput');
+  if(project){ project.addEventListener('input', e=>{ V.project=e.target.value; }); }
+  const area=$('#areaInput');
+  if(area){ area.addEventListener('input', e=>{ const v=parseFloat(String(e.target.value).replace(/,/g,'')); if(!isNaN(v)) V.areaSqft = V.unit==='sqft'? v : v*10.7639; }); }
+  const vf=$('#vFilter');
+  if(vf){ vf.addEventListener('change', e=>{ VADMIN.filter=e.target.value; render(); }); }
+}
+
+$('#scenarios').addEventListener('click', e=>{
+  const c=e.target.closest('[data-action]');if(c&&c.dataset.action==='demoAuthority'){V.authorityVerified=!V.authorityVerified;render();return;}if(c&&c.dataset.action==='demoPool'){V.candidateCount=V.candidateCount===3?2:3;render();return;}if(c&&c.dataset.action==='demoInvalid'){V.invalidAgents=V.frozenCandidates.map(a=>a.id);render();return;}
+  const b=e.target.closest('[data-action="scenario"]');
+  if(b) setScenario(b.dataset.scenario);
+});
+document.addEventListener('click', e=>{
+  const b=e.target.closest('[data-action]');
+  if(!b) return;
+  const a=b.dataset.action;
+  if(a==='vmode'){ MODE=b.dataset.mode; syncValuationUrl(); render(); }
+  if(a==='vduty'){ setVDuty(b.dataset.duty); }
+  if(a==='vresetAll'){ MODE='cend'; resetAll(); return; }
+  if(a==='vreset'){ VADMIN.tasks=JSON.parse(JSON.stringify(V_TASKS_INIT)); VADMIN.view='tasks'; VADMIN.selected=vfirst(); VADMIN.filter='all'; VADMIN.filterProject='all'; VADMIN.filterPdf='all'; VADMIN.filterTime='all'; VADMIN.toast='Admin demo reset; no real task was changed.'; render(); }
+  if(a==='vprobe'){ const t=VADMIN.tasks.find(x=>x.id==='V-T-1041'); if(!vinScope(t)){ VADMIN.toast='Blocked: V-T-1041 is outside '+vduty().scope+'. Local detail was not changed.'; render(); } else { VADMIN.selected='V-T-1041'; VADMIN.view='detail'; render(); } }
+});
+
+const qp = new URLSearchParams(location.search);
+if(qp.get('mode')==='ops'){ MODE='ops'; if(qp.get('duty')) VADMIN.duty=qp.get('duty'); if(qp.get('vview')) VADMIN.view=qp.get('vview'); }
+if(qp.get('scenario')) V.scenario = qp.get('scenario');
+if(qp.get('view')==='appMe') V.screen='appMe';
+if(qp.get('view')==='report'){
+  V.reportMode = qp.get('mode')||'full';
+  V.currentData = ({full:baseReport, low:lowReport, baseline:baselineReport, nodata:nodataReport})[V.reportMode] || baseReport;
+  V.pdfState = V.reportMode==='baseline'||V.reportMode==='nodata' ? 'unavailable' : 'ready';
+  V.screen='report'; V.savedCurrent=true;
+}
+render();
+</script>
+</body>
+</html>

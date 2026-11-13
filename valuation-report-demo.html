@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="icon" href="data:," />
+<title>Liveo Valuation Report — Demo Sample</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #E9EDF2; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "PingFang SC", Arial, sans-serif;
+    color: #111827; font-size: 9.2pt; line-height: 1.45;
+  }
+  .sheet {
+    width: 210mm; height: 297mm; padding: 13mm 15mm 11mm;
+    background: #fff; margin: 10mm auto; position: relative; overflow: hidden;
+    box-shadow: 0 4px 18px rgba(0,0,0,.12);
+  }
+  @media print {
+    html, body { background: #fff; }
+    .sheet { margin: 0; box-shadow: none; page-break-after: always; }
+    .sheet:last-child { page-break-after: auto; }
+  }
+  .watermark {
+    position: absolute; top: 48%; left: 50%; transform: translate(-50%,-50%) rotate(-32deg);
+    font-size: 92pt; font-weight: 800; letter-spacing: .12em; color: #F1F5F9; z-index: 0;
+    white-space: nowrap; pointer-events: none;
+  }
+  .content { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1.6px solid #111827; padding-bottom: 6px; }
+  .brand { font-size: 15pt; font-weight: 800; letter-spacing: -.02em; }
+  .brand span { color: #1A73E8; }
+  .doc-title { font-size: 7.5pt; color: #6B7280; text-align: right; line-height: 1.5; }
+  .doc-title b { display: block; font-size: 9pt; color: #111827; }
+  .demo {
+    margin-top: 7px; background: #FFF7ED; border: 1px solid #FED7AA; color: #9A3412;
+    border-radius: 4px; padding: 5px 8px; font-size: 7.6pt; display: flex; justify-content: space-between; gap: 10px;
+  }
+  .demo b { font-weight: 750; }
+  .metagrid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .metabox { border: 1px solid #E5E7EB; border-radius: 4px; padding: 6px 8px; }
+  .metabox .k { font-size: 6.6pt; text-transform: uppercase; letter-spacing: .06em; color: #6B7280; }
+  .metabox .v { font-size: 8.4pt; font-weight: 650; margin-top: 1px; }
+  .prop { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .prop div { border-top: 2px solid #1A73E8; padding-top: 4px; }
+  .prop .k { font-size: 6.6pt; color: #6B7280; text-transform: uppercase; letter-spacing: .06em; }
+  .prop .v { font-size: 9.6pt; font-weight: 700; margin-top: 1px; }
+
+  h2 { font-size: 9.6pt; margin: 11px 0 5px; padding-bottom: 3px; border-bottom: 1px solid #E5E7EB; }
+  h2 .n { color: #1A73E8; margin-right: 4px; }
+  .rangebox { border: 1px solid #D2E3FC; background: #F8FBFF; border-radius: 6px; padding: 10px 12px; text-align: center; margin-top: 7px; }
+  .rangebox .label { font-size: 7pt; color: #6B7280; text-transform: uppercase; letter-spacing: .08em; }
+  .rangebox .big { font-size: 25pt; font-weight: 800; color: #1A73E8; letter-spacing: -.02em; margin: 2px 0 0; }
+  .rangebox .mid { font-size: 8.4pt; color: #374151; margin-top: 2px; }
+  .rangebox .mid b { color: #111827; }
+  .rangebox .psf { font-size: 7.8pt; color: #6B7280; margin-top: 2px; }
+  .note { font-size: 7.2pt; color: #6B7280; margin-top: 3px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border-bottom: 1px solid #E5E7EB; padding: 4px 5px; text-align: left; vertical-align: top; }
+  th { font-size: 6.6pt; text-transform: uppercase; letter-spacing: .05em; color: #6B7280; background: #F8FAFC; font-weight: 650; }
+  td { font-size: 7.8pt; }
+  td.r, th.r { text-align: right; }
+  .tbl { border: 1px solid #E5E7EB; border-radius: 4px; overflow: hidden; }
+  .basis td:first-child { color: #374151; }
+  .basis tr.total td { font-weight: 700; background: #F8FBFF; }
+  .tag { display: inline-block; font-size: 6.2pt; padding: 1px 4px; border-radius: 999px; background: #F1F3F4; color: #4B5563; font-weight: 650; }
+  .tag.demo { background: #FFF7ED; color: #9A3412; }
+  .tag.internal { background: #E8F0FE; color: #0B57D0; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .chart { border: 1px solid #E5E7EB; border-radius: 4px; padding: 6px 6px 2px; }
+  .chart svg { width: 100%; height: auto; display: block; }
+  .chart .cap { font-size: 6.6pt; color: #6B7280; display: flex; justify-content: space-between; margin-top: 2px; }
+  .axis { font-size: 6pt; fill: #9AA0A6; }
+
+  .driver { border-bottom: 1px solid #E5E7EB; padding: 3px 0; }
+  .driver:last-child { border-bottom: 0; }
+  .driver .hd { display: flex; justify-content: space-between; gap: 8px; }
+  .driver .t { font-size: 8pt; font-weight: 650; }
+  .driver .src { font-size: 6.7pt; color: #6B7280; margin-top: 1px; }
+  .driver .impact { font-size: 7.4pt; color: #374151; margin-top: 2px; }
+  .driver .ev { font-size: 6.8pt; color: #6B7280; margin-top: 2px; }
+  .pos { color: #0F9D58; } .neg { color: #C5221F; }
+
+  .insight { border-left: 3px solid #1A73E8; background: #F8FBFF; padding: 6px 9px; font-size: 7.6pt; color: #1F2937; }
+  .disclaimer { border: 1px solid #E5E7EB; background: #FAFAFA; border-radius: 4px; padding: 7px 8px; font-size: 6.8pt; color: #4B5563; margin-top: 7px; }
+  .foot { margin-top: auto; border-top: 1px solid #E5E7EB; padding-top: 4px; display: flex; justify-content: space-between; font-size: 6.2pt; color: #9AA0A6; }
+  .next { display: flex; justify-content: space-between; align-items: center; border: 1px solid #D2E3FC; background: #F8FBFF; border-radius: 4px; padding: 5px 8px; margin-top: 6px; }
+  .next .t { font-size: 8pt; font-weight: 700; }
+  .next .s { font-size: 6.8pt; color: #6B7280; margin-top: 1px; }
+  .next .btn { background: #1A73E8; color: #fff; border-radius: 4px; padding: 5px 9px; font-size: 7pt; font-weight: 650; white-space: nowrap; }
+  ul { margin: 3px 0 0; padding-left: 14px; }
+  li { font-size: 7.3pt; color: #374151; margin-bottom: 1px; }
+  .small { font-size: 6.8pt; color: #6B7280; }
+  .avoid { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<section class="sheet">
+  <div class="watermark">DEMO</div>
+  <div class="content">
+    <div class="top">
+      <div>
+        <div class="brand">Liveo<span>.</span></div>
+        <div class="small" style="margin-top:2px">AI Valuation Report</div>
+      </div>
+      <div class="doc-title">
+        <b>LV-2026-11-10-001</b>
+        Generated 10 Nov 2026, 09:41 SGT<br/>
+        Data cut-off 31 Oct 2026
+      </div>
+    </div>
+
+    <div class="demo">
+      <span><b>DEMO REPORT.</b> Sample data for prototype review only. Not a real market valuation.</span>
+      <span>Not a bank valuation or CEA appraisal</span>
+    </div>
+
+    <div class="metagrid">
+      <div class="metabox"><div class="k">Property</div><div class="v">The Landmark</div><div class="small">173 Chin Swee Road · District 3</div></div>
+      <div class="metabox"><div class="k">Floor area</div><div class="v">1,076 sqft</div><div class="small">≈ 99.96 sqm</div></div>
+      <div class="metabox"><div class="k">Floor segment</div><div class="v">Mid floor</div><div class="small">No unit number is shown</div></div>
+    </div>
+
+    <div class="prop">
+      <div><div class="k">Property type</div><div class="v">Private condo</div></div>
+      <div><div class="k">Tenure</div><div class="v">99-year leasehold</div></div>
+      <div><div class="k">Report basis</div><div class="v">24 months · ±10% area</div></div>
+      <div><div class="k">Matched sales</div><div class="v">6 transactions</div></div>
+    </div>
+
+    <h2><span class="n">1.</span> Estimated value range</h2>
+    <div class="rangebox">
+      <div class="label">AI-assisted estimated range</div>
+      <div class="big">S$2.18M–2.30M</div>
+      <div class="mid">Arithmetic midpoint <b>S$2.24M</b> · not a model “most likely” price</div>
+      <div class="psf">Indicative PSF range: S$2,026–2,138 psf · midpoint ≈ S$2,080 psf</div>
+    </div>
+    <div class="note">The range is an estimate. It is derived from the matched URA baseline and the AI market review. It is not a guaranteed sale price.</div>
+
+    <h2><span class="n">2.</span> What the range is based on</h2>
+    <div class="tbl avoid">
+      <table class="basis">
+        <tr><th>Reference set</th><th class="r">Sample</th><th class="r">Median PSF</th><th class="r">Low PSF</th><th class="r">High PSF</th></tr>
+        <tr><td>Matched sample · project · 24 months · area ±10% (968–1,184 sqft)</td><td class="r">6</td><td class="r">2,040</td><td class="r">2,000</td><td class="r">2,105</td></tr>
+        <tr><td>Project · all matched areas · 24 months</td><td class="r">14</td><td class="r">2,040</td><td class="r">1,970</td><td class="r">2,120</td></tr>
+        <tr><td>Area band · project · 24 months</td><td class="r">9</td><td class="r">2,020</td><td class="r">1,980</td><td class="r">2,090</td></tr>
+        <tr><td>District 3 · private residential · 24 months</td><td class="r">126</td><td class="r">2,010</td><td class="r">1,850</td><td class="r">2,240</td></tr>
+        <tr class="total"><td>AI estimated range (total price converted to PSF)</td><td class="r">—</td><td class="r">2,080</td><td class="r">2,026</td><td class="r">2,138</td></tr>
+      </table>
+    </div>
+    <div class="note">“Matched sample” is the 6 transactions used for this unit. “Project” and “District” are wider context sets and are not mixed into the matched-sample median. All data is demo data.</div>
+
+    <h2><span class="n">3.</span> Comparable transactions</h2>
+    <div class="tbl avoid">
+      <table>
+        <tr><th>Contract</th><th>Floor</th><th class="r">Area (sqft)</th><th class="r">Price</th><th class="r">PSF</th><th>Check</th></tr>
+        <tr><td>May 2026</td><td>Mid</td><td class="r">1,080</td><td class="r">S$2.25M</td><td class="r">2,083</td><td class="small">1,080 × 2,083 ≈ 2.25M</td></tr>
+        <tr><td>Apr 2026</td><td>High</td><td class="r">1,050</td><td class="r">S$2.21M</td><td class="r">2,105</td><td class="small">1,050 × 2,105 ≈ 2.21M</td></tr>
+        <tr><td>Mar 2026</td><td>Low</td><td class="r">1,090</td><td class="r">S$2.18M</td><td class="r">2,000</td><td class="small">1,090 × 2,000 = 2.18M</td></tr>
+        <tr><td>Feb 2026</td><td>Mid</td><td class="r">1,040</td><td class="r">S$2.11M</td><td class="r">2,030</td><td class="small">1,040 × 2,030 ≈ 2.11M</td></tr>
+        <tr><td>Jan 2026</td><td>High</td><td class="r">1,070</td><td class="r">S$2.19M</td><td class="r">2,050</td><td class="small">1,070 × 2,050 ≈ 2.19M</td></tr>
+        <tr><td>Dec 2025</td><td>Mid</td><td class="r">1,060</td><td class="r">S$2.14M</td><td class="r">2,020</td><td class="small">1,060 × 2,020 ≈ 2.14M</td></tr>
+      </table>
+    </div>
+    <div class="note">Floor segment only. Unit numbers and owner details are intentionally excluded (PDPA). Prices are rounded to two decimals; PSF is rounded to the nearest dollar.</div>
+
+    <div class="foot">
+      <span>Liveo · Demo valuation report · LV-2026-11-10-001</span>
+      <span>Page 1 of 2</span>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 2 -->
+<section class="sheet">
+  <div class="watermark">DEMO</div>
+  <div class="content">
+    <div class="top">
+      <div>
+        <div class="brand">Liveo<span>.</span></div>
+        <div class="small" style="margin-top:2px">AI Valuation Report · The Landmark</div>
+      </div>
+      <div class="doc-title">
+        <b>LV-2026-11-10-001</b>
+        Generated 10 Nov 2026, 09:41 SGT<br/>
+        Data cut-off 31 Oct 2026
+      </div>
+    </div>
+
+    <h2><span class="n">4.</span> Historical transaction PSF</h2>
+    <div class="chart avoid">
+      <svg viewBox="0 0 700 180" role="img" aria-label="Historical transaction PSF, quarterly">
+        <line x1="52" y1="150" x2="670" y2="150" stroke="#E5E7EB"/>
+        <line x1="52" y1="100" x2="670" y2="100" stroke="#F1F3F4"/>
+        <line x1="52" y1="58" x2="670" y2="58" stroke="#F1F3F4"/>
+        <text class="axis" x="18" y="148">1,950</text>
+        <text class="axis" x="18" y="103">2,000</text>
+        <text class="axis" x="18" y="61">2,050</text>
+        <polyline fill="none" stroke="#1A73E8" stroke-width="3" stroke-linejoin="round"
+          points="52,133 139,121 227,113 316,104 405,96 493,88 582,75 670,67"/>
+        <circle cx="670" cy="67" r="4" fill="#1A73E8"/>
+        <text class="axis" x="46" y="170">Q4'24</text>
+        <text class="axis" x="296" y="170">Q3'25</text>
+        <text class="axis" x="536" y="170">Q2'26</text>
+        <text class="axis" x="646" y="170">Q3'26</text>
+      </svg>
+      <div class="cap"><span>Median transaction PSF · quarterly · Q4 2024 – Q3 2026</span><span>Cut-off 31 Oct 2026</span></div>
+    </div>
+    <div class="note">This chart shows historical transaction PSF for the project. It is not a valuation trend for this unit and it does not predict future value.</div>
+
+    <h2><span class="n">5.</span> What the AI found</h2>
+    <div class="driver avoid">
+      <div class="hd"><div class="t"><span class="pos">+</span> Transport access</div><span class="tag demo">Demo / unverified</span></div>
+      <div class="src">Source: LTA network map · accessed 9 Nov 2026 · demo source, no live link</div>
+      <div class="impact">Havelock MRT (TEL) is about 420m away. This supports buyer demand and the upper half of the range.</div>
+      <div class="ev">Evidence note: station distance is a demo value; verify against LTA before production use.</div>
+    </div>
+    <div class="driver avoid">
+      <div class="hd"><div class="t"><span class="neg">−</span> Resale supply is loosening</div><span class="tag demo">Demo / unverified</span></div>
+      <div class="src">Source: EdgeProp market data · 7 Nov 2026 · demo source, no live link</div>
+      <div class="impact">District 3 resale listings rose 9% in October. More choice can lengthen time-on-market and cap the upper half.</div>
+      <div class="ev">Evidence note: the 9% figure is demo data shared with the AI Insights prototype.</div>
+    </div>
+    <div class="driver avoid">
+      <div class="hd"><div class="t"><span class="neg">−</span> Financing costs</div><span class="tag demo">Demo / unverified</span></div>
+      <div class="src">Source: MAS statement · 6 Nov 2026 · demo source, no live link</div>
+      <div class="impact">SORA is expected to stay elevated in Q4. Affordability limits how far buyers can stretch.</div>
+      <div class="ev">Evidence note: rate direction is demo content; verify against the MAS release before production.</div>
+    </div>
+    <div class="driver avoid">
+      <div class="hd"><div class="t"><span class="pos">+</span> Firm project median</div><span class="tag internal">Internal demo data</span></div>
+      <div class="src">Source: URA caveats via Liveo internal baseline · cut-off 31 Oct 2026</div>
+      <div class="impact">The 24-month project median is S$2,040 psf. This anchors the range and prevents the AI from drifting.</div>
+      <div class="ev">Evidence note: 6 matched transactions; sample median 2,040 psf; min 2,000; max 2,105.</div>
+    </div>
+
+    <h2><span class="n">6.</span> Overall insight</h2>
+    <div class="insight avoid">
+      The unit sits near the upper-mid of The Landmark’s 24-month range. The transaction baseline is firm, but the market is no longer rising quickly: supply is looser than last quarter, while financing costs cap affordability. A mid-floor 1,076 sqft unit at S$2.24M is a defensible midpoint, not a ceiling. The estimate should be read as a market reference, not a bank valuation.
+    </div>
+
+    <h2><span class="n">7.</span> Sources, limitations and disclaimer</h2>
+    <div class="two">
+      <div>
+        <div class="small" style="font-weight:700;color:#111827;margin-bottom:2px">Sources</div>
+        <ul>
+          <li>URA caveats via internal demo baseline · cut-off 31 Oct 2026</li>
+          <li>LTA network map · 9 Nov 2026 · demo / unverified</li>
+          <li>EdgeProp market data · 7 Nov 2026 · demo / unverified</li>
+          <li>MAS statement · 6 Nov 2026 · demo / unverified</li>
+        </ul>
+      </div>
+      <div>
+        <div class="small" style="font-weight:700;color:#111827;margin-bottom:2px">Limitations</div>
+        <ul>
+          <li>Private residential only; HDB, commercial and industrial are excluded.</li>
+          <li>No unit number or owner detail is used or shown.</li>
+          <li>AI web sources are demo content, not live verified articles.</li>
+          <li>Not a bank valuation or a CEA appraisal.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      This AI valuation is an estimate generated based on market data and algorithms. It does not constitute an official bank valuation or a legally binding appraisal by CEA.
+    </div>
+
+    <div class="next avoid">
+      <div>
+        <div class="t">Next step: list your property</div>
+        <div class="s">In the Liveo app, this opens the sale/rent intention and agent selection screen. This PDF is a static demo and does not submit a request.</div>
+      </div>
+      <div class="btn">Open in Liveo (demo)</div>
+    </div>
+
+    <div class="foot">
+      <span>Liveo · Demo valuation report · LV-2026-11-10-001</span>
+      <span>Page 2 of 2</span>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

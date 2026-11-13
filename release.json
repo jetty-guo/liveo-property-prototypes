@@ -1,0 +1,23 @@
+{
+  "release": "20261113-confirmed-rules",
+  "source": "RE8 / RE9 confirmed-rule prototypes",
+  "demoOnly": true,
+  "files": {
+    "index.html": "67ea41f253e7608ef486ec61d3ce6f5aabfb89cacf64f3ef7edcf7f906eb2f2c",
+    "ai-insights.html": "b9d7084af3a583f91ad2c8ae663e1f6c869425ecb50d16153076c3ed6b151ba7",
+    "README.md": "fbb8e980ccf1c9d1f75bbc05e7cb1c75f72229d99c4615f292429bb6f0bb50b4",
+    "valuation-report-demo.html": "9dddbf1119f7493a1e2ed0545e8a442356b7e2bc9b87bfd96f272c43840fd844",
+    ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ai-valuation.html": "7ed205051b1b01e34d28acee74df1ea013de25d37a65f276653edf2e6e177f99",
+    "valuation-report-demo.pdf": "acdbe8ef2ddcf1c4facc76b39cb1047454a589b11029215dce0dc790a11e80cb",
+    "app-assets/table_me_icon_s.png": "d61cad3f03ce6f34c4a1aa18b2580e6fadadf9c97058b279ae4c05430b374887",
+    "app-assets/table_home_icon.png": "9f95ecdcecf837a05f6ce029eb83d567526d0cc3ac4d5e95fcc5e1a4db6a65cc",
+    "app-assets/table_serves_icon.png": "742a76ef1df51b0e91de6279e8ff24eeb128b4fb28d531d1fa546bb2f6a5ae1c",
+    "app-assets/table_message_icon.png": "7136cbdeeccea6179e74018b833e5f4e3505643c14c49d0d1eb95b7b655edb21",
+    "app-assets/table_home_icon_s.png": "fe5ec264cede6c0d671f01084899e8b9061e1523b99a6ba02a0d7d4dd0768f18",
+    "app-assets/table_message_icon_s.png": "31f25797827a8c7b53d51de9cf6a9d5827bf0df79b773d6dd87a130492d1dd86",
+    "app-assets/table_me_icon.png": "bb7425413df043e557f611ffe48f6c8cfa3eca49bc5b1fccf8a9d952be50fd86",
+    "app-assets/table_serves_icon_s.png": "18803103198d3cedf00abcaf35312d4eb5588f7d3d9e11652b5f6a51af6b0dc7",
+    "app-assets/ailogo.png": "c0fca278484e4a33a37cca8cba1396ce1a352ae258928d04004aadf2115cd09d"
+  }
+}
