@@ -1286,9 +1286,11 @@ if(qp.get('mode')==='ops'){ MODE='ops'; if(qp.get('duty')) VADMIN.duty=qp.get('d
 if(qp.get('scenario')) V.scenario = qp.get('scenario');
 if(qp.get('view')==='appMe') V.screen='appMe';
 if(qp.get('view')==='report'){
-  V.reportMode = qp.get('mode')||'full';
-  V.currentData = ({full:baseReport, low:lowReport, baseline:baselineReport, nodata:nodataReport})[V.reportMode] || baseReport;
-  V.pdfState = V.reportMode==='baseline'||V.reportMode==='nodata' ? 'unavailable' : 'ready';
+  const requested = ['full','low','baseline','nodata'].includes(qp.get('mode')) ? qp.get('mode') : 'full';
+  V.scenario = requested==='low' ? 'low' : requested==='nodata' ? 'nodata' : 'normal';
+  V.currentData = buildValuationData(requested);
+  V.reportMode = V.currentData.mode;
+  V.pdfState = V.currentData.range ? 'ready' : 'unavailable';
   V.screen='report'; V.savedCurrent=true;
 }
 render();
