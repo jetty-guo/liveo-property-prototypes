@@ -322,6 +322,43 @@
 .phone .btn.blue{background:#0355D5;border-color:#0355D5;color:#fff}
 .phone .linkbtn{border:0;background:transparent;color:#0355D5;min-height:44px;font-family:inherit;font-size:13px;cursor:pointer;padding:0 4px}
 
+
+.gset{--gs-line:#dce3ed;--gs-muted:#536379;--gs-blue:#145ac4;color:#18273b;font-size:14px;line-height:1.5}
+.gset *{box-sizing:border-box}
+.gset-nav{display:flex;gap:18px;border-bottom:1px solid var(--gs-line);margin:0 0 18px;flex-wrap:wrap}
+.gset-nav button{background:none;border:0;border-bottom:3px solid transparent;font:inherit;color:var(--gs-muted);padding:9px 2px;cursor:pointer}
+.gset-nav button[aria-pressed=true]{color:var(--gs-blue);border-bottom-color:var(--gs-blue);font-weight:650}
+.gset-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(210px,1fr);gap:16px;align-items:start}
+.gset-card{border:1px solid var(--gs-line);border-radius:10px;background:#fff;min-width:0;margin:0 0 16px}
+.gset-head,.gset-body,.gset-foot{padding:16px 18px}
+.gset-head{border-bottom:1px solid var(--gs-line);display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.gset h3{color:#142038;font-size:16px;line-height:1.35;margin:0}
+.gset small,.gset p{font-size:13px;color:var(--gs-muted);line-height:1.5}
+.gset p{margin:4px 0}.gset time{font-size:12px;color:var(--gs-muted)}
+.gset-switchrow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}.gset-switchrow:first-child{padding-top:0}
+.gset-switchrow+.gset-switchrow{border-top:1px solid var(--gs-line)}
+.gset-switchrow label{display:block;cursor:pointer;font-weight:650}
+.gset-switch{appearance:none;flex:0 0 40px;width:40px;height:24px;background:#718196;border:1px solid #677a92;border-radius:14px;cursor:pointer;position:relative;margin:0}
+.gset-switch:before{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:white}
+.gset-switch:checked{background:#1765cd;border-color:#1765cd}.gset-switch:checked:before{left:19px}
+.gset-switch:disabled{opacity:.65;cursor:default}
+.gset .gset-text,.gset select{width:100%;padding:8px 10px;border:1px solid #b9c6d6;border-radius:6px;font:inherit;color:inherit;background:#fff}
+.gset .gset-text{resize:vertical;min-height:56px;display:block;margin-top:5px}
+.gset-foot{border-top:1px solid var(--gs-line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.gset-actions{display:flex;gap:8px;align-items:center}.gset .pam-btn{font-size:13px;min-height:35px}
+.gset button:focus-visible,.gset input:focus-visible,.gset textarea:focus-visible,.gset select:focus-visible,.gset summary:focus-visible{outline:2px solid #1765cd;outline-offset:2px}
+.gset dl{margin:0}.gset dl>div{padding:10px 0;border-bottom:1px solid var(--gs-line)}.gset dl>div:first-child{padding-top:0}.gset dl>div:last-child{border-bottom:0;padding-bottom:0}
+.gset dt{font-size:12px;color:var(--gs-muted)}.gset dd{margin:2px 0 0;font-weight:600;overflow-wrap:anywhere}
+.gset details{margin-top:14px}.gset summary{font-weight:600;color:var(--gs-blue);cursor:pointer}
+.gset .gset-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:12px 0}
+.gset-fields label{display:block;font-size:12px;color:var(--gs-muted)}.gset-fields select{margin-top:4px}
+.gset .gset-outcome{padding:11px 14px;border-left:3px solid #3271ca;background:#f0f5fc;color:#183757;font-weight:600}
+.gset .gset-message{color:#215b38}.gset .gset-error{color:#9d2f21}
+.gset .gset-list{list-style:none;padding:0;margin:0}.gset-list li{padding:8px 0;border-bottom:1px solid var(--gs-line)}.gset-list li:last-child{border:0}
+.gset .gset-list code{font-size:12px;overflow-wrap:anywhere}.gset [hidden]{display:none!important}
+@media(max-width:1000px){.gset-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:620px){.gset-nav{gap:10px}.gset-nav button{font-size:13px}.gset-head,.gset-body,.gset-foot{padding:12px}.gset .gset-fields{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -579,6 +616,7 @@ const EDITORIAL_NEWS = {
     boundary:'这篇文章没有提到从刊登广告到成交一般要多久。'}
 };
 
+const defaultInsightSettings=()=>({enabled:true,pushEnabled:true,revision:1,history:[]});
 const I = {
   tab:'cend', screen:'list', listTab:'daily', articleId:null, question:null, chatTurns:[], notificationPreview:null,
   activeProject:'The Landmark', articleBack:'list', questionContext:null, editorialArticleId:null, editorialBack:'editorialList',
@@ -586,7 +624,7 @@ const I = {
   settings:{osAllowed:true}, dailyArticleId:'G1', recovery:newRecovery(),
   pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}},
   boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueType:'all', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
-  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full', readerRole:'OWNER',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:{sources:'Official first: URA + MAS + LTA + gov.sg; supplementary CNA + BT + EdgeProp; news 7 days', prompt:'ai_insight_general / ai_insight_project / ai_insight_followup · drafts prepared'}
+  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full', readerRole:'OWNER',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', configDraft:null, settingsNotice:'', scenarioOpen:false
 };
 
 const PROJECT_CATALOG = [
@@ -779,7 +817,7 @@ function openArticle(id){
 }
 function openChat(index){
   const a=ART[I.articleId];
-  if(!canReadArticle(a)) return;
+  if(!canReadArticle(a)||!I.pamSettings.enabled) return;
   const q=articleQuestions(a)[index];
   if(index!==undefined&&(!Number.isInteger(index)||!q)) return;
   const continuing=I.screen==='domus'&&validQuestionContext(a);
@@ -966,17 +1004,18 @@ function renderArticle(){
     <div class="disc">The information provided is for reference only and does not constitute official legal or financial advice.</div>
     <div class="ask">
       <div class="h5">Ask AI about this</div><div class="seg">${roleOptions(a).map(r=>`<button data-action="readerRole" data-role="${r}" aria-pressed="${activeRole(a)===r}" class="${activeRole(a)===r?'on':''}">${r}</button>`).join('')}</div>
-      ${articleQuestions(a).map((q,i)=>`<button class="qchip" data-action="ask" data-q="${i}">${a.historicalSample?esc(q.q):q.q}</button>`).join('')}
+      ${articleQuestions(a).map((q,i)=>`<button class="qchip" data-action="ask" data-q="${i}" ${I.pamSettings.enabled?'':'disabled'}>${a.historicalSample?esc(q.q):q.q}</button>`).join('')}
     </div>
-    <div class="infobox" style="margin-bottom:0">Choose a question to continue with this article attached.</div>
+    <div class="infobox" style="margin-bottom:0">${I.pamSettings.enabled?'Choose a question to continue with this article attached.':'Article answers are currently paused.'}</div>
   </div>
-  <div class="cta"><button data-action="openDomus">Ask AI</button></div>
+  <div class="cta"><button data-action="openDomus" ${I.pamSettings.enabled?'':'disabled'}>Ask AI</button></div>
   ${homebar()}`;
 }
 
 function renderDomus(){
   const a=ART[I.articleId];
   if(!canReadArticle(a))return accessDeniedArticle();
+  if(!I.pamSettings.enabled)return `${statusBar()}${nav('Lio','Article question','Back','article')}<div class="phone-body"><div class="infobox">Article answers are currently paused.</div></div>${homebar()}`;
   if(!validQuestionContext(a))return `${statusBar()}${nav('Lio','Article context changed','Back','article')}<div class="phone-body"><div class="infobox">Reopen the current article and choose a question to start with its published version.</div></div>${homebar()}`;
   const loading=I.customState==='loading';
   const citations=a.sources.slice(0,2).map(s=>s.name+' · '+s.date).join(' · ');
@@ -1087,6 +1126,7 @@ function unreadProjectCount(){ return projectIds().filter(id=>canReadArticle(ART
 function unreadBadge(){ const n=unreadProjectCount(); return n?n+' unread':'All read'; }
 function firstAllowedId(){ const a=allowedPam()[0]; return a?a.id:null; }
 function setDuty(id){
+  I.configDraft=null; I.settingsNotice='';
   I.duty=id; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast='';
   const first=firstAllowedId(); I.pamSelected=first; I.pamView=hasPerm('ai:insight:view')?'queue':'noaccess';
   render();
@@ -1164,7 +1204,7 @@ function renderPamQueue(){
 
 function renderPamProjects(){
   const canCfg=hasPerm('ai:insight:project:configure');
-  const canGen=hasPerm('ai:insight:generate');
+  const canGen=I.pamSettings.enabled&&hasPerm('ai:insight:generate');
   const target=I.targetProjects.filter(p=>inScope({project:p}));
   const addable=PROJECT_CATALOG.filter(x=>!I.targetProjects.includes(x.project) && inScope({project:x.project}));
   const rows=target.map(project=>{
@@ -1192,8 +1232,8 @@ function renderPamReview(){
   const canEdit=isProject&&hasPerm('ai:insight:article:edit');
   const canReview=isProject&&hasPerm('ai:insight:article:review');
   const canPublish=isProject&&hasPerm('ai:insight:article:publish');
-  const canPush=isProject&&hasPerm('ai:insight:push:send');
-  const canGen=isProject&&hasPerm('ai:insight:generate');
+  const canPush=isProject&&I.pamSettings.enabled&&I.pamSettings.pushEnabled&&hasPerm('ai:insight:push:send');
+  const canGen=isProject&&I.pamSettings.enabled&&hasPerm('ai:insight:generate');
   const reviewOk=a.reviewedVersion===a.version;
   return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
   <div style="margin-bottom:8px"><button class="pam-btn" data-action="pamView" data-view="queue">‹ Back to Review Queue</button></div>
@@ -1270,10 +1310,10 @@ function renderPamReview(){
           <div class="pam-note">Approval only applies to v${a.version}. Publishing does not send a push; push is a separate permission and action.</div>
         </div>`:''}
       ${a.status==='rejected'?`
-        <div class="pam-card"><div class="h">Rejected &amp; rewrite</div><div class="pam-preview"><p><b>Reason:</b> ${esc(a.rejectReason||'Not recorded')}</p><p>The article is back in the rewrite queue. Regeneration creates a new version and returns it to pending review.</p></div><div class="pam-actions">${canGen?`<button class="pam-btn primary" data-action="pamGenerate" data-id="${a.id}">Regenerate draft</button>`:`<button class="pam-btn" disabled>Regenerate · no permission</button>`}</div></div>`:''}
-      ${a.status==='generation_failed'?`<div class="pam-card"><div class="h">Generation failed</div><div class="pam-preview"><p><b>Reason:</b> ${esc(a.error||'Not recorded')}</p><p>No draft was produced. Retry creates a new generation attempt; it does not publish anything.</p></div><div class="pam-actions">${canGen?`<button class="pam-btn primary" data-action="pamGenerate" data-id="${a.id}">Retry generation</button>`:`<button class="pam-btn" disabled>Retry · no permission</button>`}</div></div>`:''}
+        <div class="pam-card"><div class="h">Rejected &amp; rewrite</div><div class="pam-preview"><p><b>Reason:</b> ${esc(a.rejectReason||'Not recorded')}</p><p>The article is back in the rewrite queue. Regeneration creates a new version and returns it to pending review.</p></div><div class="pam-actions">${canGen?`<button class="pam-btn primary" data-action="pamGenerate" data-id="${a.id}">Regenerate draft</button>`:`<button class="pam-btn" disabled>Regenerate unavailable</button>`}</div></div>`:''}
+      ${a.status==='generation_failed'?`<div class="pam-card"><div class="h">Generation failed</div><div class="pam-preview"><p><b>Reason:</b> ${esc(a.error||'Not recorded')}</p><p>No draft was produced. Retry creates a new generation attempt; it does not publish anything.</p></div><div class="pam-actions">${canGen?`<button class="pam-btn primary" data-action="pamGenerate" data-id="${a.id}">Retry generation</button>`:`<button class="pam-btn" disabled>Retry unavailable</button>`}</div></div>`:''}
       ${a.status==='pending_generation'?`
-        <div class="pam-card"><div class="h">Not generated</div><div class="pam-note">Start a simulated generation. It will move to pending review; no real AI call is made.</div><div class="pam-actions">${canGen?`<button class="pam-btn primary" data-action="pamGenerate" data-id="${a.id}">Generate article</button>`:`<button class="pam-btn" disabled>Generate · no permission</button>`}</div></div>`:''}
+        <div class="pam-card"><div class="h">Not generated</div><div class="pam-note">Start a simulated generation. It will move to pending review; no real AI call is made.</div><div class="pam-actions">${canGen?`<button class="pam-btn primary" data-action="pamGenerate" data-id="${a.id}">Generate article</button>`:`<button class="pam-btn" disabled>Generate unavailable</button>`}</div></div>`:''}
       ${hasPublishedVersion(a)?`
         <div class="pam-card"><div class="h">Publish result</div>
           <div class="pam-row"><span class="k">Article</span><span class="v" style="color:var(--green)">Published v${a.publishedVersion}</span></div>
@@ -1287,7 +1327,7 @@ function renderPamReview(){
             ${a.push==='partial'&&canPush?`<button class="pam-btn primary" data-action="pamPush">Continue pending push</button>`:''}
             ${demoAcceptedBatch(a)?'<button class="pam-btn" data-action="previewPush">Preview device notification</button>':''}
             ${a.push==='unknown'?`<div class="pam-note">Outcome unknown. The original submission day’s quota remains reserved until reconciliation.</div>`:''}
-            ${!isProject?'<span class="pam-note">The system run controls Daily Brief publication and notification.</span>':!canPush?'<span class="pam-note">Push send requires ai:insight:push:send.</span>':''}${canEdit&&a.status==='published'?`<button class="pam-btn" data-action="pamEdit">New version</button>`:''}
+            ${!isProject?'<span class="pam-note">The system run controls Daily Brief publication and notification.</span>':(!I.pamSettings.enabled||!I.pamSettings.pushEnabled)?'<span class="pam-note">Push is paused in Generation Settings.</span>':!canPush?'<span class="pam-note">Push send requires ai:insight:push:send.</span>':''}${canEdit&&a.status==='published'?`<button class="pam-btn" data-action="pamEdit">New version</button>`:''}
             <button class="pam-btn" data-action="pamView" data-view="queue">Back to Review Queue</button>
           </div>
           ${a.push==='skipped'?`<div class="pam-note">Skipped: ${(a.pushBatches&&a.pushBatches.length?a.pushBatches[a.pushBatches.length-1].reason:'')||'no eligible users'}.</div>`:''}
@@ -1299,30 +1339,34 @@ function renderPamReview(){
 }
 
 function renderGeneralRecovery(){
-  const r=I.recovery;
-  const waiting=r.original==='unknown';
-  const scheduled=r.original==='scheduled';
-  const canRecover=authN('generate',null,true).ok;
-  const options=(choices,selected)=>choices.map(([value,label])=>`<option value="${value}" ${value===selected?'selected':''}>${label}</option>`).join('');
-  const outcome=r.status==='published'?(r.sent===0?(!scheduled&&r.completion>='10:00'?'Published · push skipped at the 10:00 SGT cutoff':'Published · no eligible devices'):'Published · channel accepted for '+r.sent+' sample user(s)'):
-    r.status==='running'?'Validating brief…':r.status==='held'?'Source check failed · held from publication and push':waiting?'Unknown · reconcile the original run before any retry':scheduled?'Ready for the 08:00 scheduled run':'Ready for controlled recovery';
-  return `<div class="pam-card" id="generalRecovery"><div class="h">Daily Brief · generation and recovery</div>
-    <div class="pam-row"><span class="k">Business date / slot</span><span class="v">${GENERAL_RECOVERY_KEY}</span></div>
-    <div class="pam-row"><label class="k" for="recoveryOriginal">08:00 SGT execution</label><select class="pam-select" id="recoveryOriginal" ${canRecover&&r.status!=='running'?'':'disabled'}>${options([['scheduled','Normal scheduled run'],['not_started','Confirmed not started'],['failed','Confirmed failed'],['unknown','Unknown outcome']],r.original)}</select></div>
-    ${scheduled?'':`<div class="pam-row"><label class="k" for="recoveryCompletion">Recovery completion (SGT)</label><select class="pam-select" id="recoveryCompletion" ${canRecover&&r.status!=='running'?'':'disabled'}>${options([['09:30','09:30'],['10:00','10:00'],['10:15','10:15']],r.completion)}</select></div>`}
-    <div class="pam-row"><label class="k" for="recoveryEvidence">Source check</label><select class="pam-select" id="recoveryEvidence" ${canRecover&&r.status!=='running'?'':'disabled'}>${options([['valid','Dated, verifiable evidence'],['insufficient','Unavailable or undated evidence']],r.evidence)}</select></div>
-    <div class="pam-row"><span class="k">Outcome</span><span class="v" role="status">${outcome}</span></div>
-    <div class="pam-row"><span class="k">${scheduled?'Runs for slot':'Recovery attempts for slot'}</span><span class="v">${r.attempts}</span></div>
-    <div class="pam-actions"><button class="pam-btn primary" data-action="recoverGeneral" ${canRecover&&!waiting&&r.status==='ready'?'':'disabled'}>${scheduled?'Simulate 08:00 scheduled run':'Recover this Daily Brief'}</button>${r.status==='published'?'<button class="pam-btn" data-action="readRecovered">Read published brief</button>':''}</div>
-    <div class="pam-note">Demo scenario. Changing the test inputs resets this scenario. At 10:00 SGT and later, valid content can publish without a catch-up notification.</div>
-  </div>`;
+  const r=I.recovery, scheduled=r.original==='scheduled';
+  const canRun=authN('generate',null,true).ok&&I.pamSettings.enabled;
+  const states={not_started:'Not started',failed:'Failed',unknown:'Outcome unknown',scheduled:'Scheduled'};
+  const allowed=canRun&&r.status==='ready'&&r.original!=='unknown';
+  const reason=r.status==='published'?r.notificationNote:
+    r.status==='running'?'Validating the source evidence…':r.status==='held'?'Held for review. The available sources could not be verified.':
+    r.original==='unknown'?'Reconcile the original run before trying again.':
+    !I.pamSettings.enabled?'Generation is paused in Configuration.':
+    scheduled?'Ready for the scheduled run.':'Eligible for recovery.';
+  const select=(id,label,value,choices)=>`<label for="${id}">${label}<select id="${id}" ${!canRun||r.status==='running'?'disabled':''}>${choices.map(([v,name])=>`<option value="${v}" ${v===value?'selected':''}>${name}</option>`).join('')}</select></label>`;
+  return `<section class="gset-card" id="generalRecovery"><header class="gset-head"><h3>Daily Brief run</h3><small>${GENERAL_RECOVERY_DATE} · Singapore time</small></header><div class="gset-body">
+    <dl><div><dt>Scheduled slot</dt><dd>08:00 SGT</dd></div><div><dt>Original execution</dt><dd>${states[r.original]}</dd></div><div><dt>${scheduled?'Scheduled attempts':'Recovery attempts'}</dt><dd>${r.attempts}</dd></div></dl>
+    <p class="gset-outcome" role="status">${esc(reason)}</p>
+    <details id="scenarioInputs" ${I.scenarioOpen?'open':''}><summary>Demo scenario inputs</summary>
+    <p>Changing a scenario starts a new simulation for this slot.</p><div class="gset-fields">
+    ${select('recoveryOriginal','Original execution',r.original,Object.entries(states))}
+    ${scheduled?'':select('recoveryCompletion','Recovery completion (SGT)',r.completion,[['09:30','09:30'],['10:00','10:00'],['10:15','10:15']])}
+    ${select('recoveryEvidence','Source evidence',r.evidence,[['valid','Dated and verifiable'],['insufficient','Missing or undated']])}</div></details>
+    </div><footer class="gset-foot"><small>${GENERAL_RECOVERY_KEY}</small><div class="gset-actions">
+    ${r.status==='published'?'<button class="pam-btn" data-action="readRecovered">Read published brief</button>':''}
+    <button class="pam-btn primary" data-action="recoverGeneral" ${allowed?'':'disabled'}>${scheduled?'Run scheduled demo':'Recover Daily Brief'}</button></div></footer></section>`;
 }
 
 function recoverGeneral(){
   const auth=authN('generate',null,true);
   if(!auth.ok) return denyN(auth);
   const r=I.recovery;
-  if(r.original==='unknown'||r.status!=='ready') return;
+  if(!I.pamSettings.enabled||r.original==='unknown'||r.status!=='ready') return;
   const scheduled=r.original==='scheduled';
   const time=scheduled?'08:00':r.completion;
   r.status='running'; r.attempts++;
@@ -1331,7 +1375,8 @@ function recoverGeneral(){
     if(I.recovery!==r) return;
     if(r.evidence!=='valid'){ r.status='held'; render(); return; }
     const sample=pushAudience({project:'—'});
-    const eligible=time<'10:00'?sample.filter(([id,u])=>userPushSettings(id,u).osAllowed):[];
+    const pushOn=I.pamSettings.enabled&&I.pamSettings.pushEnabled;
+    const eligible=pushOn&&time<'10:00'?sample.filter(([id,u])=>userPushSettings(id,u).osAllowed):[];
     r.sent=eligible.length;
     const a={id:'GBR',version:1,project:'—',publishedAt:GENERAL_RECOVERY_DATE+'T'+time+':00+08:00',
       title:(scheduled?'Daily Brief · ':'Recovered Daily Brief · ')+GENERAL_RECOVERY_DATE,
@@ -1339,37 +1384,51 @@ function recoverGeneral(){
       body:'This sample market brief looks at resale transaction volumes and changes in the mix of homes sold. Compare the same period and home types before interpreting median prices. Check the dates in the source notes.',
       editSource:'URA sample + MAS sample + LTA sample'};
     const push=r.sent>0?'sent':'skipped';
-    const reason=time>='10:00'?'GENERAL catch-up cutoff 10:00 SGT':!r.sent?'No eligible devices':null;
+    const reason=!pushOn?'Push paused in Generation Settings':time>='10:00'?'GENERAL catch-up cutoff 10:00 SGT':!r.sent?'No eligible devices':null;
     PAM[a.id]={...a,status:'published',reviewedVersion:1,publishedVersion:1,monitoring:false,
       push,sources:3,time,audience:'All app users',audienceCount:sample.length,generationTrigger:scheduled?'GENERAL_SCHEDULED':'GENERAL_RECOVERY',
       reviewHistory:[{version:1,decision:'Validated',actor:'system',at:GENERAL_RECOVERY_DATE+' '+time+' SGT',reason:'Daily Brief source and content checks passed (demo).'}],
       pushBatches:[{batchId:GENERAL_RECOVERY_KEY+'-v1',version:1,title:a.title,project:'—',target:'All app users',status:push,retries:0,eligible:sample.length,sent:r.sent,skipped:sample.length-r.sent,day:GENERAL_RECOVERY_DATE,at:time,reason,demoReaderAccepted:eligible.some(([id])=>id==='A')}]};
     publishToCend(a);
+    r.notificationNote=r.sent?'Published · channel accepted for '+r.sent+' sample user(s).':'Published · '+reason+'.';
     r.status='published'; render();
   },450);
 }
 
 function renderPamSettings(){
-  const canWrite=hasPerm('ai:insight:config:write');
-  const d=I.pamSettings;
-  return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
-  <div class="pam-card"><div class="h">Generation settings · minimum scope</div>
-    <div style="font-size:8.5px;color:#374151;line-height:1.6">Only the minimum confirmed settings are exposed. The daily cap is fixed at 1 general + 1 project per user and is not configurable here. Source links and Prompt versions are demo values.</div></div>
-    <div class="pam-card"><div class="h">Daily generation</div><div class="pam-note">SG08:00 generation / SG10:00 GENERAL catch-up notification cutoff. Today-only project queue: published_at ASC, article_id ASC. Official first, seven-day news; unread or unknown-date sources are not verified. No mandatory two-person approval.</div>
-      <div class="pam-row"><span class="k">Schedule</span><span class="v">08:00 Asia/Singapore</span></div>
-      <div class="pam-row"><span class="k">Source scope</span><span class="v"><input class="pam-input" id="cfgSources" value="${d.sources}" style="width:300px" ${canWrite?'':'disabled'} /></span></div>
-      <div class="pam-row"><span class="k">Prompt version</span><span class="v"><input class="pam-input" id="cfgPrompt" value="${d.prompt}" style="width:220px" ${canWrite?'':'disabled'} /></span></div>
-      <div class="pam-row"><span class="k">Daily push cap</span><span class="v">1 general + 1 project = 2 / user / day</span></div>
-    </div>
-    ${renderGeneralRecovery()}
-    <div class="pam-card"><div class="h">Permission check</div>
-      <div class="pam-row"><span class="k">ai:insight:config:read</span><span class="v">${hasPerm('ai:insight:config:read')?'Allowed':'Denied'}</span></div>
-      <div class="pam-row"><span class="k">ai:insight:config:write</span><span class="v">${canWrite?'Allowed':'Denied'}</span></div>
-      <div class="pam-actions">${canWrite?`<button class="pam-btn primary" data-action="pamSaveSettings">Save settings</button>`:`<button class="pam-btn" disabled>Read-only · no config:write</button>`}</div>
-      <div class="pam-note">This is a local form. It does not write a scheduler, source list or Prompt registry. The production save must create a version and an audit record.</div>
-    </div>
-    <div class="pam-card"><div class="h">Related design</div><div style="font-size:8.5px;color:#374151;line-height:1.6">Menu: AI Property Services / Property Insights / Generation Settings. Permission: <code>ai:insight:config:read</code> / <code>ai:insight:config:write</code>. See DOC-19 for the full role/menu/permission mapping.</div></div>`;
+  const config=I.pamSettings, draft=I.configDraft||config;
+  const canWrite=authN('settings',null,true).ok;
+  const views=[['controls','Configuration'],['sources','Sources & prompts'],['runs','Daily Brief runs']];
+  const tabs=views.map(([id,name])=>`<button type="button" data-action="settingsView" data-view="${id}" aria-pressed="${I.settingsView===id}">${name}</button>`).join('');
+  let panel;
+  if(I.settingsView==='runs') panel=renderGeneralRecovery();
+  else if(I.settingsView==='sources'){
+    const prompts=[['Daily Brief','ai_insight_general'],['Project article','ai_insight_project'],['Article follow-up','ai_insight_followup']];
+    panel=`<div class="gset-grid"><section class="gset-card"><header class="gset-head"><h3>Source policy</h3></header>
+      <dl class="gset-body"><div><dt>Primary sources</dt><dd>URA, MAS, LTA and gov.sg</dd></div><div><dt>Additional reporting</dt><dd>CNA, The Business Times and EdgeProp</dd></div>
+      <div><dt>Evidence window</dt><dd>Prefer news from the past 7 days</dd><p>Use the latest effective policy or transaction data and cite the period it covers. Hold a brief if evidence is insufficient or undated.</p></div></dl></section>
+      <section class="gset-card"><header class="gset-head"><h3>Prompt bindings</h3><small>Demo registry</small></header><div class="gset-body"><ul class="gset-list">
+      ${prompts.map(([name,code])=>`<li><strong>${name}</strong><br><code>${code}</code></li>`).join('')}</ul><p>Live versions are released in Prompt Management. This preview shows the template codes.</p></div></section></div>`;
+  }else{
+    const dirty=draft.enabled!==config.enabled||draft.pushEnabled!==config.pushEnabled;
+    const switchRow=(id,key,name,help)=>`<div class="gset-switchrow"><div><label for="${id}">${name}</label><p id="${id}Help">${help}</p></div>
+      <input type="checkbox" role="switch" class="gset-switch" id="${id}" data-setting="${key}" aria-describedby="${id}Help" ${draft[key]?'checked':''} ${canWrite?'':'disabled'}></div>`;
+    const audit=config.history.length?`<section class="gset-card"><header class="gset-head"><h3>Change history</h3><small>This preview</small></header><ul class="gset-list gset-body">${config.history.slice().reverse().map(h=>`<li><strong>Revision ${h.revision} · ${esc(h.changes.join(' / '))}</strong><p>${esc(h.reason)}</p><small>${esc(h.actor)} · <time>${esc(h.at)} SGT</time></small></li>`).join('')}</ul></section>`:'';
+    panel=`<div class="gset-grid"><section class="gset-card"><header class="gset-head"><h3>Service controls</h3><small>Platform-wide · Rev. ${config.revision}</small></header><div class="gset-body">
+      ${switchRow('cfgEnabled','enabled','AI Property Insights','Allow new AI articles and follow-up answers on insights. Published articles remain readable.')}
+      ${switchRow('cfgPush','pushEnabled','Push notifications','Allow notifications for published insights when AI Property Insights is enabled.')}
+      ${canWrite?`<div id="cfgReasonRow" ${dirty?'':'hidden'}><label for="cfgReason"><strong>Reason for change</strong> (required)</label><textarea class="gset-text" id="cfgReason" maxlength="500" rows="2">${esc(I.configDraft?.reason||'')}</textarea></div>`:''}
+      <p id="cfgFeedback" class="gset-message" role="status">${esc(I.settingsNotice)}</p></div>
+      <footer class="gset-foot"><small>${canWrite?'Changes apply to this preview until reload.':'Read-only access'}</small>${canWrite?`<div class="gset-actions"><button class="pam-btn" data-action="discardSettings" ${dirty?'':'disabled'}>Discard</button><button class="pam-btn primary" data-action="pamSaveSettings" ${dirty?'':'disabled'}>Save changes</button></div>`:''}</footer></section>
+      <aside class="gset-card"><header class="gset-head"><h3>Publication rules</h3></header><dl class="gset-body">
+      <div><dt>Daily Brief</dt><dd>08:00 SGT daily</dd><p>Publish after the evidence check passes.</p></div>
+      <div><dt>Catch-up notification cutoff</dt><dd>10:00 SGT</dd><p>From 10:00, publish for reading only.</p></div>
+      <div><dt>Project articles</dt><dd>Manual review before publication</dd><p>Generate the first draft on enrolment and later drafts on request.</p></div>
+      <div><dt>Daily notification limit per user</dt><dd>1 general + 1 project</dd><p>Shared across projects and devices.</p></div></dl></aside></div>${audit}`;
+  }
+  return `<div class="gset"><nav class="gset-nav" aria-label="Generation settings sections">${tabs}</nav>${panel}</div>`;
 }
+
 function renderPamPushLog(){
   const rows=allowedPam().flatMap(a=>(a.pushBatches||[]).map(b=>({a,b}))).sort((x,y)=>(y.b.day+' '+y.b.at).localeCompare(x.b.day+' '+x.b.at));
   return `<div class="notification-log" role="region" aria-label="Push attempts" tabindex="0">
@@ -1490,7 +1549,7 @@ function bind(){
       if(a==='settings'){ I.screen='settings'; render(); return; }
       if(a==='toggleOs'){ I.settings.osAllowed=!I.settings.osAllowed; render(); return; }
       if(a==='sendCustom'){
-        if(!validQuestionContext(ART[I.articleId])){render();return;}
+        if(!I.pamSettings.enabled||!validQuestionContext(ART[I.articleId])){render();return;}
         if(I.customState==='loading') return;
         const input=$('#chatInput'); const val=input?input.value.trim():'';
         if(!val){ I.customError='Enter a question first.'; render(); return; }
@@ -1590,14 +1649,33 @@ function bind(){
       if(a==='pamMonitor'){
         const art=PAM[el.dataset.id]; if(!art) return;
         const auth=authN('monitor',art); if(!auth.ok) return denyN(auth);
+        if(!art.monitoring&&!art.firstGenerationRequested&&art.version<1&&!I.pamSettings.enabled){I.pamToast='Enable AI Property Insights before generating a first draft.'; render(); return;}
         art.monitoring=!art.monitoring; I.pamToast='Monitoring '+(art.monitoring?'enabled':'paused')+' in the local demo.'; if(art.monitoring && !art.firstGenerationRequested && art.version<1){ art.firstGenerationRequested=true; pamGenerate(art.id,'PROJECT_FIRST_ENABLE'); return; } render(); return;
+      }
+      if(a==='settingsView'){
+        if(!hasPerm('ai:insight:config:read')||!['controls','sources','runs'].includes(el.dataset.view)) return;
+        I.settingsView=el.dataset.view; render();
+        $('#stage [data-action="settingsView"][aria-pressed="true"]')?.focus(); return;
+      }
+      if(a==='discardSettings'){
+        I.configDraft=null; I.settingsNotice='Changes discarded.'; render(); return;
       }
       if(a==='pamSaveSettings'){
         const auth=authN('settings',null,true); if(!auth.ok) return denyN(auth);
-        const sources=$('#cfgSources').value.trim(); const prompt=$('#cfgPrompt').value.trim();
-        if(!sources || !prompt){ I.pamToast='Blocked: source scope and prompt version are required.'; render(); return; }
-        I.pamSettings={sources,prompt};
-        I.pamToast='Demo settings saved.'; render(); return;
+        const d=I.configDraft, config=I.pamSettings;
+        if(!d||(d.enabled===config.enabled&&d.pushEnabled===config.pushEnabled)) return;
+        if(!d.reason.trim()){
+          const feedback=$('#cfgFeedback'); feedback.textContent='Enter a reason to save these changes.'; feedback.className='gset-error';
+          $('#cfgReason').setAttribute('aria-invalid','true'); $('#cfgReason').focus(); return;
+        }
+        const changes=[];
+        for(const [key,label] of [['enabled','AI Property Insights'],['pushEnabled','Push notifications']]){
+          if(d[key]!==config[key]) changes.push(label+': '+(config[key]?'On':'Off')+' → '+(d[key]?'On':'Off'));
+        }
+        const revision=config.revision+1;
+        const at=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Singapore',dateStyle:'medium',timeStyle:'medium'}).format(new Date());
+        I.pamSettings={enabled:d.enabled,pushEnabled:d.pushEnabled,revision,history:[...config.history,{revision,at,actor:duty().label,changes,reason:d.reason.trim()}]};
+        I.configDraft=null; I.settingsNotice='Changes saved · revision '+revision+'.'; render(); return;
       }
       if(a==='pamPush'){ pamPush(I.pamSelected); return; }
       if(a==='recoverGeneral'){ recoverGeneral(); return; }
@@ -1641,6 +1719,7 @@ function bind(){
         if(!inScope({project})){ I.pamToast='Blocked: project is outside '+duty().scope+'.'; render(); return; }
         const meta=PROJECT_CATALOG.find(x=>x.project===project); if(!meta){ I.pamToast='Unknown demo project. No request was created.'; render(); return; }
         const existing=Object.values(PAM).find(x=>x.project===project);
+        if(!I.pamSettings.enabled&&(!existing||(!existing.firstGenerationRequested&&existing.version<1))){I.pamToast='Enable AI Property Insights to generate the first draft for this project.'; render(); return;}
         I.targetProjects.push(project);
         if(existing){ existing.monitoring=true; I.pamSelected=existing.id; I.pamView='projects'; I.pamToast='Re-added '+project+'. Existing articles are kept.'; if(existing.version<1 && !existing.firstGenerationRequested){existing.firstGenerationRequested=true;pamGenerate(existing.id,'PROJECT_FIRST_ENABLE');return;} render(); return; }
         const id='N'+(Object.keys(PAM).length+1);
@@ -1658,6 +1737,32 @@ function bind(){
       }
     });
   });
+  const cfgReason=$('#cfgReason');
+  if(cfgReason){
+    const getDraft=()=>{
+      if(!I.configDraft) I.configDraft={enabled:I.pamSettings.enabled,pushEnabled:I.pamSettings.pushEnabled,reason:''};
+      return I.configDraft;
+    };
+    for(const control of document.querySelectorAll('#stage [data-setting]')){
+      control.addEventListener('change',()=>{
+        const draft=getDraft(); draft[control.dataset.setting]=control.checked;
+        const dirty=draft.enabled!==I.pamSettings.enabled||draft.pushEnabled!==I.pamSettings.pushEnabled;
+        $('#cfgReasonRow').hidden=!dirty;
+        if(!dirty){ I.configDraft=null; cfgReason.value=''; }
+        $('#cfgFeedback').className='gset-message'; $('#cfgFeedback').textContent=dirty?'Unsaved changes.':'';
+        I.settingsNotice=''; cfgReason.removeAttribute('aria-invalid');
+        for(const action of ['discardSettings','pamSaveSettings']) $('#stage [data-action="'+action+'"]').disabled=!dirty;
+      });
+    }
+    cfgReason.addEventListener('input',()=>{
+      getDraft().reason=cfgReason.value;
+      if(cfgReason.value.trim()&&cfgReason.hasAttribute('aria-invalid')){
+        cfgReason.removeAttribute('aria-invalid'); $('#cfgFeedback').textContent='Unsaved changes.'; $('#cfgFeedback').className='gset-message';
+      }
+    });
+  }
+  const scenario=$('#scenarioInputs');
+  scenario?.addEventListener('toggle',()=>{if(scenario.isConnected) I.scenarioOpen=scenario.open;});
   const qt=$('#pamQueueType');
   if(qt) qt.addEventListener('change', e=>{ I.queueType=e.target.value; render(); });
   const qf=$('#pamQueueFilter');
@@ -1689,7 +1794,8 @@ function bind(){
   }
   for(const [selector,key] of [['#recoveryOriginal','original'],['#recoveryCompletion','completion'],['#recoveryEvidence','evidence']]){
     $(selector)?.addEventListener('change',e=>{
-      if(!authN('generate',null,true).ok||I.recovery.status==='running') return;
+      if(!I.pamSettings.enabled||!authN('generate',null,true).ok||I.recovery.status==='running') return;
+      I.scenarioOpen=true;
       I.recovery={...I.recovery,[key]:e.target.value,status:'ready',attempts:0};
       delete ART.GBR; delete PAM.GBR;
       if(I.dailyArticleId==='GBR') I.dailyArticleId='G1';
@@ -1701,6 +1807,7 @@ function bind(){
 function pamGenerate(id,trigger){
   const a=PAM[id]; if(!a) return;
   const auth=authN(trigger==='PROJECT_FIRST_ENABLE'?'monitor':'generate',a); if(!auth.ok) return denyN(auth);
+  if(!I.pamSettings.enabled){I.pamToast='Generation is paused in Generation Settings.'; render(); return;}
   if(!a.monitoring||!['pending_generation','rejected','generation_failed','published'].includes(a.status)) return;
   a.generationTrigger=trigger||({pending_generation:'MANUAL_GENERATE',rejected:'MANUAL_REWRITE',generation_failed:'MANUAL_RETRY',published:'MANUAL_GENERATE'})[a.status];
   I.pamGenerating=id; I.pamSelected=id; I.pamToast='Generating draft… no real AI call.';
@@ -1721,6 +1828,7 @@ function pamGenerate(id,trigger){
 function pamPush(id){
   const a=PAM[id]; if(!a) return;
   const auth=authN('push',a); if(!auth.ok) return denyN(auth);
+  if(!I.pamSettings.enabled||!I.pamSettings.pushEnabled){I.pamToast='Push is paused in Generation Settings.'; render(); return;}
   if(!hasPublishedVersion(a)){ I.pamToast='Blocked: push requires a published article.'; render(); return; }
   if(!hasPendingPush(a)){ I.pamToast='No pending recipients for this published version.'; render(); return; }
   const pending=pushAudience(a).filter(([uid])=>!a.projectPushResults?.[uid]);
@@ -1788,6 +1896,7 @@ document.addEventListener('click', e=>{
   if(a==='feedReady'){ I.feedState='ready'; render(); return; }
   if(a==='resetCend'){ I.screen='list'; I.listTab='daily'; I.articleId=null; I.buyerIntent=null; clearQuestion(); I.feedState='ready'; I.readArticles=['P3','P4']; render(); }
   if(a==='resetPam'){
+    I.pamSettings=defaultInsightSettings(); I.configDraft=null; I.settingsView='controls'; I.settingsNotice=''; I.scenarioOpen=false;
     I.pamGenToken=(I.pamGenToken||0)+1;
     PAM=JSON.parse(JSON.stringify(PAM_INIT));PAM.G1.publishedAt='2026-11-10T08:04:00+08:00';PAM.G1.publishedVersion=PAM.G1.version;
     Object.keys(ART).filter(id=>!FIXTURE_ARTICLES.has(id)).forEach(id=>{delete ART[id];});
@@ -1811,6 +1920,7 @@ if(qp.get('sample')==='twoProjects') I.boundProjects=Object.keys(PROJECT_BINDING
 if(['appHome','appAssistant','projectDetails','editorialList'].includes(qp.get('view'))) I.screen=qp.get('view');
 if(qp.get('project')==='tembusu') I.activeProject='Tembusu Grand';
 if(qp.get('mode')==='pam'){ I.tab='pam'; I.pamView=qp.get('pam')||'queue'; if(Object.hasOwn(PAM,qp.get('review'))) I.pamSelected=qp.get('review'); }
+if(qp.get('focus')==='recovery') I.settingsView='runs';
 if(qp.get('article')) openArticle(qp.get('article'));
 if(qp.get('q')!==null&&I.articleId) openChat(Number(qp.get('q')));
 render();
