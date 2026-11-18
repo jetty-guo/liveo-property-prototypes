@@ -513,7 +513,13 @@ ART.P1 = {
     Q("How far above the reference were they?", "The reference median was S$2,040 psf. Subtracting it from the two November prices gives S$80 and S$105 psf."),
     Q("Does this establish a new price for my unit?", "The comparison covers two November sales. It does not match their floor or condition to your home. It cannot establish a unit-specific value.")
   ],
-  tenantQuestion:Q("Do these sale prices tell me what rent to pay?", "These records describe completed sales at The Landmark. Neither source contains lease payments. They do not support a rent comparison.")
+  ownerQuestion:Q("Were the November sales already in the S$2,040 benchmark?", "No. The six-sale reference closed on 27 October at a median of S$2,040 psf. Both November sales happened between 1 and 7 November and sit outside that sample."),
+  tenantQuestions:[
+    Q("I rent a three-bedroom here. Which homes does this cover?", "Both November sales were three-bedroom homes at The Landmark. The article gives their sale prices per square foot. It has no lease record for either home."),
+    Q("Is S$2,120 a monthly payment?", "S$2,120 is a sale price per square foot for the first home. The second sold at S$2,145 per square foot. Neither figure is a monthly payment."),
+    Q("Do these sale prices tell me what rent to pay?", "These records describe completed sales at The Landmark. Neither source contains lease payments. They do not support a rent comparison."),
+    Q("Does this tell me whether my rented unit was sold?", "The register identifies two sales at project level. It gives no unit identifiers for matching either record to the home you rent. Your own unit cannot be identified from this article.")
+  ]
 };
 
 ART.P2 = {
@@ -549,7 +555,13 @@ ART.P3 = {
     Q("How was the S$200 gap calculated?", "The middle asking rent was S$4,600 a month. The middle signed rent was S$4,400. Subtracting the two gives S$200."),
     Q("Did each landlord accept S$200 less?", "The registers have no matched listing-to-lease records. Two group medians cannot establish what an individual landlord accepted.")
   ],
-  tenantQuestion:Q("Which figure describes rent agreed by a tenant?", "The signed leases record agreed monthly rents. Their median was S$4,400 in this sample. The separate S$4,600 figure describes advertisements.")
+  ownerQuestion:Q("Which figures are most relevant when I set an asking rent?", "The three advertised rents ranged from S$4,500 to S$4,800 a month. The three signed leases ranged from S$4,300 to S$4,500. Both samples cover October two-bedroom homes, but the article cannot predict the rent your listing would achieve."),
+  tenantQuestions:[
+    Q("Can I compare my one-bedroom lease with these October figures?", "Both October registers cover two-bedroom homes at The Landmark. Neither includes a one-bedroom listing or signed lease. The figures give no direct comparison for your layout."),
+    Q("What monthly range did tenants sign for?", "The lowest signed rent was S$4,300 and the highest was S$4,500. Both were for two-bedroom homes at The Landmark in October. There were only three leases in the comparison."),
+    Q("Which figure describes rent agreed by a tenant?", "The signed leases record agreed monthly rents. Their median was S$4,400 in this sample. The separate S$4,600 figure describes advertisements."),
+    Q("Can I assume a S$200 discount on the asking rent?", "The S$200 difference compares two medians. The source does not link any listing to the lease eventually signed for that home. It cannot establish a discount for your negotiation.")
+  ]
 };
 
 ART.P4 = {
@@ -565,7 +577,13 @@ ART.P4 = {
     Q("Can I calculate net yield from this example?", "The worksheet contains no vacancy or operating cost figures. You cannot derive a net yield from the two inputs alone."),
     Q("Does the percentage describe the whole project?", "The worksheet is one illustrative rent-and-price pair at The Landmark. It contains no project-wide distribution of rents or sale prices.")
   ],
-  tenantQuestion:Q("Is S$4,200 a signed rent for my home?", "S$4,200 is an illustrative input in this worksheet. The source contains no signed lease for your home.")
+  ownerQuestion:Q("How much gross income does the example lose if one month is vacant?", "The example assumes twelve occupied months at S$4,200. With one vacant month at the same monthly rent, gross income would be S$46,200 instead of S$50,400. That is a calculation on the example, not a vacancy observation."),
+  tenantQuestions:[
+    Q("Does the worksheet tell me what a year of rent would cost?", "It uses S$4,200 per month. Twelve payments at that rate total S$50,400. The worksheet gives no terms for your own lease."),
+    Q("Does 3.2% mean my rent goes up by 3.2%?", "The percentage divides annualised rent by an assumed purchase price of S$1,575,000. It describes gross yield in the example. No rent increase is recorded."),
+    Q("Is S$4,200 a signed rent for my home?", "S$4,200 is an illustrative input in this worksheet. The source contains no signed lease for your home."),
+    Q("Does the calculation include a deposit or other charges?", "The inputs are monthly rent, twelve occupied months and an assumed purchase price. There is no deposit or tenant charge in the worksheet. It gives no total move-in cost.")
+  ]
 };
 
 ART.P5 = {
@@ -581,7 +599,13 @@ ART.P5 = {
     Q("How wide was the range?", "The lowest sale was S$2,000 psf and the highest was S$2,105 psf. The difference was S$105 psf."),
     Q("Can the spread be attributed to higher floors?", "The register does not include floor or condition. It establishes the price range but cannot explain it.")
   ],
-  tenantQuestion:Q("Do the six records include rent?", "All six records are completed sales. No lease or monthly rent appears in this source.")
+  ownerQuestion:Q("If I list above S$2,105 psf, does the register support that price?", "S$2,105 psf was the highest of the six completed sales. The register covers sales through 27 October 2026. It supplies no comparable sale above that price or evidence about your unit’s condition."),
+  tenantQuestions:[
+    Q("Did one of the homes actually sell at S$2,040 psf?", "The two middle sales were S$2,035 and S$2,045 psf. Their midpoint was S$2,040. None of the six homes sold at that exact figure."),
+    Q("How recent are the six sales I am looking at?", "The register covers 1 November 2024 to 27 October 2026. It combines sales over that period. It does not measure rents at the time of your renewal."),
+    Q("Do the six records include rent?", "All six records are completed sales. No lease or monthly rent appears in this source."),
+    Q("Does the spread tell me which floor costs more to rent?", "S$105 psf separates the lowest and highest sale prices. The extract has neither floor details nor lease records. It cannot explain a difference in rent by floor.")
+  ]
 };
 
 ART.TP1 = {
@@ -597,7 +621,13 @@ ART.TP1 = {
     Q("What was the middle rent?", "The monthly rents were S$4,700, S$4,800 and S$5,000. The middle observation was S$4,800."),
     Q("How large was the rent spread?", "The lowest rent was S$4,700 and the highest was S$5,000. Their difference was S$300 a month.")
   ],
-  tenantQuestion:Q("Can these leases determine my renewal rent?", "They give three comparisons for two-bedroom homes in this project. The register omits furnishing details and lease terms. It cannot determine a renewal rent for your home.")
+  ownerQuestion:Q("Can I use S$5,000 as the asking rent for a different layout?", "S$5,000 was the highest signed monthly rent among three two-bedroom leases. The October register has no figures for other bedroom counts. It cannot establish an asking rent for a different layout."),
+  tenantQuestions:[
+    Q("What did tenants actually sign for in October?", "The three two-bedroom leases were signed at S$4,700, S$4,800 and S$5,000 a month. The middle rent was S$4,800. These are agreed rents at Tembusu Grand."),
+    Q("How much more per month was the highest lease than the middle one?", "The highest monthly rent was S$5,000. The middle lease was S$4,800, making the gap S$200 a month. The full spread from the lowest lease was S$300."),
+    Q("Can these leases determine my renewal rent?", "They give three comparisons for two-bedroom homes in this project. The register omits furnishing details and lease terms. It cannot determine a renewal rent for your home."),
+    Q("Was the S$5,000 home furnished?", "The register gives the bedroom count and monthly rent. It omits furnishing details and lease terms. It cannot show whether furnishing explains the higher rent.")
+  ]
 };
 ART.G1.version=3;
 const FIXTURE_ARTICLES = new Set(Object.keys(ART));
@@ -673,7 +703,8 @@ const PROJECT_ARTICLES = {
     qa:[
       Q('How far above the 24-month median were these sales?', 'The early-October median was S$2,909 psf and the 24-month median was S$2,866 psf. The gap was S$43 psf, about 1.5%. It applies to the recorded groups of sales.'),
       Q('Can we say that sales slowed in October?', 'The extract counts eight sales in August and five in September, both complete months. Its three October sales cover only 1–7 October. The full October count is unknown.'),
-      Q('Can I use S$2,909 psf to price my home?', 'The figure is the middle price of three sales involving homes of 1,249–1,690 sq ft. The extract has no floor, condition or other unit-level comparisons for your home. It cannot establish your unit’s value.')
+      Q('Can I use S$2,909 psf to price my home?', 'The figure is the middle price of three sales involving homes of 1,249–1,690 sq ft. The extract has no floor, condition or other unit-level comparisons for your home. It cannot establish your unit’s value.'),
+      Q("If my home is smaller than 1,249 sq ft, is it in the October sample?", "No. The three October sales covered 1,249–1,690 sq ft. The extract gives no smaller-home sale in those seven days.")
     ]
   },
   'Sky Everton':{
@@ -687,32 +718,41 @@ const PROJECT_ARTICLES = {
     qa:[
       Q('Why is the September median S$2,682 psf?', 'There were two sales. Halfway between S$2,487 and S$2,877 psf is S$2,682 psf. Neither home had to sell at that midpoint.'),
       Q('How does September compare with the longer record?', 'The 24-month median was S$2,818 psf. September’s two-sale median of S$2,682 psf was S$136 psf lower, about 4.8%. Two sales alone cannot establish a project-wide decline.'),
-      Q('Do we know why the two prices differed?', 'The difference was S$390 psf and the homes measured 624–764 sq ft. The extract does not pair a size with a price or give floor or condition. It cannot explain the difference.')
+      Q('Do we know why the two prices differed?', 'The difference was S$390 psf and the homes measured 624–764 sq ft. The extract does not pair a size with a price or give floor or condition. It cannot explain the difference.'),
+      Q("Did either home actually sell for the S$2,682 psf median?", "The two recorded prices were S$2,487 and S$2,877 psf. S$2,682 psf sits halfway between them. Neither home sold at that price.")
     ]
   },
   'Parc Clematis':{
     title:'Parc Clematis: four early-October sales spanned S$353 psf',
     summary:'The first week of October 2025 covered homes from 452 to 915 sq ft.',
     paragraphs:['Four sales recorded on 1–7 October 2025 had a median of S$2,165 psf. The recorded prices ran from S$2,035 to S$2,388 psf, a spread of S$353 psf.', 'The 24-month median was S$2,060 psf, so the early-October sample was S$105 psf above it. September’s median was S$1,984 psf.', 'The four homes ranged from 452 to 915 sq ft. The aggregate gives no size-price pairs or stack details, so it cannot explain the spread or establish a full-month trend.'],
-    qa:[Q('How wide was the price spread?', 'The range was S$2,035 to S$2,388 psf across four sales. Subtracting the two gives S$353 psf.'), Q('How does the sample compare with the 24-month median?', 'The early-October median was S$2,165 psf against S$2,060 psf over 24 months. The gap was S$105 psf, roughly 5.1%.'), Q('Did size explain the whole spread?', 'Sizes ranged from 452 to 915 sq ft. The grouped data does not match each size or stack to a price, so it cannot establish the cause.')]
+    qa:[Q('How wide was the price spread?', 'The range was S$2,035 to S$2,388 psf across four sales. Subtracting the two gives S$353 psf.'), Q('How does the sample compare with the 24-month median?', 'The early-October median was S$2,165 psf against S$2,060 psf over 24 months. The gap was S$105 psf, roughly 5.1%.'), Q('Did size explain the whole spread?', 'Sizes ranged from 452 to 915 sq ft. The grouped data does not match each size or stack to a price, so it cannot establish the cause.'),
+      Q("Can I use this October figure as a full-month comparison with September?", "September’s median was S$1,984 psf. The S$2,165 October median includes only four sales through the 7th. The rest of October is outside the extract.")
+    ]
   },
   'Normanton Park':{
     title:'Normanton Park: ten September sales had a median of S$2,151 psf',
     summary:'The September 2025 median was S$57 psf above the 24-month project median.',
     paragraphs:['Ten September 2025 sales covered homes of 797–1,313 sq ft. Recorded prices ranged from S$1,769 to S$2,196 psf.', 'The September median was S$2,151 psf compared with S$2,094 psf over 24 months. The gap was S$57 psf, about 2.7%.', 'The extract counts 15 sales in August and ten in September. Different homes sold in each month. The counts and medians do not establish a change in the value of an individual home.'],
-    qa:[Q('What sizes were represented?', 'The ten September sales covered homes of 797–1,313 sq ft. Their prices ranged from S$1,769 to S$2,196 psf.'), Q('What was the gap to the 24-month median?', 'September’s S$2,151 psf was S$57 psf, about 2.7%, above the S$2,094 psf reference.'), Q('How many sales were recorded in August and September?', 'The extract counts 15 sales in August and ten in September. It does not identify why the count changed.')]
+    qa:[Q('What sizes were represented?', 'The ten September sales covered homes of 797–1,313 sq ft. Their prices ranged from S$1,769 to S$2,196 psf.'), Q('What was the gap to the 24-month median?', 'September’s S$2,151 psf was S$57 psf, about 2.7%, above the S$2,094 psf reference.'), Q('How many sales were recorded in August and September?', 'The extract counts 15 sales in August and ten in September. It does not identify why the count changed.'),
+      Q("Does the drop from 15 sales to ten show that homes took longer to sell?", "The extract counts 15 August sales and ten September sales. It gives no listing dates or time on market. The counts alone cannot show how long owners waited.")
+    ]
   },
   'Tembusu Grand':{
     title:'Tembusu Grand: two same-size homes sold S$7 psf apart',
     summary:'Both recorded early-October 2025 sales were for homes measuring 1,711 sq ft.',
     paragraphs:['The 1–7 October 2025 extract records two 1,711 sq ft homes at S$2,354 and S$2,361 psf. Their prices differed by S$7 psf.', 'The rounded median was S$2,358 psf, compared with S$2,416 psf over 24 months. The difference between those rounded figures was S$58 psf.', 'There were 13 sales in all of September. The first seven days of October cannot be treated as a full month, and two homes of one size do not represent all layouts.'],
-    qa:[Q('Were the homes the same size?', 'Both were 1,711 sq ft. They sold at S$2,354 and S$2,361 psf, S$7 psf apart.'), Q('How did the median compare with the longer record?', 'The rounded two-sale median was S$2,358 psf. The 24-month median was S$2,416 psf, a gap of S$58 psf.'), Q('Can we compare the two October sales with September’s 13?', 'The 13 sales cover all of September, while the October extract ends on the 7th. The counts do not give a full-month comparison.')]
+    qa:[Q('Were the homes the same size?', 'Both were 1,711 sq ft. They sold at S$2,354 and S$2,361 psf, S$7 psf apart.'), Q('How did the median compare with the longer record?', 'The rounded two-sale median was S$2,358 psf. The 24-month median was S$2,416 psf, a gap of S$58 psf.'), Q('Can we compare the two October sales with September’s 13?', 'The 13 sales cover all of September, while the October extract ends on the 7th. The counts do not give a full-month comparison.'),
+      Q("If my home is smaller than 1,711 sq ft, which October sale matches its size?", "Neither of the two recorded sales does. Both homes measured 1,711 sq ft. The early-October extract has no smaller home to compare.")
+    ]
   },
   'The Landmark':{
     title:'The Landmark: what one September sale can tell residents',
     summary:'A 495 sq ft home sold at S$2,208 psf in September 2025. The record covers one sale.',
     paragraphs:['The historical extract records one sale in September 2025 at The Landmark. The home measured 495 sq ft and sold at S$2,208 psf.', 'The 24-month project median was S$2,830 psf. The recorded sale was S$622 psf below that reference, about 22%.', 'The source does not supply a comparable set of September homes or details about condition. This one price cannot show whether other units lost value or why this sale differed from the longer record.'],
-    qa:[Q('Which home size appears in the sample?', 'The one September sale was for a 495 sq ft home at S$2,208 psf.'), Q('How far was this sale from the project reference?', 'The 24-month median was S$2,830 psf. The sale was S$622 psf below that, about 22%.'), Q('Can one sale establish a price decline?', 'There is only one September observation. The extract gives no matched comparison or condition details, so it cannot establish a project-wide decline.')]
+    qa:[Q('Which home size appears in the sample?', 'The one September sale was for a 495 sq ft home at S$2,208 psf.'), Q('How far was this sale from the project reference?', 'The 24-month median was S$2,830 psf. The sale was S$622 psf below that, about 22%.'), Q('Can one sale establish a price decline?', 'There is only one September observation. The extract gives no matched comparison or condition details, so it cannot establish a project-wide decline.'),
+      Q("Was S$2,208 psf an asking price or a completed sale?", "It was the recorded sale price for the 495 sq ft home. The extract contains one September transaction at The Landmark. It gives no asking price or time on market.")
+    ]
   }
 };
 
@@ -786,7 +826,7 @@ function publishToCend(a){
     read:'2 min read', updated:'just now',
     stats:[[String(sourceList.length),'Sources']],
     body:a.historicalSample?articleParagraphs(a.body):`<p>${esc(a.body)}</p>`,
-    sources:sourceList, questions, historicalSource:usesHistoricalSource(a), historicalSample:!!a.historicalSample, snapshotEvidence:!!sameEvidence
+    sources:sourceList, questions, historicalSource:usesHistoricalSource(a), historicalSample:!!a.historicalSample, originalQuestionSet:!!sameEvidence && qs.length===sample.qa.length && qs.every((text,i)=>text===sample.qa[i].q)
   };
   if(isGeneral) I.dailyArticleId=a.id;
 }
@@ -799,16 +839,18 @@ function activeRole(a){
 function articleQuestions(a){
  const role=activeRole(a);
  if(a.historicalSample){
-   if(a.snapshotEvidence && ['TENANT','BUYER'].includes(role)){
+   if(a.originalQuestionSet && ['TENANT','BUYER'].includes(role)){
      const roleQuestion=role==='TENANT'
        ? Q('Do these sales tell me what rent to expect?', 'This article covers completed sales at '+a.project+'. It contains no rents or lease terms. Check comparable rental records before using a figure for a renewal.')
        : Q('Which comparables should I check before making an offer?', 'Start with the size range and evidence period in this '+a.project+' article. The aggregate gives no floor or condition comparison for your unit. Look for matched sales before using the project median.');
-     return [...a.questions.slice(0,2),roleQuestion];
+     const questions=[...a.questions.slice(0,2),roleQuestion];
+     return role==='TENANT'?questions.concat(a.questions.slice(3)):questions;
    }
    return a.questions;
  }
- if(a.tenantQuestion && role==='TENANT')return [...a.questions.slice(0,2),a.tenantQuestion];
- if(a.tenantQuestion && role==='GENERAL')return a.questions;
+ if(a.tenantQuestions && role==='TENANT')return a.tenantQuestions;
+ if(a.ownerQuestion && role==='OWNER')return [...a.questions,a.ownerQuestion];
+ if(a.tenantQuestions && role==='GENERAL')return a.questions;
  if(a.questions&&(role==='OWNER'||(role==='GENERAL'&&a.type!=='project'))) return a.questions;
  if(role==='TENANT') return [
    Q('What should I check before renewing my lease?',`Start with the dated evidence for ${a.project}. Compare it with similar rentals if the update includes rental data. If rental evidence is missing, there is no basis here to reset your rent.`),
