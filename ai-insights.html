@@ -48,7 +48,6 @@
   .appbar{flex:0 0 auto;padding:2px 16px 8px;display:flex;align-items:center;justify-content:space-between}
   .appbar h3{margin:0;font-size:21px;font-weight:700;letter-spacing:-.02em}
   .appbar .right{display:flex;gap:6px;align-items:center}
-  .demo-pill{font-size:7px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9A3412;background:#FFF7ED;border:1px solid #FED7AA;padding:2px 5px;border-radius:999px}
   .icon-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink);background:#fff;cursor:pointer}
 
   .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 9px}
@@ -120,7 +119,6 @@
   .article-kicker{font-size:7.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:6px}
   .article h1{font-size:19px;line-height:1.28;margin:5px 0 5px;font-weight:750;letter-spacing:-.02em}
   .dek{font-size:9px;line-height:1.45;color:var(--muted);margin:0 0 7px}
-  .demobanner{background:#FFF7ED;border:1px solid #FED7AA;color:#9A3412;border-radius:7px;padding:6px 8px;font-size:7.5px;line-height:1.5;margin:0 0 8px}
   .stats{display:flex;gap:5px;margin-bottom:7px}
   .stat{flex:1;border:1px solid var(--line);border-radius:7px;padding:5px 6px}
   .stat .v{font-size:11.5px;font-weight:700;color:var(--blue-dark)}
@@ -295,7 +293,7 @@
 .phone .pcard{padding:14px;margin-bottom:12px}.phone .pcard .t{font-size:15px}.phone .pcard .s{font-size:12px}.phone .badge{font-size:11px}.phone .section b,.phone .section span{font-size:11px}
 .phone .phone-body h1{font-size:25px;line-height:1.3}.phone .dek{font-size:15px}.phone .bodytext{font-size:15px;line-height:1.75}.phone .bodytext p{margin:14px 0}
 .phone .stats .stat .v{font-size:18px}.phone .stats .stat .k{font-size:11px}.phone .h5{font-size:15px}.phone .source .n{font-size:13px}.phone .source .d,.phone .source .ev{font-size:11px}
-.phone .article-kicker,.phone .demobanner{font-size:11px}.phone .chat-body{padding:16px}.phone .bub{font-size:14px;line-height:1.65;padding:13px;max-width:94%}
+.phone .article-kicker{font-size:11px}.phone .chat-body{padding:16px}.phone .bub{font-size:14px;line-height:1.65;padding:13px;max-width:94%}
 .phone .cite{font-size:11px}.phone .ctx{font-size:12px;border-radius:8px}.phone .chat-head .who{font-size:16px}.phone .chat-head .sub{font-size:12px}
 .phone .follow .qchip{font-size:13px;min-height:44px}.phone .composer input{font-size:16px;min-height:44px}.phone .composer .cbtn{min-width:44px;min-height:44px;font-size:13px}
 .phone .cta button{min-height:48px;font-size:15px}.phone .setrow .t{font-size:15px}.phone .setrow .s{font-size:12px}.phone .setrow{min-height:64px}
@@ -361,7 +359,7 @@
 
 
 /* Project identity and publication metadata in the resident feed. */
-.phone .project-demo{font-size:10px;font-weight:600;letter-spacing:.04em;padding:2px 7px}
+.phone .insight-feed-actions{justify-content:flex-end}
 .phone .project-group{margin:14px 0 26px}
 .phone .project-heading{display:flex;align-items:center;gap:11px;width:100%;min-height:66px;padding:12px;background:#edf6f4;border:1px solid #c8dfda;border-radius:12px;text-align:left;cursor:pointer}
 .phone .project-mark{display:inline-grid;place-items:center;flex:none;width:36px;height:36px;border-radius:9px;background:#125952;color:white}
@@ -383,6 +381,14 @@
 .phone .project-article-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px}
 .phone .project-reading h1{font-weight:650;color:#172b33;font-size:24px;line-height:1.25;letter-spacing:-.023em;margin:7px 0}
 .phone .project-reading .dek{color:#45555f;line-height:1.5}
+/* Resident App: Lio recommended question header and rows. */
+.phone .article-questions{margin:16px 0 0}
+.phone .article-questions h2{display:flex;align-items:center;gap:8px;min-height:48px;margin:0;font-size:16px;font-weight:500;color:#181818}
+.phone .article-question{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:44px;margin:0;padding:8px 0;border:0;border-bottom:1px solid #f5f5f5;border-radius:0;background:white;text-align:left;color:#181818;font-size:14px;font-weight:400;line-height:1.5;cursor:pointer}
+.phone .article-question span{min-width:0;overflow-wrap:anywhere}
+.phone .article-questions img{flex:none;object-fit:contain}
+.phone .article-question:disabled{color:#666;cursor:default}
+.phone .article-ask-status{font-size:13px;color:#666}
 </style>
 </head>
 <body>
@@ -639,7 +645,7 @@ const I = {
   settings:{osAllowed:true}, dailyArticleId:'G1', recovery:newRecovery(),
   pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}},
   boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueType:'all', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
-  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full', readerRole:'OWNER',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', configDraft:null, settingsNotice:'', scenarioOpen:false
+  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', configDraft:null, settingsNotice:'', scenarioOpen:false
 };
 
 const PROJECT_CATALOG = [
@@ -779,18 +785,17 @@ function publishToCend(a){
     summary:isGeneral||a.historicalSample?esc(a.summary):'The approved version is available to this project’s bound residents.',
     read:'2 min read', updated:'just now',
     stats:[[String(sourceList.length),'Sources']],
-    body:a.historicalSample?articleParagraphs(a.body):`<p>${esc(a.body)}</p><p>This is a local demo article published from the PAM console. It is not a real news story; sources and dates are sample data.</p>`,
+    body:a.historicalSample?articleParagraphs(a.body):`<p>${esc(a.body)}</p>`,
     sources:sourceList, questions, historicalSource:usesHistoricalSource(a), historicalSample:!!a.historicalSample, snapshotEvidence:!!sameEvidence
   };
   if(isGeneral) I.dailyArticleId=a.id;
 }
 function canReadArticle(a){return a?.type==='general'||(a?.type==='project'&&I.boundProjects.includes(a.project));}
-function roleOptions(a){
-  if(!canReadArticle(a)) return [];
-  const roles=a.type==='project'?(PROJECT_BINDINGS[a.project]||[]):[];
-  return ['GENERAL',...roles,...(I.buyerIntent===a.id?['BUYER']:[])];
+function activeRole(a){
+  if(!canReadArticle(a))return 'GENERAL';
+  if(I.buyerIntent===a.id)return 'BUYER';
+  return a.type==='project'?PROJECT_BINDINGS[a.project]?.[0]||'GENERAL':'GENERAL';
 }
-function activeRole(a){return roleOptions(a).includes(I.readerRole)?I.readerRole:'GENERAL';}
 function articleQuestions(a){
  const role=activeRole(a);
  if(a.historicalSample){
@@ -827,7 +832,6 @@ function openArticle(id){
   const a=ART[id];
   if(I.articleId!==id||I.screen!=='domus'){
     I.buyerIntent=null;
-    I.readerRole=a?.type==='project'?PROJECT_BINDINGS[a.project]?.[0]||'GENERAL':'GENERAL';
   }
   if(canReadArticle(a)&&a.type==='project'&&!I.readArticles.includes(id)) I.readArticles.push(id);
   I.articleId=id; I.screen='article'; clearQuestion();
@@ -993,7 +997,7 @@ function renderList(){
   const state=feedStateBlock();
   if(state){
     return `${statusBar()}
-    ${nav('Property Insights','AI property updates','Home','appHome')}<div class="appbar"><span class="demo-pill${I.listTab==='projects'?' project-demo':''}">${I.listTab==='projects'?'Demo articles':'Demo feed'}</span><button class="linkbtn" data-action="settings">Notifications</button></div>
+    ${nav('Property Insights','AI property updates','Home','appHome')}<div class="appbar insight-feed-actions"><button class="linkbtn" data-action="settings">Notifications</button></div>
     <div class="phone-body">
       <div class="tabs"><button data-action="listTab" data-tab="daily" class="${I.listTab==='daily'?'on':''}">Daily Brief</button><button data-action="listTab" data-tab="projects" class="${I.listTab==='projects'?'on':''}">My Projects</button></div>
       ${state}
@@ -1001,7 +1005,7 @@ function renderList(){
     ${homebar()}`;
   }
   return `${statusBar()}
-  ${nav('Property Insights','AI property updates','Home','appHome')}<div class="appbar"><span class="demo-pill${I.listTab==='projects'?' project-demo':''}">${I.listTab==='projects'?'Demo articles':'Demo feed'}</span><button class="linkbtn" data-action="settings">Notifications</button></div>
+  ${nav('Property Insights','AI property updates','Home','appHome')}<div class="appbar insight-feed-actions"><button class="linkbtn" data-action="settings">Notifications</button></div>
   <div class="phone-body">
     <div class="tabs"><button data-action="listTab" data-tab="daily" class="${I.listTab==='daily'?'on':''}">Daily Brief</button><button data-action="listTab" data-tab="projects" class="${I.listTab==='projects'?'on':''}">My Projects</button></div>
     ${I.listTab==='daily'?`
@@ -1031,21 +1035,20 @@ function renderArticle(){
   return `${statusBar()}
   ${nav(a.type==='project'?'Project Insights':'Daily Brief', a.type==='project'?'':'Property Insights · AI', 'Back', I.articleBack)}
   <div class="phone-body${a.type==='project'?' project-reading':''}">
-    ${a.type==='project'?`<div class="project-article-head"><span class="project-label">${projectMark()}${esc(a.project)}</span><span class="tag demo">Demo content</span></div>
-    <div class="project-byline">Published ${projectPublished(a,true)}</div>`:`<div class="article-kicker"><span>${a.kicker}</span><span class="tag demo">DEMO CONTENT</span></div>`}
+    ${a.type==='project'?`<div class="project-article-head"><span class="project-label">${projectMark()}${esc(a.project)}</span></div>
+    <div class="project-byline">Published ${projectPublished(a,true)}</div>`:`<div class="article-kicker"><span>${a.kicker}</span></div>`}
     <h1>${a.title}</h1>
     <div class="dek">${a.summary}</div>
-    <div class="demobanner">${a.historicalSample?'Demo article · historical sales sample. The source date is separate from the simulated publication date.':'Demo article for prototype review — not a real news story. Sources and dates are sample data.'}</div>
     <div class="stats">${a.stats.map(s=>`<div class="stat"><div class="v">${s[0]}</div><div class="k">${s[1]}</div></div>`).join('')}</div>
     <div class="bodytext">${a.body}</div>
     <div class="h5">Sources (${a.sources.length})</div>
     <div class="sources">${a.sources.map(s=>`<div class="source"><div class="top"><span class="n">${s.name}</span><span class="d">${s.date}</span></div><div class="ev">${s.evidence} ${a.historicalSource?uraReference():''} <span class="tag ${s.tag==='internal'?'internal':'demo'}">${s.tag==='internal'?'Demo internal data':'Demo / unverified'}</span></div></div>`).join('')}</div>
     <div class="disc">The information provided is for reference only and does not constitute official legal or financial advice.</div>
-    <div class="ask">
-      <div class="h5">Ask AI about this</div><div class="seg">${roleOptions(a).map(r=>`<button data-action="readerRole" data-role="${r}" aria-pressed="${activeRole(a)===r}" class="${activeRole(a)===r?'on':''}">${r}</button>`).join('')}</div>
-      ${articleQuestions(a).map((q,i)=>`<button class="qchip" data-action="ask" data-q="${i}" ${I.pamSettings.enabled?'':'disabled'}>${a.historicalSample?esc(q.q):q.q}</button>`).join('')}
-    </div>
-    <div class="infobox" style="margin-bottom:0">${I.pamSettings.enabled?'Choose a question to continue with this article attached.':'Article answers are currently paused.'}</div>
+    <section class="ask article-questions" aria-labelledby="articleQuestionsTitle">
+      <h2 id="articleQuestionsTitle"><img src="app-assets/aiQuestionAsk.png" width="24" height="24" alt="">Ask AI about this article</h2>
+      ${articleQuestions(a).map((q,i)=>`<button type="button" class="article-question" data-action="ask" data-q="${i}" ${I.pamSettings.enabled?'':'disabled'}><span>${a.historicalSample?esc(q.q):q.q}</span><img src="app-assets/aiQuestionLeft.png" width="16" height="16" alt=""></button>`).join('')}
+      ${I.pamSettings.enabled?'':'<p class="article-ask-status">Article answers are currently paused.</p>'}
+    </section>
   </div>
   <div class="cta"><button data-action="openDomus" ${I.pamSettings.enabled?'':'disabled'}>Ask AI</button></div>
   ${homebar()}`;
@@ -1062,7 +1065,7 @@ function renderDomus(){
   ${nav('Lio','Article question','Back','article')}
   <div class="chat-head"><img src="app-assets/ailogo.png" width="36" height="36" alt="Lio"/><div><div class="who">Lio</div><div class="sub">AI property assistant · demo</div></div></div>
   <div class="chat-body" aria-live="polite">
-    <div class="ctx">↩ Context attached: ${a.type==='project'?esc(a.project)+' · ':''}“${a.short}” · v${I.questionContext.version} · ${I.questionContext.role}</div>
+    <div class="ctx">↩ Context attached: ${a.type==='project'?esc(a.project)+' · ':''}“${a.short}” · v${I.questionContext.version}</div>
     ${I.chatTurns.length?I.chatTurns.map(turn=>`<div class="bub user">${esc(turn.q)}</div><div class="bub ai">${turn.a===null?'Thinking…':`${esc(turn.a)}<span class="cite">${turn.recommended?'Source: '+esc(citations)+'. ':''}Demo answer</span>`}</div>`).join(''):
       '<div class="bub ai">Choose a question about this article to start.</div>'}
     <div class="follow">${articleQuestions(a).map((x,i)=>i===I.question?'':`<div class="qchip" data-action="ask" data-q="${i}">${esc(x.q)}</div>`).join('')}</div>
@@ -1281,7 +1284,7 @@ function renderPamReview(){
       <div class="pam-card">
         <div class="h">Preview · ${a.project==='—'?'General brief':a.project} · content v${a.version}</div>
         <h2>${esc(a.title)}</h2>
-        ${a.historicalSample?'<span class="tag demo">DEMO ARTICLE · HISTORICAL SAMPLE</span>':''}
+        ${a.historicalSample?'<span class="tag demo">Historical sales sample</span>':''}
         ${a.summary?`<p class="pam-note">${esc(a.summary)}</p>`:''}
         <div style="font-size:8px;color:var(--muted);margin-bottom:6px">${a.sources} sources · generated ${a.time} · demo model v0.1 · review ${a.reviewedVersion?'v'+a.reviewedVersion:'pending'}</div>
         ${editing?`<div style="font-size:8px;color:var(--muted);margin-bottom:3px">Title</div><input class="pam-input" id="pamEditTitle" value="${esc(a.title)}" /><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Body</div><textarea class="pam-textarea" id="pamEditBody">${esc(a.body)}</textarea><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Recommended questions (one per line)</div><textarea class="pam-textarea" id="pamEditQuestions">${esc((a.pamQuestions||[]).join('\n'))}</textarea><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Source correction note</div><input class="pam-input" id="pamEditSource" value="${esc(a.editSource||'')}" /><div class="pam-actions"><button class="pam-btn primary" data-action="pamSaveEdit">Save as new version</button><button class="pam-btn" data-action="pamCancelEdit">Cancel</button></div>`:`<div class="pam-preview">${a.body?`${articleParagraphs(a.body)}`:'<p style="color:var(--muted)">Not generated yet. Start generation to create a draft for review.</p>'}${a.pamQuestions&&a.pamQuestions.length?`<div style="font-size:7.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:5px"><b>Recommended questions</b><ul style="margin:3px 0 0;padding-left:13px">${a.pamQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div>`:''}</div>`}
@@ -1534,7 +1537,7 @@ function renderConsole(){
     ? `<div><b>人工新闻</b> · Project Details → Property News → More → 阅读原 CMS 稿件样例。</div>
        <div><b>AI 舆情</b> · Home → Property Insights，切换 Daily Brief / My Projects。</div>
        <div><b>来源</b> · 文章含来源、日期、免责声明及 3～4 个推荐问题。</div>
-       <div><b>追问</b> · Landmark 的业主／租客问组与 Tembusu 的租客问组分开。右侧显示文章、版本和问题 ID。</div>
+       <div><b>追问</b> · 本页按当前读者展示问题，点选即进入对话。右侧可核对项目、文章版本与问题 ID。</div>
        <div><b>项目</b> · Project Details → Project Insights。解绑后，项目 AI 文章及追问失效。</div>
        <div><b>通知</b> · 关闭模拟系统权限后，已发布文章仍可阅读。</div>`
     : `<div><b>RBAC</b> · 未知职责 fail-closed；只读/编辑/审核/项目范围/物业无权限。</div>
@@ -1580,7 +1583,6 @@ function bind(){
         I.editorialQuestion=index; I.editorialAskFrom=I.screen;
         I.screen='editorialAsk'; render(); return;
       }
-      if(a==='readerRole'){if(roleOptions(ART[I.articleId]).includes(el.dataset.role)){I.readerRole=el.dataset.role;clearQuestion();}render();return;}
       if(a==='openArticle'){ openArticle(el.dataset.id); render(); return; }
       if(a==='ask'){ openChat(Number(el.dataset.q)); render(); return; }
       if(a==='openDomus'){ openChat(); render(); return; }
@@ -1922,7 +1924,7 @@ document.addEventListener('click', e=>{
   }
   if(a==='demoBinding'){I.boundProjects=I.boundProjects.length?[]:['The Landmark'];I.buyerIntent=null;clearQuestion();render();return;}
   if(a==='demoMulti'){I.boundProjects=I.boundProjects.length===2?['The Landmark']:Object.keys(PROJECT_BINDINGS);I.buyerIntent=null;clearQuestion();render();return;}
-  if(a==='demoBuyer'&&canReadArticle(ART[I.articleId])){I.buyerIntent=I.buyerIntent?null:I.articleId;I.readerRole=I.buyerIntent?'BUYER':'GENERAL';clearQuestion();if(I.screen==='domus') I.screen='article';render();return;}
+  if(a==='demoBuyer'&&canReadArticle(ART[I.articleId])){I.buyerIntent=I.buyerIntent?null:I.articleId;clearQuestion();if(I.screen==='domus') I.screen='article';render();return;}
   if(a==='sampleNotification'){
     const brief=PAM[I.dailyArticleId], batch=demoAcceptedBatch(brief);
     if(!I.settings.osAllowed||!batch) return;
