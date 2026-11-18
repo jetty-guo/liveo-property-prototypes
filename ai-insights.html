@@ -342,7 +342,7 @@
 .gset-switch:disabled{opacity:.65;cursor:default}
 .gset .gset-text,.gset select{width:100%;padding:8px 10px;border:1px solid #b9c6d6;border-radius:6px;font:inherit;color:inherit;background:#fff}
 .gset .gset-text{resize:vertical;min-height:56px;display:block;margin-top:5px}
-.gset-foot{border-top:1px solid var(--gs-line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.gset-save-fields{padding:0 18px}.gset-foot{border-top:1px solid var(--gs-line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .gset-actions{display:flex;gap:8px;align-items:center}.gset .pam-btn{font-size:13px;min-height:35px}
 .gset button:focus-visible,.gset input:focus-visible,.gset textarea:focus-visible,.gset select:focus-visible,.gset summary:focus-visible{outline:2px solid #1765cd;outline-offset:2px}
 .gset dl{margin:0}.gset dl>div{padding:10px 0;border-bottom:1px solid var(--gs-line)}.gset dl>div:first-child{padding-top:0}.gset dl>div:last-child{border-bottom:0;padding-bottom:0}
@@ -353,9 +353,9 @@
 .gset .gset-outcome{padding:11px 14px;border-left:3px solid #3271ca;background:#f0f5fc;color:#183757;font-weight:600}
 .gset .gset-message{color:#215b38}.gset .gset-error{color:#9d2f21}
 .gset .gset-list{list-style:none;padding:0;margin:0}.gset-list li{padding:8px 0;border-bottom:1px solid var(--gs-line)}.gset-list li:last-child{border:0}
-.gset .gset-list code{font-size:12px;overflow-wrap:anywhere}.gset [hidden]{display:none!important}
+.gset code{font-size:12px;overflow-wrap:anywhere}.gset-prompt-scope{border-top:1px solid var(--gs-line);padding-top:12px;margin:12px 0}.gset-prompt-scope h3{font-size:14px;margin:0 0 5px}.gset [hidden]{display:none!important}
 @media(max-width:1000px){.gset-grid{grid-template-columns:minmax(0,1fr)}}
-@media(max-width:620px){.gset-nav{gap:10px}.gset-nav button{font-size:13px}.gset-head,.gset-body,.gset-foot{padding:12px}.gset .gset-fields{grid-template-columns:1fr}}
+@media(max-width:620px){.gset-nav{gap:10px}.gset-nav button{font-size:13px}.gset-head,.gset-body,.gset-foot{padding:12px}.gset-save-fields{padding:0 12px}.gset .gset-fields{grid-template-columns:1fr}}
 
 
 /* Project identity and publication metadata in the resident feed. */
@@ -666,7 +666,22 @@ const EDITORIAL_NEWS = {
     boundary:'这篇文章没有提到从刊登广告到成交一般要多久。'}
 };
 
-const defaultInsightSettings=()=>({enabled:true,pushEnabled:true,revision:1,history:[]});
+const PUBLISHED_PROMPTS = {
+  general:{
+    market:{name:'Market and policy',code:'ai_insight_general',version:1},
+    financing:{name:'Rates and financing',code:'ai_insight_general_financing',version:2}
+  },
+  project:{
+    overview:{name:'Project overview',code:'ai_insight_project',version:1},
+    transactions:{name:'Transactions and rents',code:'ai_insight_project_transactions',version:2},
+    amenities:{name:'Transport and amenities',code:'ai_insight_project_amenities',version:1}
+  }
+};
+
+const defaultInsightSettings=()=>({
+  enabled:true,pushEnabled:true,revision:1,history:[],
+  promptBindings:{general:'market',project:'overview',overrides:{}}
+});
 const I = {
   tab:'cend', screen:'list', listTab:'daily', articleId:null, question:null, chatTurns:[], notificationPreview:null,
   activeProject:'The Landmark', articleBack:'list', questionContext:null, editorialArticleId:null, editorialBack:'editorialList',
@@ -674,7 +689,7 @@ const I = {
   settings:{osAllowed:true}, dailyArticleId:'G1', recovery:newRecovery(),
   pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}},
   boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueType:'all', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
-  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', configDraft:null, settingsNotice:'', scenarioOpen:false
+  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', promptProject:'', configDraft:null, settingsNotice:'', scenarioOpen:false
 };
 
 const PROJECT_CATALOG = [
@@ -1202,7 +1217,7 @@ function lastPushLabel(){
 function projectArticleIds(project){ return projectIds().filter(id=>ART[id].project===project&&canReadArticle(ART[id])); }
 function firstAllowedId(){ const a=allowedPam()[0]; return a?a.id:null; }
 function setDuty(id){
-  I.configDraft=null; I.settingsNotice='';
+  I.promptProject=''; I.configDraft=null; I.settingsNotice='';
   I.duty=id; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast='';
   const first=firstAllowedId(); I.pamSelected=first; I.pamView=hasPerm('ai:insight:view')?'queue':'noaccess';
   render();
@@ -1300,6 +1315,41 @@ function renderPamProjects(){
   <div id="noProjectMatches" class="empty-state" hidden><b></b><button data-action="pamProjectClearSearch">Clear search</button></div>`;
 }
 
+function promptLabel(prompt){ return prompt.name+' · v'+prompt.version; }
+
+function effectivePrompt(config,project){
+  const bindings=config.promptBindings;
+  const override=project==='—'?null:bindings.overrides[project];
+  const track=project==='—'?'general':'project';
+  return {
+    ...PUBLISHED_PROMPTS[track][override||bindings[track]],
+    binding:track==='general'?'Public brief':override?'Project override':'Project default',
+    revision:config.revision
+  };
+}
+
+function configurationChanges(draft,config){
+  const changes=[];
+  for(const [key,label] of [['enabled','AI Property Insights'],['pushEnabled','Push notifications']]){
+    if(draft[key]!==config[key]) changes.push(label+': '+(config[key]?'On':'Off')+' → '+(draft[key]?'On':'Off'));
+  }
+  const before=config.promptBindings, after=draft.promptBindings;
+  for(const [track,label] of [['general','Public brief prompt'],['project','Project default prompt']]){
+    if(before[track]!==after[track]){
+      const bank=PUBLISHED_PROMPTS[track];
+      changes.push(label+': '+promptLabel(bank[before[track]])+' → '+promptLabel(bank[after[track]]));
+    }
+  }
+  const projects=new Set([...Object.keys(before.overrides),...Object.keys(after.overrides)]);
+  for(const project of projects){
+    if(before.overrides[project]!==after.overrides[project]){
+      const label=key=>key?promptLabel(PUBLISHED_PROMPTS.project[key]):'Use project default';
+      changes.push(project+': '+label(before.overrides[project])+' → '+label(after.overrides[project]));
+    }
+  }
+  return changes;
+}
+
 function renderPamReview(){
   const a=PAM[I.pamSelected] || PAM.P6;
   if(!inScope(a)) return `<div class="pam-card"><div class="h">Out of scope</div><div class="pam-preview"><p>This article belongs to <b>${a.project}</b>, outside the current simulated scope <b>${duty().scope}</b>. The detail is not rendered even if the ID is supplied directly.</p></div></div>`;
@@ -1338,6 +1388,7 @@ function renderPamReview(){
         <div class="pam-row"><span class="k">Current content</span><span class="v">v${a.version}</span></div>
         <div class="pam-row"><span class="k">Reviewed version</span><span class="v">${a.reviewedVersion?'v'+a.reviewedVersion:'—'}</span></div>
         <div class="pam-row"><span class="k">Generation trigger</span><span class="v">${a.generationTrigger||'—'}</span></div>
+        ${a.promptSnapshot?`<div class="pam-row"><span class="k">Generation prompt</span><span class="v" data-prompt-snapshot><code>${esc(a.promptSnapshot.code)}</code> · v${a.promptSnapshot.version}<br>${a.promptSnapshot.binding} · config rev. ${a.promptSnapshot.revision}</span></div>`:''}
         <div class="pam-row"><span class="k">Publish allowed for current version</span><span class="v" style="color:${reviewOk&&a.status==='approved'?'var(--green)':'var(--amber)'}">${reviewOk&&a.status==='approved'?'Yes':a.status==='published'?'Already published':'No — review current version first'}</span></div>
         <div class="pam-note">Editing or regenerating increments the version and clears the previous review. A published article is not reverted when a new draft is created.</div>
       </div>
@@ -1428,6 +1479,7 @@ function renderGeneralRecovery(){
   return `<section class="gset-card" id="generalRecovery"><header class="gset-head"><h3>Daily Brief run</h3><small>${GENERAL_RECOVERY_DATE} · Singapore time</small></header><div class="gset-body">
     <dl><div><dt>Scheduled slot</dt><dd>08:00 SGT</dd></div><div><dt>Original execution</dt><dd>${states[r.original]}</dd></div><div><dt>${scheduled?'Scheduled attempts':'Recovery attempts'}</dt><dd>${r.attempts}</dd></div></dl>
     <p class="gset-outcome" role="status">${esc(reason)}</p>
+    ${r.promptSnapshot?`<p data-prompt-snapshot>Generation prompt · <code>${esc(r.promptSnapshot.code)}</code> · v${r.promptSnapshot.version} · config rev. ${r.promptSnapshot.revision}</p>`:''}
     <details id="scenarioInputs" ${I.scenarioOpen?'open':''}><summary>Demo scenario inputs</summary>
     <p>Changing a scenario starts a new simulation for this slot.</p><div class="gset-fields">
     ${select('recoveryOriginal','Original execution',r.original,Object.entries(states))}
@@ -1445,6 +1497,7 @@ function recoverGeneral(){
   if(!I.pamSettings.enabled||r.original==='unknown'||r.status!=='ready') return;
   const scheduled=r.original==='scheduled';
   const time=scheduled?'08:00':r.completion;
+  r.promptSnapshot=effectivePrompt(I.pamSettings,'—');
   r.status='running'; r.attempts++;
   render();
   setTimeout(()=>{
@@ -1458,7 +1511,7 @@ function recoverGeneral(){
       title:(scheduled?'Daily Brief · ':'Recovered Daily Brief · ')+GENERAL_RECOVERY_DATE,
       summary:'A sample look at resale volumes and the mix of homes sold, with context for reading median prices.',
       body:'This sample market brief looks at resale transaction volumes and changes in the mix of homes sold. Compare the same period and home types before interpreting median prices. Check the dates in the source notes.',
-      editSource:'URA sample + MAS sample + LTA sample'};
+      editSource:'URA sample + MAS sample + LTA sample',promptSnapshot:r.promptSnapshot};
     const push=r.sent>0?'sent':'skipped';
     const reason=!pushOn?'Push paused in Generation Settings':time>='10:00'?'GENERAL catch-up cutoff 10:00 SGT':!r.sent?'No eligible devices':null;
     PAM[a.id]={...a,status:'published',reviewedVersion:1,publishedVersion:1,monitoring:false,
@@ -1471,31 +1524,71 @@ function recoverGeneral(){
   },450);
 }
 
+function settingsSaveControls(draft,dirty,canWrite){
+  return `<div class="gset-save-fields">${canWrite?`<div id="cfgReasonRow" ${dirty?'':'hidden'}><label for="cfgReason"><strong>Reason for change</strong> (required)</label><textarea class="gset-text" id="cfgReason" maxlength="500" rows="2">${esc(draft.reason||'')}</textarea></div>`:''}
+    <p id="cfgFeedback" class="gset-message" role="status">${esc(I.settingsNotice)}</p></div>
+    <footer class="gset-foot"><small>${canWrite?'Changes apply to this preview until reload.':'Read-only access'}</small>${canWrite?`<div class="gset-actions"><button class="pam-btn" data-action="discardSettings" ${dirty?'':'disabled'}>Discard</button><button class="pam-btn primary" data-action="pamSaveSettings" ${dirty?'':'disabled'}>Save changes</button></div>`:''}</footer>`;
+}
+
+function renderPromptBindings(config,draft,dirty,canWrite){
+  const bindings=draft.promptBindings;
+  const project=I.promptProject;
+  const choices=PROJECT_CATALOG.filter(item=>inScope(item));
+  const select=(id,label,track,value,inherit='')=>`<label for="${id}">${label}
+    <select id="${id}" data-prompt-binding="${id}" ${canWrite?'':'disabled'}>
+      ${inherit?`<option value="" ${value?'':'selected'}>${inherit}</option>`:''}
+      ${Object.entries(PUBLISHED_PROMPTS[track]).map(([key,item])=>`<option value="${key}" ${value===key?'selected':''}>${esc(promptLabel(item))}</option>`).join('')}
+    </select>
+    ${!inherit?`<code>${esc(PUBLISHED_PROMPTS[track][value].code)}</code>`:''}</label>`;
+  const effective=project?effectivePrompt(draft,project):null;
+  const overrides=choices.filter(x=>bindings.overrides[x.project]);
+  return `<section class="gset-card"><header class="gset-head"><h3>Prompt bindings</h3><small>Rev. ${config.revision}</small></header>
+    <div class="gset-body">
+      <p>Choose a template and version. The production catalogue is maintained in Prompt Management.</p>
+      <div class="gset-fields">
+        ${select('promptGeneral','Public brief (Daily Brief)','general',bindings.general)}
+        ${select('promptProjectDefault','Project default','project',bindings.project)}
+      </div>
+      <div class="gset-prompt-scope"><h3>Project overrides</h3>
+        <p>Set a template for a specific project, or let it inherit the project default.</p>
+        <div class="gset-fields">
+          <label for="promptProjectChoice">Project<select id="promptProjectChoice">
+            <option value="">Select a project</option>
+            ${choices.map(item=>`<option value="${esc(item.project)}" ${project===item.project?'selected':''}>${esc(item.project)}</option>`).join('')}
+          </select></label>
+          ${project?select('promptProjectOverride','Project template','project',bindings.overrides[project]||'','Use project default'):''}
+        </div>
+        ${effective?`<p data-effective-prompt><strong>${effective.binding}:</strong> <code>${esc(effective.code)}</code> · v${effective.version}</p>`:''}
+        ${overrides.length?`<ul class="gset-list" aria-label="Projects with overrides">${overrides.map(({project:name})=>`<li><strong>${esc(name)}</strong> · ${esc(promptLabel(PUBLISHED_PROMPTS.project[bindings.overrides[name]]))}</li>`).join('')}</ul>`:''}
+      </div>
+      <p>Article follow-up uses <code>ai_insight_followup</code>. Saved bindings apply to new generation runs.</p>
+    </div>
+    ${settingsSaveControls(draft,dirty,canWrite)}
+    </section>`;
+}
+
 function renderPamSettings(){
   const config=I.pamSettings, draft=I.configDraft||config;
   const canWrite=authN('settings',null,true).ok;
+  const dirty=configurationChanges(draft,config).length>0;
   const views=[['controls','Configuration'],['sources','Sources & prompts'],['runs','Daily Brief runs']];
   const tabs=views.map(([id,name])=>`<button type="button" data-action="settingsView" data-view="${id}" aria-pressed="${I.settingsView===id}">${name}</button>`).join('');
   let panel;
   if(I.settingsView==='runs') panel=renderGeneralRecovery();
   else if(I.settingsView==='sources'){
-    const prompts=[['Daily Brief','ai_insight_general'],['Project article','ai_insight_project'],['Article follow-up','ai_insight_followup']];
-    panel=`<div class="gset-grid"><section class="gset-card"><header class="gset-head"><h3>Source policy</h3></header>
+    panel=`<div class="gset-grid">${renderPromptBindings(config,draft,dirty,canWrite)}<section class="gset-card"><header class="gset-head"><h3>Source policy</h3></header>
       <dl class="gset-body"><div><dt>Primary sources</dt><dd>URA, MAS, LTA and gov.sg</dd></div><div><dt>Additional reporting</dt><dd>CNA, The Business Times and EdgeProp</dd></div>
       <div><dt>Evidence window</dt><dd>Prefer news from the past 7 days</dd><p>Use the latest effective policy or transaction data and cite the period it covers. Hold a brief if evidence is insufficient or undated.</p></div></dl></section>
-      <section class="gset-card"><header class="gset-head"><h3>Prompt bindings</h3><small>Demo registry</small></header><div class="gset-body"><ul class="gset-list">
-      ${prompts.map(([name,code])=>`<li><strong>${name}</strong><br><code>${code}</code></li>`).join('')}</ul><p>Live versions are released in Prompt Management. This preview shows the template codes.</p></div></section></div>`;
+      </div>`;
   }else{
-    const dirty=draft.enabled!==config.enabled||draft.pushEnabled!==config.pushEnabled;
     const switchRow=(id,key,name,help)=>`<div class="gset-switchrow"><div><label for="${id}">${name}</label><p id="${id}Help">${help}</p></div>
       <input type="checkbox" role="switch" class="gset-switch" id="${id}" data-setting="${key}" aria-describedby="${id}Help" ${draft[key]?'checked':''} ${canWrite?'':'disabled'}></div>`;
     const audit=config.history.length?`<section class="gset-card"><header class="gset-head"><h3>Change history</h3><small>This preview</small></header><ul class="gset-list gset-body">${config.history.slice().reverse().map(h=>`<li><strong>Revision ${h.revision} · ${esc(h.changes.join(' / '))}</strong><p>${esc(h.reason)}</p><small>${esc(h.actor)} · <time>${esc(h.at)} SGT</time></small></li>`).join('')}</ul></section>`:'';
     panel=`<div class="gset-grid"><section class="gset-card"><header class="gset-head"><h3>Service controls</h3><small>Platform-wide · Rev. ${config.revision}</small></header><div class="gset-body">
       ${switchRow('cfgEnabled','enabled','AI Property Insights','Allow new AI articles and follow-up answers on insights. Published articles remain readable.')}
       ${switchRow('cfgPush','pushEnabled','Push notifications','Allow notifications for published insights when AI Property Insights is enabled.')}
-      ${canWrite?`<div id="cfgReasonRow" ${dirty?'':'hidden'}><label for="cfgReason"><strong>Reason for change</strong> (required)</label><textarea class="gset-text" id="cfgReason" maxlength="500" rows="2">${esc(I.configDraft?.reason||'')}</textarea></div>`:''}
-      <p id="cfgFeedback" class="gset-message" role="status">${esc(I.settingsNotice)}</p></div>
-      <footer class="gset-foot"><small>${canWrite?'Changes apply to this preview until reload.':'Read-only access'}</small>${canWrite?`<div class="gset-actions"><button class="pam-btn" data-action="discardSettings" ${dirty?'':'disabled'}>Discard</button><button class="pam-btn primary" data-action="pamSaveSettings" ${dirty?'':'disabled'}>Save changes</button></div>`:''}</footer></section>
+    </div>
+      ${settingsSaveControls(draft,dirty,canWrite)}</section>
       <aside class="gset-card"><header class="gset-head"><h3>Publication rules</h3></header><dl class="gset-body">
       <div><dt>Daily Brief</dt><dd>08:00 SGT daily</dd><p>Publish after the evidence check passes.</p></div>
       <div><dt>Catch-up notification cutoff</dt><dd>10:00 SGT</dd><p>From 10:00, publish for reading only.</p></div>
@@ -1738,18 +1831,16 @@ function bind(){
       if(a==='pamSaveSettings'){
         const auth=authN('settings',null,true); if(!auth.ok) return denyN(auth);
         const d=I.configDraft, config=I.pamSettings;
-        if(!d||(d.enabled===config.enabled&&d.pushEnabled===config.pushEnabled)) return;
+        if(!d) return;
+        const changes=configurationChanges(d,config);
+        if(!changes.length) return;
         if(!d.reason.trim()){
           const feedback=$('#cfgFeedback'); feedback.textContent='Enter a reason to save these changes.'; feedback.className='gset-error';
           $('#cfgReason').setAttribute('aria-invalid','true'); $('#cfgReason').focus(); return;
         }
-        const changes=[];
-        for(const [key,label] of [['enabled','AI Property Insights'],['pushEnabled','Push notifications']]){
-          if(d[key]!==config[key]) changes.push(label+': '+(config[key]?'On':'Off')+' → '+(d[key]?'On':'Off'));
-        }
         const revision=config.revision+1;
         const at=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Singapore',dateStyle:'medium',timeStyle:'medium'}).format(new Date());
-        I.pamSettings={enabled:d.enabled,pushEnabled:d.pushEnabled,revision,history:[...config.history,{revision,at,actor:duty().label,changes,reason:d.reason.trim()}]};
+        I.pamSettings={enabled:d.enabled,pushEnabled:d.pushEnabled,promptBindings:d.promptBindings,revision,history:[...config.history,{revision,at,actor:duty().label,changes,reason:d.reason.trim()}]};
         I.configDraft=null; I.settingsNotice='Changes saved · revision '+revision+'.'; render(); return;
       }
       if(a==='pamPush'){ pamPush(I.pamSelected); return; }
@@ -1815,18 +1906,43 @@ function bind(){
   const cfgReason=$('#cfgReason');
   if(cfgReason){
     const getDraft=()=>{
-      if(!I.configDraft) I.configDraft={enabled:I.pamSettings.enabled,pushEnabled:I.pamSettings.pushEnabled,reason:''};
+      if(!I.configDraft){
+        const {enabled,pushEnabled,promptBindings}=I.pamSettings;
+        I.configDraft={enabled,pushEnabled,promptBindings:structuredClone(promptBindings),reason:''};
+      }
       return I.configDraft;
     };
     for(const control of document.querySelectorAll('#stage [data-setting]')){
       control.addEventListener('change',()=>{
         const draft=getDraft(); draft[control.dataset.setting]=control.checked;
-        const dirty=draft.enabled!==I.pamSettings.enabled||draft.pushEnabled!==I.pamSettings.pushEnabled;
+        const dirty=configurationChanges(draft,I.pamSettings).length>0;
         $('#cfgReasonRow').hidden=!dirty;
         if(!dirty){ I.configDraft=null; cfgReason.value=''; }
         $('#cfgFeedback').className='gset-message'; $('#cfgFeedback').textContent=dirty?'Unsaved changes.':'';
         I.settingsNotice=''; cfgReason.removeAttribute('aria-invalid');
         for(const action of ['discardSettings','pamSaveSettings']) $('#stage [data-action="'+action+'"]').disabled=!dirty;
+      });
+    }
+    for(const control of document.querySelectorAll('#stage [data-prompt-binding]')){
+      control.addEventListener('change',()=>{
+        if(!authN('settings',null,true).ok) return;
+        const id=control.dataset.promptBinding;
+        const track=id==='promptGeneral'?'general':'project';
+        const value=control.value;
+        if(value && !Object.hasOwn(PUBLISHED_PROMPTS[track],value)) return;
+        if(id==='promptProjectOverride' && !PROJECT_CATALOG.some(item=>item.project===I.promptProject&&inScope(item))) return;
+        const draft=getDraft();
+        if(id==='promptProjectOverride'){
+          if(value) draft.promptBindings.overrides[I.promptProject]=value;
+          else delete draft.promptBindings.overrides[I.promptProject];
+        }else{
+          if(!value) return;
+          draft.promptBindings[track]=value;
+        }
+        const dirty=configurationChanges(draft,I.pamSettings).length>0;
+        if(!dirty) I.configDraft=null;
+        I.settingsNotice=dirty?'Unsaved changes.':'';
+        render(); $('#'+id)?.focus();
       });
     }
     cfgReason.addEventListener('input',()=>{
@@ -1836,6 +1952,12 @@ function bind(){
       }
     });
   }
+  $('#promptProjectChoice')?.addEventListener('change',event=>{
+    const project=event.target.value;
+    if(project && !PROJECT_CATALOG.some(item=>item.project===project&&inScope(item))) return;
+    I.promptProject=project;
+    render(); $('#promptProjectChoice')?.focus();
+  });
   const scenario=$('#scenarioInputs');
   scenario?.addEventListener('toggle',()=>{if(scenario.isConnected) I.scenarioOpen=scenario.open;});
   const qt=$('#pamQueueType');
@@ -1885,6 +2007,7 @@ function pamGenerate(id,trigger){
   if(!I.pamSettings.enabled){I.pamToast='Generation is paused in Generation Settings.'; render(); return;}
   if(!a.monitoring||!['pending_generation','rejected','generation_failed','published'].includes(a.status)) return;
   a.generationTrigger=trigger||({pending_generation:'MANUAL_GENERATE',rejected:'MANUAL_REWRITE',generation_failed:'MANUAL_RETRY',published:'MANUAL_GENERATE'})[a.status];
+  const promptSnapshot=effectivePrompt(I.pamSettings,a.project);
   I.pamGenerating=id; I.pamSelected=id; I.pamToast='Generating draft… no real AI call.';
   if(a.status==='published') a.publishedVersion=a.version;
   a.status='generating'; render();
@@ -1896,7 +2019,7 @@ function pamGenerate(id,trigger){
       I.pamView='review'; I.pamToast='No draft generated.'; render(); return;
     }
     a.status='pending_review'; a.version++; a.reviewedVersion=null; a.time=I.pushClock;
-    Object.assign(a,sampleDraft(a.project));
+    Object.assign(a,sampleDraft(a.project),{promptSnapshot});
     I.pamGenerating=null; I.pamSelected=id; I.pamView='review'; I.pamToast='Draft generated. Moved to pending review.'; render();
   }, 1100);
 }
@@ -1971,7 +2094,7 @@ document.addEventListener('click', e=>{
   if(a==='feedReady'){ I.feedState='ready'; render(); return; }
   if(a==='resetCend'){ I.screen='list'; I.listTab='daily'; I.articleId=null; I.buyerIntent=null; clearQuestion(); I.feedState='ready'; I.readArticles=['P3','P4']; render(); }
   if(a==='resetPam'){
-    I.pamSettings=defaultInsightSettings(); I.configDraft=null; I.settingsView='controls'; I.settingsNotice=''; I.scenarioOpen=false;
+    I.pamSettings=defaultInsightSettings(); I.configDraft=null; I.promptProject=''; I.settingsView='controls'; I.settingsNotice=''; I.scenarioOpen=false;
     I.pamGenToken=(I.pamGenToken||0)+1;
     PAM=JSON.parse(JSON.stringify(PAM_INIT));PAM.G1.publishedAt='2026-11-10T08:04:00+08:00';PAM.G1.publishedVersion=PAM.G1.version;
     Object.keys(ART).filter(id=>!FIXTURE_ARTICLES.has(id)).forEach(id=>{delete ART[id];});
@@ -1997,6 +2120,7 @@ if(['appHome','appAssistant','projectDetails','editorialList'].includes(qp.get('
 if(qp.get('project')==='tembusu') I.activeProject='Tembusu Grand';
 if(qp.get('mode')==='pam'){ I.tab='pam'; I.pamView=qp.get('pam')||'queue'; if(Object.hasOwn(PAM,qp.get('review'))) I.pamSelected=qp.get('review'); }
 if(qp.get('focus')==='recovery') I.settingsView='runs';
+if(qp.get('focus')==='prompts') I.settingsView='sources';
 if(qp.get('article')) openArticle(qp.get('article'));
 if(qp.get('q')!==null&&I.articleId) openChat(Number(qp.get('q')));
 render();
