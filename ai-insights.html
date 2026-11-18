@@ -1580,8 +1580,18 @@ function renderPamSettings(){
   if(I.settingsView==='runs') panel=renderGeneralRecovery();
   else if(I.settingsView==='sources'){
     panel=`<div class="gset-grid">${renderPromptBindings(config,draft,dirty,canWrite)}<section class="gset-card"><header class="gset-head"><h3>Source policy</h3></header>
-      <dl class="gset-body"><div><dt>Primary sources</dt><dd>URA, MAS, LTA and gov.sg</dd></div><div><dt>Additional reporting</dt><dd>CNA, The Business Times and EdgeProp</dd></div>
-      <div><dt>Evidence window</dt><dd>Prefer news from the past 7 days</dd><p>Use the latest effective policy or transaction data and cite the period it covers. Hold a brief if evidence is insufficient or undated.</p></div></dl></section>
+      <dl class="gset-body">
+        <div><dt>Official sources</dt><dd>URA, MAS, LTA, gov.sg and <a href="https://www.hdb.gov.sg/" target="_blank" rel="noopener">HDB</a></dd>
+          <p>Use HDB announcements and resale statistics for public housing coverage in Daily Brief.</p></div>
+        <div><dt>Additional reporting</dt><dd>CNA, The Business Times and EdgeProp</dd>
+          <ul class="gset-list">
+            <li><a href="https://www.straitstimes.com/singapore/housing" target="_blank" rel="noopener">The Straits Times</a> · Singapore / Housing</li>
+            <li><a href="https://www.zaobao.com.sg/finance/real-estate" target="_blank" rel="noopener">Lianhe Zaobao (联合早报)</a> · 财经 / 房产</li>
+          </ul>
+          <p>Use reporting on Singapore housing. Project articles require evidence about the specific project.</p></div>
+        <div><dt>Evidence window</dt><dd>Prefer news from the past 7 days</dd>
+          <p>Use the latest effective policy or transaction data and cite the period it covers. Hold a brief if evidence is insufficient or undated.</p></div>
+      </dl></section>
       </div>`;
   }else{
     const switchRow=(id,key,name,help)=>`<div class="gset-switchrow"><div><label for="${id}">${name}</label><p id="${id}Help">${help}</p></div>
