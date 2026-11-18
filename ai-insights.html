@@ -880,6 +880,43 @@ const PAM_INIT = {
 };
 PAM_INIT.G1.reviewHistory=[{version:3,actor:'system',at:'2026-11-10 08:04 SGT',decision:'Validated',reason:'Daily Brief source and content checks passed (demo).'}];
 PAM_INIT.C1.reviewHistory=[{version:1,actor:'demo.ops',at:'2026-11-10 07:10 SGT',decision:'Rejected',reason:PAM_INIT.C1.rejectReason}];
+
+function historicalPushAttempt(articleId, timestamp, counts){
+  const article=ART[articleId];
+  const version=article.version||1;
+  return {
+    batchId:articleId+'-v'+version, version, title:article.title, project:article.project??'—',
+    target:article.type==='general'?'All app users':'Verified owners & residents',
+    day:timestamp.slice(0,10), at:timestamp.slice(11,16), sent:0, skipped:0, retries:0, ...counts
+  };
+}
+
+const PUSH_LOG_HISTORY = [
+  historicalPushAttempt('P1','2026-11-10 08:48',{
+    status:'sent',eligible:142,sent:134,skipped:8,reason:'8 recipients had notifications off.'
+  }),
+  historicalPushAttempt('G2','2026-11-09 08:05',{
+    status:'failed',eligible:12400,reason:'Channel unavailable. The failure was confirmed and the batch could be retried.'
+  }),
+  historicalPushAttempt('G2','2026-11-09 09:12',{
+    status:'sent',eligible:12400,sent:12400,retries:1,reason:'The channel accepted the retry for the same batch.'
+  }),
+  historicalPushAttempt('TP1','2026-11-08 09:52',{
+    status:'unknown',eligible:63,unknown:63,reason:'The channel timed out before confirming acceptance. Quota is held pending reconciliation.'
+  }),
+  historicalPushAttempt('P2','2026-11-08 10:12',{
+    status:'skipped',eligible:12400,skipped:12400,reason:'Catch-up cutoff was 10:00 SGT. The brief remained available to read.'
+  }),
+  historicalPushAttempt('P3','2026-11-07 11:24',{
+    status:'skipped',eligible:6,skipped:6,reason:'All 6 recipients had notifications off.'
+  }),
+  historicalPushAttempt('P4','2026-11-04 16:20',{
+    status:'skipped',eligible:28,skipped:28,reason:'All 28 recipients had used their daily project notification quota.'
+  }),
+  historicalPushAttempt('P5','2026-10-30 08:20',{
+    status:'skipped',eligible:51,skipped:51,reason:'Published the previous day. Project notifications do not carry over.'
+  })
+];
 let PAM = JSON.parse(JSON.stringify(PAM_INIT));
 const DUTIES = {
   full:{label:'Platform full duties', role:'PLATFORM_ADMIN (System Role) · demo duty', scope:'platform',
@@ -1867,24 +1904,40 @@ function renderPamSettings(){
   return `<div class="gset"><nav class="gset-nav" aria-label="Generation settings sections">${tabs}</nav>${panel}</div>`;
 }
 
+function pushAttemptCounts(batch){
+  let channelCount=batch.sent.toLocaleString('en-SG')+' accepted';
+  if(batch.status==='skipped') channelCount='';
+  if(batch.status==='unknown') channelCount=batch.unknown.toLocaleString('en-SG')+' unconfirmed';
+  if(batch.status==='failed'){
+    const failed=batch.eligible-(batch.waiting||0)-(batch.skipped||0);
+    channelCount=failed.toLocaleString('en-SG')+' failed';
+  }
+  return [
+    channelCount,
+    batch.waiting?batch.waiting.toLocaleString('en-SG')+' waiting':'',
+    batch.skipped?batch.skipped.toLocaleString('en-SG')+' skipped':''
+  ].filter(Boolean).join(' · ');
+}
+
 function renderPamPushLog(){
-  const rows=allowedPam().flatMap(a=>(a.pushBatches||[]).map(b=>({a,b}))).sort((x,y)=>(y.b.day+' '+y.b.at).localeCompare(x.b.day+' '+x.b.at));
-  return `<div class="notification-log" role="region" aria-label="Push attempts" tabindex="0">
+  const rows = [...allowedPam().flatMap(a=>a.pushBatches), ...PUSH_LOG_HISTORY.filter(inScope)]
+    .sort((x,y)=>(y.day+' '+y.at).localeCompare(x.day+' '+x.at));
+  return `<div class="pam-note" style="margin:0 0 10px"><b>${rows.length} ${rows.length===1?'attempt':'attempts'}</b> · Simulated notifications. “Accepted” confirms channel submission. Device delivery requires a separate receipt.</div>
+  <div class="notification-log" role="region" aria-label="Push attempts" tabindex="0">
     <table aria-label="Notification submission log"><thead><tr>
       <th scope="col">Batch / article</th><th scope="col">Project</th><th scope="col">Version</th>
       <th scope="col">Audience</th><th scope="col">Channel result</th>
       <th scope="col">Device delivery</th><th scope="col" class="count">Retries</th>
     </tr></thead><tbody>
-    ${rows.length?rows.map(({a,b})=>`<tr>
-      <td><strong>${esc(b.batchId)}</strong><div class="detail">${esc(b.title||a.title)}</div><div class="detail">${b.day} ${b.at} SGT</div></td>
+    ${rows.length?rows.map(b=>`<tr>
+      <td><strong>${esc(b.batchId)}</strong><div class="detail">${esc(b.title)}</div><div class="detail">${b.day} ${b.at} SGT</div></td>
       <td>${esc(b.project)}</td><td>v${b.version}</td>
-      <td>${esc(b.target)}<div class="detail">${b.eligible.toLocaleString('en-SG')} in batch</div></td>
-      <td>${pushBadge(b.status)}<div class="detail">${b.status==='unknown'?b.unknown+' unconfirmed':b.sent.toLocaleString('en-SG')+' accepted'}${b.waiting?' · '+b.waiting+' waiting':''}${b.skipped?' · '+b.skipped+' skipped':''}</div>${b.reason?'<div class="detail">'+esc(b.reason)+'</div>':''}</td>
+      <td>${esc(b.target)}<div class="detail">${b.eligible.toLocaleString('en-SG')} recipients</div></td>
+      <td>${pushBadge(b.status)}<div class="detail">${pushAttemptCounts(b)}</div>${b.reason?'<div class="detail">'+esc(b.reason)+'</div>':''}</td>
       <td>${['failed','skipped'].includes(b.status)?'Not applicable':'No receipt'}</td>
       <td class="count">${b.retries}</td>
     </tr>`).join(''):'<tr><td colspan="7">No push attempts recorded.</td></tr>'}
-    </tbody></table></div>
-    <div class="pam-note">Demo data. “Accepted” means the push service accepted the notification. Device delivery requires a separate receipt. The first attempt has zero retries.</div>`;
+    </tbody></table></div>`;
 }
 
 function render(){
