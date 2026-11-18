@@ -557,7 +557,14 @@ function startGeneration(){
       V.currentData=buildValuationData('full');V.reportMode=V.currentData.mode;V.gen.ai='done';
       if(V.currentData.guard){V.gen.pdf='todo';V.pdfState='unavailable';render();return;}
       V.gen.pdf='run';render();
-      setTimeout(()=>{if(token!==V.genToken)return;V.gen.pdf=V.scenario==='pdf_fail'?'fail':'done';V.pdfState=V.scenario==='pdf_fail'?'failed':'ready';render();},800);
+      setTimeout(()=>{
+        if(token!==V.genToken)return;
+        const failed=V.scenario==='pdf_fail';
+        V.gen.pdf=failed?'fail':'done';
+        V.pdfState=failed?'failed':'ready';
+        savePdfState(V.savedCurrent?V.history[0]:null,V.pdfState);
+        render();
+      },800);
     },2400);
   },700);
 }
@@ -586,8 +593,14 @@ function saveCurrent(){
   persistHistory();
 }
 
+function savePdfState(snapshot,state){
+  if(!snapshot||!V.history.includes(snapshot)) return;
+  snapshot.pdfState=state;
+  persistHistory();
+}
+
 function openReport(mode){
-  V.currentData=buildValuationData(mode);V.reportMode=V.currentData.mode;V.screen='report';V.activeSnapshot=null;V.pdfRetrying=false;
+  V.currentData=V.currentData||buildValuationData(mode);V.reportMode=V.currentData.mode;V.screen='report';V.activeSnapshot=null;V.pdfRetrying=false;
   if(!V.currentData.range)V.pdfState='unavailable';saveCurrent();render();
 }
 
@@ -626,7 +639,11 @@ function authV(action,t){
   return {ok:true};
 }
 function denyV(res){ VADMIN.toast='Blocked: '+res.reason+'. Local state was not changed.'; render(); return false; }
-function setVDuty(id){VADMIN.duty=id;VADMIN.selected=vfirst();VADMIN.view=vhasPerm('ai:valuation:view')?'tasks':'noaccess';VADMIN.toast='';render();}
+function setVDuty(id){
+  VADMIN.duty=id;
+  if(VADMIN.filterProject!=='all'&&!VADMIN.tasks.some(t=>vinScope(t)&&t.project===VADMIN.filterProject)) VADMIN.filterProject='all';
+  VADMIN.selected=vfirst();VADMIN.view=vhasPerm('ai:valuation:view')?'tasks':'noaccess';VADMIN.toast='';render();
+}
 function syncValuationUrl(){ const u=new URL(location.href); if(MODE==='ops') u.searchParams.set('mode','ops'); else u.searchParams.delete('mode'); history.replaceState(null,'',u); }
 function vNoAccess(code){return `<div class="vnoaccess"><div style="font-size:24px;color:var(--muted)">⊘</div><h3>No access to AI Valuation Operations</h3><p>This simulated identity lacks <code>${code}</code>. The menu entry and page would both be unavailable in production; a direct API request would also be rejected.</p><p style="margin-top:8px">Role: ${vduty().role}；scope: ${vduty().scope}. Local simulation only.</p></div>`;}
 function vStatus(t){return ({completed:'<span class="tag ok">Completed</span>',ai_failed:'<span class="tag bad">AI failed</span>',low_sample:'<span class="tag warn">Low confidence</span>',no_data:'<span class="tag">No data</span>',queued:'<span class="tag warn">Queued</span>'})[t.status]||t.status;}
@@ -674,7 +691,7 @@ function renderVTasks(){
   </div>
   <div class="vcard"><div class="h">Tasks &amp; Reports · desensitised metadata</div><div style="display:flex;gap:6px;align-items:center;font-size:8px;flex-wrap:wrap"><span>Filter:</span>
     <select class="input" id="vFilter" style="width:130px;padding:5px 7px"><option value="all" ${VADMIN.filter==='all'?'selected':''}>All statuses</option><option value="ai_failed" ${VADMIN.filter==='ai_failed'?'selected':''}>AI failed</option><option value="completed" ${VADMIN.filter==='completed'?'selected':''}>Completed</option><option value="low_sample" ${VADMIN.filter==='low_sample'?'selected':''}>Low confidence</option><option value="no_data" ${VADMIN.filter==='no_data'?'selected':''}>No data</option></select>
-    <select class="input" id="vFilterProject" style="width:130px;padding:5px 7px"><option value="all">All projects</option>${[...new Set(VADMIN.tasks.map(t=>t.project))].map(p=>`<option value="${p}" ${VADMIN.filterProject===p?'selected':''}>${p}</option>`).join('')}</select>
+    <select class="input" id="vFilterProject" style="width:130px;padding:5px 7px"><option value="all">All projects</option>${[...new Set(VADMIN.tasks.filter(vinScope).map(t=>t.project))].map(p=>`<option value="${p}" ${VADMIN.filterProject===p?'selected':''}>${p}</option>`).join('')}</select>
     <select class="input" id="vFilterPdf" style="width:110px;padding:5px 7px"><option value="all" ${VADMIN.filterPdf==='all'?'selected':''}>All PDF</option><option value="ready" ${VADMIN.filterPdf==='ready'?'selected':''}>Ready</option><option value="failed" ${VADMIN.filterPdf==='failed'?'selected':''}>Failed</option><option value="not_generated" ${VADMIN.filterPdf==='not_generated'?'selected':''}>Not generated</option></select>
     <select class="input" id="vFilterTime" style="width:105px;padding:5px 7px"><option value="all" ${VADMIN.filterTime==='all'?'selected':''}>All dates</option><option value="10 Nov" ${VADMIN.filterTime==='10 Nov'?'selected':''}>10 Nov</option><option value="09 Nov" ${VADMIN.filterTime==='09 Nov'?'selected':''}>09 Nov</option></select>
   </div></div>
@@ -866,7 +883,7 @@ function renderGenerating(){
     </div>
 
     ${baselineReady && g.ai!=='done' ? `<button class="btn" data-action="viewBaseline">View transaction-only report</button>` : ''}
-    ${g.ai==='done' ? `<button class="btn blue" data-action="viewReport">${isLow?'View regional reference':'View full report'}</button>` : ''}
+    ${g.ai==='done' ? `<button class="btn blue" data-action="viewReport">${V.currentData?.guard?'View URA mean reference':isLow?'View regional reference':'View full report'}</button>` : ''}
     ${g.pdf==='done' ? `<button class="btn" data-action="openPdf" style="margin-top:7px">Open PDF</button>` : ''}
     ${g.baseline==='fail' ? `<button class="btn blue" data-action="viewNoData">See what is missing</button>` : ''}
     <div class="demo-note">${g.pdf==='done'?'PDF ready.':g.pdf==='fail'?'PDF failed.':'PDF render is simulated locally.'}</div>
@@ -1242,7 +1259,23 @@ function bind(){
       if(a==='viewReport'){ openReport(V.reportMode); return; }
       if(a==='viewNoData'){ openReport('nodata'); return; }
       if(a==='toggleComps'){ V.compsOpen=!V.compsOpen; render(); return; }
-      if(a==='retryPdf'){ if(V.pdfRetrying) return; V.pdfRetrying=true; render(); setTimeout(()=>{ V.pdfState='ready'; V.gen.pdf='done'; V.pdfRetrying=false; render(); },700); return; }
+      if(a==='openPdf'){ window.open('valuation-report-demo.pdf','_blank','noopener'); return; }
+      if(a==='retryPdf'){
+        if(V.pdfRetrying) return;
+        const snapshot=V.activeSnapshot || (V.savedCurrent?V.history[0]:null);
+        const active=V.activeSnapshot;
+        const token=V.genToken;
+        V.pdfRetrying=true;
+        render();
+        setTimeout(()=>{
+          savePdfState(snapshot,'ready');
+          if(token!==V.genToken) return;
+          V.pdfRetrying=false;
+          if(V.activeSnapshot===active){ V.pdfState='ready'; V.gen.pdf='done'; }
+          render();
+        },700);
+        return;
+      }
       if(a==='goAgents'){ V.screen='agents'; V.activeSnapshot=null; render(); return; }
       if(a==='newValuation'){ V.screen='entry'; V.activeSnapshot=null; V.activeSnapshot=null; render(); return; }
       if(a==='viewSnapshot'){ const h=V.history[Number(el.dataset.index)]; V.activeSnapshot=h; V.reportMode=h.mode; V.pdfState=h.pdfState===undefined?'unavailable':h.pdfState; V.screen='report'; render(); return; }
@@ -1276,7 +1309,7 @@ document.addEventListener('click', e=>{
   const a=b.dataset.action;
   if(a==='vmode'){ MODE=b.dataset.mode; syncValuationUrl(); render(); }
   if(a==='vduty'){ setVDuty(b.dataset.duty); }
-  if(a==='vresetAll'){ MODE='cend'; resetAll(); return; }
+  if(a==='vresetAll'){ MODE='cend'; syncValuationUrl(); resetAll(); return; }
   if(a==='vreset'){ VADMIN.tasks=JSON.parse(JSON.stringify(V_TASKS_INIT)); VADMIN.view='tasks'; VADMIN.selected=vfirst(); VADMIN.filter='all'; VADMIN.filterProject='all'; VADMIN.filterPdf='all'; VADMIN.filterTime='all'; VADMIN.toast='Admin demo reset; no real task was changed.'; render(); }
   if(a==='vprobe'){ const t=VADMIN.tasks.find(x=>x.id==='V-T-1041'); if(!vinScope(t)){ VADMIN.toast='Blocked: V-T-1041 is outside '+vduty().scope+'. Local detail was not changed.'; render(); } else { VADMIN.selected='V-T-1041'; VADMIN.view='detail'; render(); } }
 });

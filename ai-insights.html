@@ -1354,7 +1354,7 @@ function pamShell(inner){
         <details class="demo-perms"><summary>Simulated permissions · ${chips.filter(c=>hasPerm(c)).length}/${chips.length}</summary><div class="perms">${chips.map(c=>`<span class="permchip ${hasPerm(c)?'':'off'}">${c}</span>`).join('')}</div></details>
       </div>
       <div class="pam-top"><h3>${title}</h3><div class="u">SIMULATED · no backend</div></div>
-      <div class="pam-body">${inner}</div>
+      <div class="pam-body">${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}${inner}</div>
     </div>
   </div>`;
 }
@@ -1378,7 +1378,7 @@ function renderPamQueue(){
   const q=(I.queueQuery||'').trim().toLowerCase();
   const rows=articles.filter(a=> (I.queueFilter==='all'||a.status===I.queueFilter) && (!q || (a.title+' '+a.project).toLowerCase().includes(q)));
   const statusOptions=[['all','All statuses'],['pending_review','Pending review'],['approved','Approved · not published'],['published','Published'],['rejected','Rejected & rewrite'],['generation_failed','Generation failed'],['generating','Generating']];
-  return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
+  return `
   <div class="kpis">
     <div class="kpi"><div class="v">${articles.filter(a=>a.status==='pending_review').length}</div><div class="k">Pending review</div></div>
     <div class="kpi"><div class="v">${articles.filter(a=>a.status==='approved').length}</div><div class="k">Approved · not published</div></div>
@@ -1425,7 +1425,7 @@ function renderPamProjects(){
       </div>
     </div>`;
   }).join('');
-  return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
+  return `
   <div class="pam-card"><h3 class="project-group-title">Add a project</h3>
     <div class="pam-filters">
       <input type="search" id="pamProjectSearch" aria-label="Search projects" placeholder="Enter project name" value="${esc(I.projectQuery)}" />
@@ -1509,7 +1509,7 @@ function renderPamReview(){
   const canPush=isProject&&I.pamSettings.enabled&&I.pamSettings.pushEnabled&&hasPerm('ai:insight:push:send');
   const canGen=isProject&&I.pamSettings.enabled&&hasPerm('ai:insight:generate');
   const reviewOk=a.reviewedVersion===a.version;
-  return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
+  return `
   <div style="margin-bottom:8px"><button class="pam-btn" data-action="pamView" data-view="${I.pamReviewFrom}">‹ Back to ${I.pamReviewFrom==='projects'?'Target Projects':'Review Queue'}</button></div>
   <div class="pam-grid">
     <div>
