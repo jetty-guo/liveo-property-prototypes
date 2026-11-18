@@ -346,7 +346,7 @@
 .gset-switch:before{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:white}
 .gset-switch:checked{background:#1765cd;border-color:#1765cd}.gset-switch:checked:before{left:19px}
 .gset-switch:disabled{opacity:.65;cursor:default}
-.gset .gset-text,.gset select{width:100%;padding:8px 10px;border:1px solid #b9c6d6;border-radius:6px;font:inherit;color:inherit;background:#fff}
+.gset .gset-text,.gset select,.gset .policy-value{width:100%;padding:8px 10px;border:1px solid #b9c6d6;border-radius:6px;font:inherit;color:inherit;background:#fff}
 .gset .gset-text{resize:vertical;min-height:56px;display:block;margin-top:5px}
 .gset-save-fields{padding:0 18px}.gset-foot{border-top:1px solid var(--gs-line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .gset-actions{display:flex;gap:8px;align-items:center}.gset .pam-btn{font-size:13px;min-height:35px}
@@ -355,7 +355,7 @@
 .gset dt{font-size:12px;color:var(--gs-muted)}.gset dd{margin:2px 0 0;font-weight:600;overflow-wrap:anywhere}
 .gset details{margin-top:14px}.gset summary{font-weight:600;color:var(--gs-blue);cursor:pointer}
 .gset .gset-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:12px 0}
-.gset-fields label{display:block;font-size:12px;color:var(--gs-muted)}.gset-fields select{margin-top:4px}
+.gset-fields label{display:block;font-size:12px;color:var(--gs-muted)}.gset-fields select,.gset-fields .policy-value{margin-top:4px}
 .gset .gset-outcome{padding:11px 14px;border-left:3px solid #3271ca;background:#f0f5fc;color:#183757;font-weight:600}
 .gset .gset-message{color:#215b38}.gset .gset-error{color:#9d2f21}
 .gset .gset-list{list-style:none;padding:0;margin:0}.gset-list li{padding:8px 0;border-bottom:1px solid var(--gs-line)}.gset-list li:last-child{border:0}
@@ -371,6 +371,11 @@
 .prompt-preview pre{margin:10px 0 0;font:inherit;font-size:13px;color:#142038;white-space:pre-wrap;overflow-wrap:anywhere}
 .gset .source-policy summary{display:list-item}
 .gset .source-policy:not([open]) summary{border-bottom:0}
+.source-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,215px),1fr));gap:8px;margin:8px 0}
+.source-option{display:flex;align-items:flex-start;gap:8px}
+.source-option input{margin:5px 0 0}
+.policy-save{padding-top:10px}
+@media(min-width:1001px){.gset-grid.policy-settings{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr)}}
 .prompt-management{width:min(640px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid #b9c6d6;border-radius:10px;color:#142038}
 .prompt-management::backdrop{background:#16243f66}
 .prompt-management label{font-weight:650}.prompt-management .gset-text{min-height:128px}
@@ -727,8 +732,29 @@ Use {project_context}, {generation_context} and {source_context}. Verify announc
   }
 };
 
+const INSIGHT_SOURCES=[
+  {code:'ura',name:'URA',official:true},
+  {code:'mas',name:'MAS',official:true},
+  {code:'lta',name:'LTA',official:true},
+  {code:'gov',name:'gov.sg',official:true},
+  {code:'hdb',name:'HDB',official:true,url:'https://www.hdb.gov.sg/'},
+  {code:'cna',name:'CNA'},
+  {code:'bt',name:'The Business Times'},
+  {code:'edgeprop',name:'EdgeProp'},
+  {code:'st',name:'The Straits Times · Singapore / Housing',url:'https://www.straitstimes.com/singapore/housing'},
+  {code:'zaobao',name:'Lianhe Zaobao (联合早报) · 财经 / 房产',url:'https://www.zaobao.com.sg/finance/real-estate'}
+];
+const POLICY_LABELS={
+  briefTime:'Daily Brief generation time (SGT)', catchupCutoff:'Catch-up push cutoff (SGT)',
+  generalLimit:'Public briefs per user', projectLimit:'Project articles per user',
+  newsDays:'Preferred news window (days)'
+};
+const PREVIEW_PUSH_DAY='2026-11-10';
+const initialQuotaUsage=()=>new Map(['A','B'].map(id=>[`${PREVIEW_PUSH_DAY}:${id}:general`,1]));
 const defaultInsightSettings=()=>({
   enabled:true,pushEnabled:true,revision:1,history:[],
+  briefTime:'08:00',catchupCutoff:'10:00',generalLimit:1,projectLimit:1,newsDays:7,
+  sourceCodes:INSIGHT_SOURCES.map(source=>source.code),
   promptBindings:{generalVersion:'1',project:'overview',overrides:{}}
 });
 const I = {
@@ -736,9 +762,9 @@ const I = {
   activeProject:'The Landmark', articleBack:'list', questionContext:null, editorialArticleId:null, editorialBack:'editorialList',
   editorialQuestion:null, editorialAskFrom:'editorialArticle',
   settings:{osAllowed:true}, dailyArticleId:'G1', recovery:newRecovery(), briefTopicOverrides:new Map(),
-  pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}},
+  pushDay:PREVIEW_PUSH_DAY, quotaUsage:initialQuotaUsage(), pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand']},B:{label:'Demo user B',projects:['Tembusu Grand'],settings:{osAllowed:true}}},
   boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueType:'all', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
-  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamReviewFrom:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', promptProject:'', promptDrafts:{}, promptArea:'public', promptBindingDraft:null, configDraft:null, settingsNotice:'', scenarioOpen:false
+  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamReviewFrom:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', promptProject:'', promptDrafts:{}, promptArea:'public', promptBindingDraft:null, configDraft:null, settingsNotice:'', scenarioOpen:false, sourcePolicyOpen:false
 };
 
 const PROJECT_CATALOG = [
@@ -881,7 +907,7 @@ function publishToCend(a){
   const isGeneral=a.project==='—';
   const sourceNames=a.editSource.split('+').map(x=>x.trim()).filter(Boolean);
   const date=a.publishedAt.slice(0,10);
-  const sourceList=usesHistoricalSource(a)?[S(SNAPSHOT_SOURCE,SNAPSHOT_DATE,esc(sampleEvidence(a)),'internal')]:sourceNames.map(name=>S(esc(name),date,'Published v'+a.version+' · demo source.',/ura/i.test(name)?'internal':'demo'));
+  const sourceList=a.evidenceSources??(usesHistoricalSource(a)?[S(SNAPSHOT_SOURCE,SNAPSHOT_DATE,esc(sampleEvidence(a)),'internal')]:sourceNames.map(name=>S(esc(name),date,'Published v'+a.version+' · demo source.',/ura/i.test(name)?'internal':'demo')));
   a.sources=sourceList.length;
   const qs=(a.pamQuestions&&a.pamQuestions.length?a.pamQuestions:['What changed in this update?','Does this change my unit’s range?','How does this compare with District 3?']);
   const first=a.body.split('. ',1)[0].replace(/[.!?]$/,'')+'.';
@@ -984,7 +1010,7 @@ function projectPushStatus(a,id,u){
   const result=a.projectPushResults?.[id];
   if(result) return result;
   if(!userPushSettings(id,u).osAllowed) return 'Device permission off';
-  if(u.projectUsed>=1) return 'Project quota used';
+  if(quotaUsed(id,'project')>=I.pamSettings.projectLimit) return 'Project quota used';
   if(!hasPendingPush(a)) return 'No further submission';
   const first=firstProjectForUser(id);
   return first&&first.id!==a.id?'Waiting for '+first.id+' · '+first.publishedAt.slice(11,16)+' SGT':'Eligible';
@@ -1261,20 +1287,28 @@ function recordReview(a,decision,reason){
 }
 function userPushSettings(id,u){ return id==='A' ? I.settings : u.settings; }
 function pushAudience(a){ return Object.entries(I.pushUsers).filter(([id,u])=>a.project==='—'||(id==='A'?I.boundProjects:u.projects).includes(a.project)); }
+function quotaUsed(id,track,day=I.pushDay){
+  return I.quotaUsage.get(`${day}:${id}:${track}`)||0;
+}
+function changeQuotaUsage(id,track,day,delta){
+  const amount=quotaUsed(id,track,day)+delta;
+  const key=`${day}:${id}:${track}`;
+  if(amount) I.quotaUsage.set(key,amount);
+  else I.quotaUsage.delete(key);
+}
 function pushEligible(a){
  if(!hasPublishedVersion(a)||!hasPendingPush(a)||a.publishedAt.slice(0,10)!==I.pushDay)return [];
- if(a.project==='—'&&I.pushClock>='10:00')return [];
- return pushAudience(a).filter(([uid,u])=>userPushSettings(uid,u).osAllowed&&(a.project==='—'?u.generalUsed<1:u.projectUsed<1&&firstProjectForUser(uid)?.id===a.id));
+ if(a.project==='—'&&I.pushClock>=I.pamSettings.catchupCutoff)return [];
+ return pushAudience(a).filter(([uid,u])=>userPushSettings(uid,u).osAllowed&&(a.project==='—'?quotaUsed(uid,'general')<I.pamSettings.generalLimit:quotaUsed(uid,'project')<I.pamSettings.projectLimit&&firstProjectForUser(uid)?.id===a.id));
 }
 function pushBlockReason(a){
  if(!a.publishedAt||a.publishedAt.slice(0,10)!==I.pushDay)return 'not a newly published version today; no carryover';
- if(a.project==='—'&&I.pushClock>='10:00')return 'GENERAL catch-up cutoff 10:00 SGT; content remains readable';
+ if(a.project==='—'&&I.pushClock>=I.pamSettings.catchupCutoff)return 'GENERAL catch-up cutoff '+I.pamSettings.catchupCutoff+' SGT; content remains readable';
  const audience=pushAudience(a);if(!audience.length)return 'no current bound users';
  if(audience.every(([id,u])=>!userPushSettings(id,u).osAllowed))return 'device notification permission is off';
  return 'daily quota or an earlier published project version has priority';
 }
 function pushSummary(a){ const u=pushAudience(a); const e=pushEligible(a); return e.length+'/'+u.length+' sample users eligible'; }
-function generalPushToday(){ return Object.values(PAM).flatMap(a=>a.pushBatches||[]).filter(b=>b.project==='—'&&b.day===I.pushDay&&b.status==='sent').length; }
 function lastPushLabel(){
   const rows=Object.values(PAM).flatMap(a=>(a.pushBatches||[]).map(b=>({a,b})));
   if(!rows.length) return 'No push yet';
@@ -1425,6 +1459,13 @@ function configurationChanges(draft,config){
   for(const [key,label] of [['enabled','AI Property Insights'],['pushEnabled','Push notifications']]){
     if(draft[key]!==config[key]) changes.push(label+': '+(config[key]?'On':'Off')+' → '+(draft[key]?'On':'Off'));
   }
+  for(const [key,label] of Object.entries(POLICY_LABELS)){
+    if(draft[key]!==config[key]) changes.push(label+': '+config[key]+' → '+draft[key]);
+  }
+  for(const source of INSIGHT_SOURCES){
+    const before=config.sourceCodes.includes(source.code), after=draft.sourceCodes.includes(source.code);
+    if(before!==after) changes.push(source.name+': '+(before?'On':'Off')+' → '+(after?'On':'Off'));
+  }
   const before=config.promptBindings, after=draft.promptBindings;
   if(before.generalVersion!==after.generalVersion){
     changes.push('Public brief version: v'+before.generalVersion+' → v'+after.generalVersion);
@@ -1516,10 +1557,12 @@ function renderPamReview(){
         <div class="h">Audience &amp; cap</div>
         <div class="pam-row"><span class="k">Audience</span><span class="v">${a.audience}</span></div>
         <div class="pam-row"><span class="k">Demo devices</span><span class="v">${a.audienceCount.toLocaleString()}</span></div><div class="pam-row"><span class="k">Cohort sample</span><span class="v">${pushAudience(a).length} users · ${a.project==='—'?'general':'project'}</span></div>
-        <div class="pam-row"><span class="k">General push today</span><span class="v">${generalPushToday()} / 1 sent</span></div>
-        <div class="pam-row"><span class="k">Sample users</span><span class="v">${pushAudience(a).map(([id,u])=>u.label+' '+u.projectUsed+'/1').join(' · ')||'—'}</span></div>
+        <div class="pam-row"><span class="k">Daily quota used</span><span class="v">${pushAudience(a).map(([id,u])=>{
+          const track=isProject?'project':'general';
+          return u.label+' '+quotaUsed(id,track)+'/'+(isProject?I.pamSettings.projectLimit:I.pamSettings.generalLimit);
+        }).join(' · ')||'—'}</span></div>
         <div class="pam-row"><span class="k">Eligible today</span><span class="v">${pushEligible(a).length} / ${pushAudience(a).length} sample users · ${I.pushDay}</span></div>
-        <div class="pam-note">Per-user cap: 1 general + 1 project = 2/day. Project notifications use today’s published time, then article ID. Delaying one user does not block another.</div>
+        <div class="pam-note">Project notifications are ordered by publication time, then article ID, for each user.</div>
         ${a.project!=='—'&&hasPublishedVersion(a)?pushAudience(a).map(([id,u])=>`<div class="pam-row"><span class="k">${u.label}</span><span class="v">${projectPushStatus(a,id,u)}</span></div>`).join(''):''}
       </div>
       ${a.status==='generating'?`<div class="pam-card"><div class="h">Generating</div><div class="pam-note">Draft is being generated. It will move to Pending review when complete; this is a local timer, not a real model call.</div></div>`:''}
@@ -1572,25 +1615,40 @@ function renderPamReview(){
   <div class="pam-note">After publication, readers with the current project binding can open the approved version. Push is a separate action.</div>`;
 }
 
+function isSGTTime(time){ return /^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time); }
+
+function exampleBriefEvidence(config){
+  const samples=[
+    {code:'ura',source:S('URA sample','17 Nov 2026','Latest effective resale dataset in the preview.','internal')},
+    {code:'mas',ageDays:2,source:S('MAS sample','16 Nov 2026','Financing context, within the preferred news window.')},
+    {code:'lta',ageDays:5,source:S('LTA sample','13 Nov 2026','Transport context, within the preferred news window.')}
+  ];
+  return samples.filter(item=>config.sourceCodes.includes(item.code)&&
+    (item.ageDays===undefined||item.ageDays<=config.newsDays)).map(item=>item.source);
+}
+
 function renderGeneralRecovery(){
   const r=I.recovery, scheduled=r.original==='scheduled';
   const canRun=authN('generate',null,true).ok&&I.pamSettings.enabled;
   const states={not_started:'Not started',failed:'Failed',unknown:'Outcome unknown',scheduled:'Scheduled'};
-  const allowed=canRun&&r.status==='ready'&&r.original!=='unknown';
+  const config=I.pamSettings, policy=r.policySnapshot||config;
+  const validCompletion=scheduled||isSGTTime(r.completion)&&r.completion>=config.briefTime;
+  const allowed=canRun&&r.status==='ready'&&r.original!=='unknown'&&validCompletion;
   const reason=r.status==='published'?r.notificationNote:
-    r.status==='running'?'Validating the source evidence…':r.status==='held'?'Held for review. The available sources could not be verified.':
+    r.status==='running'?'Validating the source evidence…':r.status==='held'?r.holdReason:
     r.original==='unknown'?'Reconcile the original run before trying again.':
     !I.pamSettings.enabled?'Generation is paused in Configuration.':
+    !validCompletion?'Enter a recovery completion time at or after '+config.briefTime+' SGT.':
     scheduled?'Ready for the scheduled run.':'Eligible for recovery.';
   const select=(id,label,value,choices)=>`<label for="${id}">${label}<select id="${id}" ${!canRun||r.status==='running'?'disabled':''}>${choices.map(([v,name])=>`<option value="${v}" ${v===value?'selected':''}>${name}</option>`).join('')}</select></label>`;
   return `<section class="gset-card" id="generalRecovery"><header class="gset-head"><h3>Daily Brief run</h3><small>${GENERAL_RECOVERY_DATE} · Singapore time</small></header><div class="gset-body">
-    <dl><div><dt>Scheduled slot</dt><dd>08:00 SGT</dd></div><div><dt>Original execution</dt><dd>${states[r.original]}</dd></div><div><dt>${scheduled?'Scheduled attempts':'Recovery attempts'}</dt><dd>${r.attempts}</dd></div></dl>
+    <dl><div><dt>Scheduled slot</dt><dd>${policy.briefTime} SGT</dd></div><div><dt>Catch-up push cutoff</dt><dd>${policy.catchupCutoff} SGT</dd></div><div><dt>Original execution</dt><dd>${states[r.original]}</dd></div><div><dt>${scheduled?'Scheduled attempts':'Recovery attempts'}</dt><dd>${r.attempts}</dd></div></dl>
     <p class="gset-outcome" role="status">${esc(reason)}</p>
     ${r.promptSnapshot?`<p data-prompt-snapshot>Generation prompt · <code>${esc(r.promptSnapshot.code)}</code> · v${r.promptSnapshot.version} · config rev. ${r.promptSnapshot.revision}</p>`:''}
     <details id="scenarioInputs" ${I.scenarioOpen?'open':''}><summary>Demo scenario inputs</summary>
     <p>Changing a scenario starts a new simulation for this slot.</p><div class="gset-fields">
     ${select('recoveryOriginal','Original execution',r.original,Object.entries(states))}
-    ${scheduled?'':select('recoveryCompletion','Recovery completion (SGT)',r.completion,[['09:30','09:30'],['10:00','10:00'],['10:15','10:15']])}
+    ${scheduled?'':`<label for="recoveryCompletion">Recovery completion (SGT)<input class="policy-value" type="time" id="recoveryCompletion" value="${esc(r.completion)}" ${!canRun||r.status==='running'?'disabled':''}></label>`}
     ${select('recoveryEvidence','Source evidence',r.evidence,[['valid','Dated and verifiable'],['insufficient','Missing or undated']])}</div></details>
     </div><footer class="gset-foot"><small>${GENERAL_RECOVERY_KEY}</small><div class="gset-actions">
     ${r.status==='published'?'<button class="pam-btn" data-action="readRecovered">Read published brief</button>':''}
@@ -1603,26 +1661,39 @@ function recoverGeneral(){
   const r=I.recovery;
   if(!I.pamSettings.enabled||r.original==='unknown'||r.status!=='ready') return;
   const scheduled=r.original==='scheduled';
-  const time=scheduled?'08:00':r.completion;
-  r.promptSnapshot=effectivePrompt(I.pamSettings,'—');
+  const config=I.pamSettings;
+  const time=scheduled?config.briefTime:r.completion;
+  if(!isSGTTime(time)||time<config.briefTime) return;
+  const evidence=exampleBriefEvidence(config);
+  r.policySnapshot=config;
+  r.promptSnapshot=effectivePrompt(config,'—');
   r.status='running'; r.attempts++;
   render();
   setTimeout(()=>{
     if(I.recovery!==r) return;
-    if(r.evidence!=='valid'){ r.status='held'; render(); return; }
+    if(r.evidence!=='valid'||!config.sourceCodes.includes('ura')){
+      r.status='held';
+      r.holdReason=r.evidence!=='valid'?'Held for review. The available sources could not be verified.':
+        'Held for review. The URA dataset is unavailable under the selected source policy.';
+      render(); return;
+    }
     const sample=pushAudience({project:'—'});
     const pushOn=I.pamSettings.enabled&&I.pamSettings.pushEnabled;
-    const eligible=pushOn&&time<'10:00'?sample.filter(([id,u])=>userPushSettings(id,u).osAllowed):[];
+    const devices=sample.filter(([id,u])=>userPushSettings(id,u).osAllowed);
+    const quota=devices.filter(([id])=>quotaUsed(id,'general',GENERAL_RECOVERY_DATE)<I.pamSettings.generalLimit);
+    const eligible=pushOn&&time<config.catchupCutoff?quota:[];
+    r.notifiedUsers=eligible.map(([id])=>id);
+    for(const id of r.notifiedUsers) changeQuotaUsage(id,'general',GENERAL_RECOVERY_DATE,1);
     r.sent=eligible.length;
     const a={id:'GBR',version:1,project:'—',topic:'sales',publishedAt:GENERAL_RECOVERY_DATE+'T'+time+':00+08:00',
       title:(scheduled?'Daily Brief · ':'Recovered Daily Brief · ')+GENERAL_RECOVERY_DATE,
       summary:'A sample look at resale volumes and the mix of homes sold, with context for reading median prices.',
       body:'This sample market brief looks at resale transaction volumes and changes in the mix of homes sold. Compare the same period and home types before interpreting median prices. Check the dates in the source notes.',
-      editSource:'URA sample + MAS sample + LTA sample',promptSnapshot:r.promptSnapshot};
+      editSource:evidence.map(item=>item.name).join(' + '),evidenceSources:evidence,promptSnapshot:r.promptSnapshot};
     const push=r.sent>0?'sent':'skipped';
-    const reason=!pushOn?'Push paused in Generation Settings':time>='10:00'?'GENERAL catch-up cutoff 10:00 SGT':!r.sent?'No eligible devices':null;
+    const reason=!pushOn?'Push paused in Generation Settings':time>=config.catchupCutoff?'GENERAL catch-up cutoff '+config.catchupCutoff+' SGT':!devices.length?'No eligible devices':!quota.length?'Public brief quota reached':null;
     PAM[a.id]={...a,status:'published',reviewedVersion:1,publishedVersion:1,monitoring:false,
-      push,sources:3,time,audience:'All app users',audienceCount:sample.length,generationTrigger:scheduled?'GENERAL_SCHEDULED':'GENERAL_RECOVERY',
+      push,sources:evidence.length,time,audience:'All app users',audienceCount:sample.length,generationTrigger:scheduled?'GENERAL_SCHEDULED':'GENERAL_RECOVERY',
       reviewHistory:[{version:1,decision:'Validated',actor:'system',at:GENERAL_RECOVERY_DATE+' '+time+' SGT',reason:'Daily Brief source and content checks passed (demo).'}],
       pushBatches:[{batchId:GENERAL_RECOVERY_KEY+'-v1',version:1,title:a.title,project:'—',target:'All app users',status:push,retries:0,eligible:sample.length,sent:r.sent,skipped:sample.length-r.sent,day:GENERAL_RECOVERY_DATE,at:time,reason,demoReaderAccepted:eligible.some(([id])=>id==='A')}]};
     publishToCend(a);
@@ -1739,21 +1810,29 @@ function renderPromptSettings(config,draft,dirty,canWrite){
   </section>`;
 }
 
-function renderSourcePolicy(){
-  return `<details class="gset-card source-policy">
+function policyInput(key,draft,canWrite){
+  const isTime=key==='briefTime'||key==='catchupCutoff';
+  const id='cfg-'+key;
+  return `<div><label for="${id}">${POLICY_LABELS[key]}</label>
+    <input id="${id}" class="policy-value" type="${isTime?'time':'number'}" data-setting="${key}" value="${esc(draft[key])}"
+      ${isTime?'':`min="${key==='newsDays'?1:0}" step="1"`} ${canWrite?'':'disabled'}></div>`;
+}
+
+function renderSourcePolicy(draft,canWrite){
+  const choices=official=>INSIGHT_SOURCES.filter(item=>!!item.official===official).map(item=>`
+    <div class="source-option">
+      <input id="source-${item.code}" type="checkbox" data-setting="sourceCodes" value="${item.code}" ${draft.sourceCodes.includes(item.code)?'checked':''} ${canWrite?'':'disabled'}>
+      <label for="source-${item.code}">${item.name}</label>
+      ${item.url?`<a href="${item.url}" target="_blank" rel="noopener" aria-label="Open ${item.name} source">↗</a>`:''}
+    </div>`).join('');
+  return `<details class="gset-card source-policy" ${I.sourcePolicyOpen?'open':''}>
     <summary class="gset-head">Source policy</summary>
     <dl class="gset-body">
-        <div><dt>Official sources</dt><dd>URA, MAS, LTA, gov.sg and <a href="https://www.hdb.gov.sg/" target="_blank" rel="noopener">HDB</a></dd>
-          <p>Use HDB announcements and resale statistics for public housing coverage in Daily Brief.</p></div>
-        <div><dt>Additional reporting</dt><dd>CNA, The Business Times and EdgeProp</dd>
-          <ul class="gset-list">
-            <li><a href="https://www.straitstimes.com/singapore/housing" target="_blank" rel="noopener">The Straits Times</a> · Singapore / Housing</li>
-            <li><a href="https://www.zaobao.com.sg/finance/real-estate" target="_blank" rel="noopener">Lianhe Zaobao (联合早报)</a> · 财经 / 房产</li>
-          </ul>
-          <p>Use reporting on Singapore housing. Project articles require evidence about the specific project.</p></div>
-        <div><dt>Evidence window</dt><dd>Prefer news from the past 7 days</dd>
-          <p>Use the latest effective policy or transaction data and cite the period it covers. Hold a brief if evidence is insufficient or undated.</p></div>
-      </dl>
+      <div><dt>Official sources</dt><dd class="source-options">${choices(true)}</dd></div>
+      <div><dt>Additional reporting</dt><dd class="source-options">${choices(false)}</dd></div>
+      <div><dt>Evidence window</dt><dd class="gset-fields">${policyInput('newsDays',draft,canWrite)}</dd>
+        <p>Prefer recent news and the latest effective official datasets. Project articles need evidence about the specific project.</p></div>
+    </dl>
   </details>`;
 }
 
@@ -1771,16 +1850,19 @@ function renderPamSettings(){
     const switchRow=(id,key,name,help)=>`<div class="gset-switchrow"><div><label for="${id}">${name}</label><p id="${id}Help">${help}</p></div>
       <input type="checkbox" role="switch" class="gset-switch" id="${id}" data-setting="${key}" aria-describedby="${id}Help" ${draft[key]?'checked':''} ${canWrite?'':'disabled'}></div>`;
     const audit=config.history.length?`<section class="gset-card"><header class="gset-head"><h3>Change history</h3><small>This preview</small></header><ul class="gset-list gset-body">${config.history.slice().reverse().map(h=>`<li><strong>Revision ${h.revision} · ${esc(h.changes.join(' / '))}</strong>${h.reason?`<p>${esc(h.reason)}</p>`:''}<small>${esc(h.actor)} · <time>${esc(h.at)} SGT</time></small></li>`).join('')}</ul></section>`:'';
-    panel=`<div class="gset-grid"><section class="gset-card"><header class="gset-head"><h3>Service controls</h3><small>Platform-wide · Rev. ${config.revision}</small></header><div class="gset-body">
+    panel=`<div class="gset-grid policy-settings"><section class="gset-card"><header class="gset-head"><h3>Service controls</h3><small>Platform-wide · Rev. ${config.revision}</small></header><div class="gset-body">
       ${switchRow('cfgEnabled','enabled','AI Property Insights','Allow new AI articles and follow-up answers on insights. Published articles remain readable.')}
       ${switchRow('cfgPush','pushEnabled','Push notifications','Allow notifications for published insights when AI Property Insights is enabled.')}
-    </div>
-      ${settingsSaveControls(draft,dirty,canWrite,true)}</section>
-      <aside class="gset-card"><header class="gset-head"><h3>Publication rules</h3></header><dl class="gset-body">
-      <div><dt>Daily Brief</dt><dd>08:00 SGT daily</dd><p>Publish after the evidence check passes.</p></div>
-      <div><dt>Catch-up notification cutoff</dt><dd>10:00 SGT</dd><p>From 10:00, publish for reading only.</p></div>
-      <div><dt>Project articles</dt><dd>Manual review before publication</dd><p>Enable monitoring before generating a draft.</p></div>
-      <div><dt>Default daily notification limits in this preview</dt><dd>1 general + 1 project per user</dd><p>Both limits apply across devices. The project limit also applies across bound projects.</p></div></dl></aside></div>${renderSourcePolicy()}${audit}`;
+    </div></section>
+      <section class="gset-card"><header class="gset-head"><h3>Publication rules</h3></header><dl class="gset-body">
+      <div><dt>Daily Brief</dt><dd class="gset-fields">${policyInput('briefTime',draft,canWrite)}${policyInput('catchupCutoff',draft,canWrite)}</dd>
+        <p>At the cutoff, a recovered brief can publish for reading without a catch-up notification.</p></div>
+      <div><dt>Project articles</dt><dd>Manual review before publication</dd></div>
+      <div><dt>Daily notification limits</dt><dd class="gset-fields">${policyInput('generalLimit',draft,canWrite)}${policyInput('projectLimit',draft,canWrite)}</dd>
+        <p>0 pauses notifications for that type. Limits apply across devices and, for project articles, across bound projects.</p></div>
+      </dl></section></div>
+      ${renderSourcePolicy(draft,canWrite)}
+      <section class="gset-card policy-save">${settingsSaveControls(draft,dirty,canWrite,true)}</section>${audit}`;
   }
   return `<div class="gset"><nav class="gset-nav" aria-label="Generation settings sections">${tabs}</nav>${panel}</div>`;
 }
@@ -1858,7 +1940,7 @@ function renderConsole(){
        <div><b>菜单</b> · 无 ai:insight:view 时不显示 AI Property Services。</div>
        <div><b>动作</b> · 每个写动作检查权限 + 对象范围 + 业务状态，失败不改状态。</div>
        <div><b>版本</b> · 编辑/重写后重新审核；保留旧审核记录及已发布快照。</div>
-       <div><b>补跑</b> · Generation Settings 中分别演示未执行、确定失败和未知；10:00 起只发布有效内容。</div>
+       <div><b>补跑</b> · Generation Settings 中可演示未执行、确定失败及未知。到达配置的补通知截止时刻后只发布有效内容。</div>
        <div><b>状态</b> · Approved ≠ Published；Published ≠ Push sent。</div>
        <div><b>推送</b> · 开启双项目样例，先发布 P6，再发布 T1。尝试先推 T1，查看两个用户的资格差异。</div>
        <div><b>闭环</b> · Publish P6 后 C-end 使用已审核快照；Push 独立批次。</div>`;
@@ -2042,18 +2124,30 @@ function bind(){
       }
       if(a==='pamSaveSettings'){
         const auth=authN('settings',null,true); if(!auth.ok) return denyN(auth);
-        const config=I.pamSettings, d={...config,...settingsDraftPatch()};
-        const changes=configurationChanges(d,config);
+        const config=I.pamSettings;
+        const {reason:rawReason,...next}= {...config,...settingsDraftPatch()};
+        const changes=configurationChanges(next,config);
         if(!changes.length) return;
         const savesBindings=I.settingsView==='prompts';
-        const reason=savesBindings?'':(d.reason||'').trim();
+        const reason=savesBindings?'':(rawReason||'').trim();
+        if(!savesBindings){
+          const invalid=Object.keys(POLICY_LABELS).find(key=>key==='briefTime'||key==='catchupCutoff'
+            ? !isSGTTime(next[key]) : !Number.isSafeInteger(next[key])||next[key]<(key==='newsDays'?1:0));
+          const invalidField=invalid||(next.catchupCutoff<=next.briefTime?'catchupCutoff':null);
+          if(invalidField){
+            const feedback=$('#cfgFeedback'); feedback.className='gset-error';
+            feedback.textContent=invalid?'Enter a valid value for '+POLICY_LABELS[invalid]+'.':'Set the catch-up cutoff after the generation time.';
+            const field=$('#cfg-'+invalidField);
+            field.setAttribute('aria-invalid','true'); field.focus(); return;
+          }
+        }
         if(!savesBindings&&!reason){
           const feedback=$('#cfgFeedback'); feedback.textContent='Enter a reason to save these changes.'; feedback.className='gset-error';
           $('#cfgReason').setAttribute('aria-invalid','true'); $('#cfgReason').focus(); return;
         }
         const revision=config.revision+1;
         const at=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Singapore',dateStyle:'medium',timeStyle:'medium'}).format(new Date());
-        I.pamSettings={enabled:d.enabled,pushEnabled:d.pushEnabled,promptBindings:d.promptBindings,revision,history:[...config.history,{revision,at,actor:duty().label,changes,reason}]};
+        I.pamSettings={...next,revision,history:[...config.history,{revision,at,actor:duty().label,changes,reason}]};
         if(savesBindings) I.promptBindingDraft=null;
         else I.configDraft=null;
         I.settingsNotice='Changes saved · revision '+revision+'.'; render(); return;
@@ -2120,18 +2214,26 @@ function bind(){
       }
     });
   });
+  const sourcePanel=$('#stage .source-policy');
+  sourcePanel?.addEventListener('toggle',()=>{if(sourcePanel.isConnected) I.sourcePolicyOpen=sourcePanel.open;});
   const cfgReason=$('#cfgReason');
   if(cfgReason){
     const getDraft=()=>{
       if(!I.configDraft){
-        const {enabled,pushEnabled}=I.pamSettings;
-        I.configDraft={enabled,pushEnabled,reason:''};
+        I.configDraft={reason:''};
       }
       return I.configDraft;
     };
     for(const control of document.querySelectorAll('#stage [data-setting]')){
-      control.addEventListener('change',()=>{
-        const draft=getDraft(); draft[control.dataset.setting]=control.checked;
+      control.addEventListener(control.type==='checkbox'?'change':'input',()=>{
+        if(!authN('settings',null,true).ok) return;
+        const draft=getDraft(), key=control.dataset.setting;
+        if(key==='sourceCodes'){
+          draft.sourceCodes=Array.from(document.querySelectorAll('#stage [data-setting="sourceCodes"]:checked'),item=>item.value);
+        }else{
+          draft[key]=control.type==='checkbox'?control.checked:control.type==='number'?control.valueAsNumber:control.value;
+        }
+        control.removeAttribute('aria-invalid');
         const dirty=configurationChanges({...I.pamSettings,...draft},I.pamSettings).length>0;
         $('#cfgReasonRow').hidden=!dirty;
         if(!dirty){ I.configDraft=null; cfgReason.value=''; }
@@ -2211,7 +2313,9 @@ function bind(){
     $(selector)?.addEventListener('change',e=>{
       if(!I.pamSettings.enabled||!authN('generate',null,true).ok||I.recovery.status==='running') return;
       I.scenarioOpen=true;
-      I.recovery={...I.recovery,[key]:e.target.value,status:'ready',attempts:0};
+      const current=I.recovery;
+      for(const id of current.notifiedUsers||[]) changeQuotaUsage(id,'general',GENERAL_RECOVERY_DATE,-1);
+      I.recovery={...newRecovery(),original:current.original,completion:current.completion,evidence:current.evidence,[key]:e.target.value};
       delete ART.GBR; delete PAM.GBR; I.briefTopicOverrides.delete('GBR');
       if(I.dailyArticleId==='GBR') I.dailyArticleId='G1';
       render();
@@ -2225,15 +2329,17 @@ function pamGenerate(id){
   if(!I.pamSettings.enabled){I.pamToast='Generation is paused in Generation Settings.'; render(); return;}
   if(!a.monitoring||!['pending_generation','rejected','generation_failed','published'].includes(a.status)) return;
   a.generationTrigger={pending_generation:'MANUAL_GENERATE',rejected:'MANUAL_REWRITE',generation_failed:'MANUAL_RETRY',published:'MANUAL_GENERATE'}[a.status];
-  const promptSnapshot=effectivePrompt(I.pamSettings,a.project);
+  const config=I.pamSettings;
+  const promptSnapshot=effectivePrompt(config,a.project);
   I.pamToast='';
   if(a.status==='published') a.publishedVersion=a.version;
   a.status='generating'; render();
   const token=(a.generationToken||0)+1; a.generationToken=token; const epoch=I.pamResetEpoch||0;
   setTimeout(()=>{
     if(a.generationToken!==token || (I.pamResetEpoch||0)!==epoch || PAM[id]!==a) return;
-    if(!PROJECT_ARTICLES[a.project]){
-      a.status='generation_failed'; a.error='No dated sample is available for this project.';
+    if(!PROJECT_ARTICLES[a.project]||!config.sourceCodes.includes('ura')){
+      a.status='generation_failed';
+      a.error=config.sourceCodes.includes('ura')?'No dated sample is available for this project.':'The URA project dataset is unavailable under the selected source policy.';
       a.time=I.pushClock; render(); return;
     }
     a.status='pending_review'; a.version++; a.reviewedVersion=null; a.time=I.pushClock;
@@ -2271,9 +2377,10 @@ function pamPush(id){
   const unknown=I.pamPushUnknownNext;
   I.pamPushUnknownNext=false;
   const result=unknown?'Unknown · quota held':'Channel accepted · device delivery unverified';
-  eligible.forEach(([uid,u])=>{
-    if(a.project==='—') u.generalUsed+=1;
-    else { u.projectUsed+=1; a.projectPushResults[uid]=result; }
+  eligible.forEach(([uid])=>{
+    const track=a.project==='—'?'general':'project';
+    changeQuotaUsage(uid,track,I.pushDay,1);
+    if(track==='project') a.projectPushResults[uid]=result;
   });
   const status=unknown?'unknown':'sent';
   a.pushBatches.push({...base,status,sent:unknown?0:eligible.length,unknown:unknown?eligible.length:0,retries:a.retries||0,
@@ -2312,18 +2419,17 @@ document.addEventListener('click', e=>{
   if(a==='feedReady'){ I.feedState='ready'; render(); return; }
   if(a==='resetCend'){ I.screen='list'; I.listTab='daily'; I.articleId=null; I.buyerIntent=null; clearQuestion(); I.feedState='ready'; I.readArticles=['P3','P4']; render(); }
   if(a==='resetPam'){
-    I.pamSettings=defaultInsightSettings(); I.configDraft=null; I.promptBindingDraft=null; I.promptProject=''; I.promptArea='public'; I.promptDrafts={}; I.settingsView='controls'; I.settingsNotice=''; I.scenarioOpen=false;
+    I.pamSettings=defaultInsightSettings(); I.configDraft=null; I.promptBindingDraft=null; I.promptProject=''; I.promptArea='public'; I.promptDrafts={}; I.settingsView='controls'; I.settingsNotice=''; I.scenarioOpen=false; I.sourcePolicyOpen=false;
     I.pamGenToken=(I.pamGenToken||0)+1;
     PAM=JSON.parse(JSON.stringify(PAM_INIT)); I.briefTopicOverrides.clear();
     Object.keys(ART).filter(id=>!FIXTURE_ARTICLES.has(id)).forEach(id=>{delete ART[id];});
     ART.G1=INITIAL_BRIEF; I.dailyArticleId='G1'; I.recovery=newRecovery(); I.publishSeq=0;
-    I.pushDay='2026-11-10';
-    I.pushUsers={A:{label:'Demo user A',generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}};
+    I.pushDay=PREVIEW_PUSH_DAY; I.quotaUsage=initialQuotaUsage();
+    I.pushUsers={A:{label:'Demo user A'},B:{label:'Demo user B',projects:['Tembusu Grand'],settings:{osAllowed:true}}};
     I.targetProjects=['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park']; I.queueType='all'; I.queueFilter='all'; I.queueQuery=''; I.projectQuery=''; I.pamView='queue'; I.pamReviewFrom='queue'; I.pamSelected='P6'; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; I.pamPushFailNext=false; I.pamPushUnknownNext=false; I.pamResetEpoch=(I.pamResetEpoch||0)+1; render();
   }
   if(a==='nextDay'){
     const day=new Date(I.pushDay+'T00:00:00Z');day.setUTCDate(day.getUTCDate()+1);I.pushDay=day.toISOString().slice(0,10);I.publishSeq=0;
-    Object.values(I.pushUsers).forEach(u=>{ u.generalUsed=1; u.projectUsed=0; });
     I.pamToast='Advanced to '+I.pushDay+'; per-user project quota reset.'; render();
   }
   if(a==='pushUnknown'){ I.pamPushUnknownNext=true; I.pamPushFailNext=false; I.pamToast='The next submission will be unknown and will hold quota.'; render(); }
