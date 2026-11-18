@@ -354,6 +354,12 @@
 .gset .gset-message{color:#215b38}.gset .gset-error{color:#9d2f21}
 .gset .gset-list{list-style:none;padding:0;margin:0}.gset-list li{padding:8px 0;border-bottom:1px solid var(--gs-line)}.gset-list li:last-child{border:0}
 .gset code{font-size:12px;overflow-wrap:anywhere}.gset-prompt-scope{border-top:1px solid var(--gs-line);padding-top:12px;margin:12px 0}.gset-prompt-scope h3{font-size:14px;margin:0 0 5px}.gset [hidden]{display:none!important}
+.prompt-preview{background:#f6f8fb;border-radius:6px;padding:10px 12px;margin:8px 0 0;min-width:0}
+.prompt-preview p{margin:4px 0 8px}.prompt-preview strong{display:block;overflow-wrap:anywhere}
+.prompt-management{width:min(640px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid #b9c6d6;border-radius:10px;color:#142038}
+.prompt-management::backdrop{background:#16243f66}
+.prompt-management pre{margin:8px 0 16px;padding:12px;background:#f6f8fb;border-radius:6px;font:inherit;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}
+.prompt-management label{font-weight:650}.prompt-management .gset-text{min-height:128px}
 @media(max-width:1000px){.gset-grid{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:620px){.gset-nav{gap:10px}.gset-nav button{font-size:13px}.gset-head,.gset-body,.gset-foot{padding:12px}.gset-save-fields{padding:0 12px}.gset .gset-fields{grid-template-columns:1fr}}
 
@@ -674,6 +680,32 @@ const PROJECT_PROMPTS = {
   amenities:{name:'Transport and amenities',code:'ai_insight_project_amenities',version:1}
 };
 
+const PROMPT_SAMPLES={
+  [PUBLIC_BRIEF_PROMPT_CODE]:{
+    1:`Summarise the most relevant Singapore residential property policy, market and interest-rate developments for this business day.
+
+Use {generation_context} and {source_context}. Cite dated official evidence and identify the period covered by market data. Return a title, summary, body, sources, recommended questions and disclaimer. Keep the brief applicable to the public readership.`,
+    2:`Compare this period's Singapore residential sales, rents and lending conditions with the prior comparable period. Explain how the mix of transactions affects the headline figures.
+
+Use {generation_context} and {source_context}. Lead with official figures and cite their data periods. Separate confirmed policy changes from market commentary. Return a title, summary, body, sources, recommended questions and disclaimer.`
+  },
+  ai_insight_project:{
+    1:`Write an update for residents of the identified project. Explain what the latest verified project developments mean and give the dates of each source.
+
+Use {project_context}, {generation_context} and {source_context}. Tie each claim to this project and state any evidence gaps. Return a title, summary, body, sources, recommended questions and disclaimer.`
+  },
+  ai_insight_project_transactions:{
+    2:`Summarise recent sales and rents for the identified project. Compare like-for-like periods and state sample sizes before interpreting the data.
+
+Use {project_context}, {generation_context} and {source_context}. Keep asking prices, transactions and rents distinct. Cite the dated evidence and avoid estimating individual units. Return a title, summary, body, sources, recommended questions and disclaimer.`
+  },
+  ai_insight_project_amenities:{
+    1:`Explain changes to transport access and nearby amenities for the identified project. Include confirmed dates and who is affected.
+
+Use {project_context}, {generation_context} and {source_context}. Verify announcements against original sources and label proposals as provisional. Return a title, summary, body, sources, recommended questions and disclaimer.`
+  }
+};
+
 const defaultInsightSettings=()=>({
   enabled:true,pushEnabled:true,revision:1,history:[],
   promptBindings:{generalVersion:'1',project:'overview',overrides:{}}
@@ -685,7 +717,7 @@ const I = {
   settings:{osAllowed:true}, dailyArticleId:'G1', recovery:newRecovery(),
   pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}},
   boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueType:'all', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
-  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', promptProject:'', configDraft:null, settingsNotice:'', scenarioOpen:false
+  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', promptProject:'', promptDrafts:{}, configDraft:null, settingsNotice:'', scenarioOpen:false
 };
 
 const PROJECT_CATALOG = [
@@ -791,9 +823,9 @@ let PAM = JSON.parse(JSON.stringify(PAM_INIT));
 PAM.G1.publishedAt='2026-11-10T08:04:00+08:00';PAM.G1.publishedVersion=PAM.G1.version;
 const DUTIES = {
   full:{label:'Platform full duties', role:'PLATFORM_ADMIN (System Role) · demo duty', scope:'platform',
-    perms:['ai:insight:view','ai:insight:project:configure','ai:insight:generate','ai:insight:article:read','ai:insight:article:edit','ai:insight:article:review','ai:insight:article:publish','ai:insight:push:send','ai:insight:push:read','ai:insight:config:read','ai:insight:config:write']},
+    perms:['ai:insight:view','ai:insight:project:configure','ai:insight:generate','ai:insight:article:read','ai:insight:article:edit','ai:insight:article:review','ai:insight:article:publish','ai:insight:push:send','ai:insight:push:read','ai:insight:config:read','ai:insight:config:write','user:aiPrompt:detail','user:aiPrompt:save']},
   readonly:{label:'Platform read-only', role:'PLATFORM_ADMIN · simulated read-only', scope:'platform',
-    perms:['ai:insight:view','ai:insight:article:read','ai:insight:push:read','ai:insight:config:read']},
+    perms:['ai:insight:view','ai:insight:article:read','ai:insight:push:read','ai:insight:config:read','user:aiPrompt:detail']},
   editor:{label:'Content editor', role:'Platform content editor · simulated', scope:'platform',
     perms:['ai:insight:view','ai:insight:article:read','ai:insight:article:edit','ai:insight:project:configure','ai:insight:generate']},
   reviewer:{label:'Review & publish', role:'Platform reviewer/publisher · simulated', scope:'platform',
@@ -1531,6 +1563,56 @@ function settingsSaveControls(draft,dirty,canWrite){
     <footer class="gset-foot"><small>${canWrite?'Changes apply to this preview until reload.':'Read-only access'}</small>${canWrite?`<div class="gset-actions"><button class="pam-btn" data-action="discardSettings" ${dirty?'':'disabled'}>Discard</button><button class="pam-btn primary" data-action="pamSaveSettings" ${dirty?'':'disabled'}>Save changes</button></div>`:''}</footer>`;
 }
 
+function renderPromptPreview(prompt,scope){
+  const effective=scope==='project-override';
+  const identity=`${effective?esc(prompt.binding)+': ':''}<code>${esc(prompt.code)}</code> · v${prompt.version}`;
+  if(!hasPerm('user:aiPrompt:detail')) return `<p ${effective?'data-effective-prompt':''}>${identity}</p>`;
+  const excerpt=PROMPT_SAMPLES[prompt.code][prompt.version].split('\n\n')[0];
+  return `<div class="prompt-preview" data-prompt-preview="${scope}" aria-live="polite">
+    <strong ${effective?'data-effective-prompt':''}>${identity}</strong>
+    <p>${esc(excerpt)}</p>
+    <button type="button" class="pam-btn" data-action="managePrompt" data-code="${esc(prompt.code)}" data-version="${prompt.version}">${hasPerm('user:aiPrompt:save')?'Manage prompt':'View prompt'}</button>
+  </div>`;
+}
+
+function openPromptManagement(button){
+  if(!hasPerm('user:aiPrompt:detail')) return;
+  const {code,version}=button.dataset;
+  if(!Object.hasOwn(PROMPT_SAMPLES,code)||!Object.hasOwn(PROMPT_SAMPLES[code],version)) return;
+  const body=PROMPT_SAMPLES[code][version];
+  const key=code+':'+version;
+  const draft=I.promptDrafts[key];
+  const canSave=hasPerm('user:aiPrompt:save');
+  const dialog=$('#promptManagement');
+  dialog.innerHTML=`<header class="gset-head"><h3 id="promptManagementTitle">Prompt Management</h3><small>Preview</small></header>
+    <div class="gset-body">
+      <p><code>${esc(code)}</code> · v${esc(version)} · Published sample</p>
+      <pre aria-label="Selected prompt body">${esc(body)}</pre>
+      ${canSave?`<form id="promptDraftForm">
+        <label for="promptDraftBody">Draft based on v${esc(version)}</label>
+        <textarea class="gset-text" id="promptDraftBody" required>${esc(draft??body)}</textarea>
+        <p>Drafts stay in this preview. Publish approved versions in Prompt Management in Liveo Admin.</p>
+        <button type="submit" class="pam-btn primary">Save draft</button>
+        <p role="status">${draft?'Draft saved in this preview.':''}</p>
+      </form>`:''}
+    </div>
+    <form method="dialog" class="gset-foot"><button class="pam-btn" autofocus>Back to bindings</button></form>`;
+  const form=dialog.querySelector('#promptDraftForm');
+  form?.addEventListener('submit',event=>{
+    event.preventDefault();
+    if(!hasPerm('user:aiPrompt:save')) return;
+    const draftBody=form.querySelector('textarea').value.trim();
+    const status=form.querySelector('[role="status"]');
+    if(!draftBody){
+      status.textContent='Enter draft text before saving.';
+      return;
+    }
+    I.promptDrafts[key]=draftBody;
+    status.textContent='Draft saved in this preview.';
+  });
+  dialog.showModal();
+}
+
 function renderPromptBindings(config,draft,dirty,canWrite){
   const bindings=draft.promptBindings;
   const project=I.promptProject;
@@ -1540,7 +1622,7 @@ function renderPromptBindings(config,draft,dirty,canWrite){
       ${inherit?`<option value="" ${value?'':'selected'}>${inherit}</option>`:''}
       ${Object.entries(PROJECT_PROMPTS).map(([key,item])=>`<option value="${key}" ${value===key?'selected':''}>${esc(promptLabel(item))}</option>`).join('')}
     </select>
-    ${!inherit?`<code>${esc(PROJECT_PROMPTS[value].code)}</code>`:''}</div>`;
+    </div>`;
   const effective=project?effectivePrompt(draft,project):null;
   const overrides=choices.filter(x=>bindings.overrides[x.project]);
   return `<section class="gset-card"><header class="gset-head"><h3>Prompt bindings</h3><small>Rev. ${config.revision}</small></header>
@@ -1551,9 +1633,10 @@ function renderPromptBindings(config,draft,dirty,canWrite){
           <select id="promptGeneral" data-prompt-binding="promptGeneral" ${canWrite?'':'disabled'}>
             ${PUBLIC_BRIEF_VERSIONS.map(version=>`<option value="${version}" ${bindings.generalVersion===version?'selected':''}>v${version}</option>`).join('')}
           </select>
-          <code>${PUBLIC_BRIEF_PROMPT_CODE}</code>
+          ${renderPromptPreview(effectivePrompt(draft,'—'),'public')}
         </div>
-        ${selectProject('promptProjectDefault','Project default',bindings.project)}
+        <div>${selectProject('promptProjectDefault','Project default',bindings.project)}
+          ${renderPromptPreview(PROJECT_PROMPTS[bindings.project],'project-default')}</div>
       </div>
       <div class="gset-prompt-scope"><h3>Project overrides</h3>
         <p>Set a template for a specific project, or let it inherit the project default.</p>
@@ -1564,12 +1647,13 @@ function renderPromptBindings(config,draft,dirty,canWrite){
           </select></div>
           ${project?selectProject('promptProjectOverride','Project template',bindings.overrides[project]||'','Use project default'):''}
         </div>
-        ${effective?`<p data-effective-prompt><strong>${effective.binding}:</strong> <code>${esc(effective.code)}</code> · v${effective.version}</p>`:''}
+        ${effective?renderPromptPreview(effective,'project-override'):''}
         ${overrides.length?`<ul class="gset-list" aria-label="Projects with overrides">${overrides.map(({project:name})=>`<li><strong>${esc(name)}</strong> · ${esc(promptLabel(PROJECT_PROMPTS[bindings.overrides[name]]))}</li>`).join('')}</ul>`:''}
       </div>
       <p>Article follow-up uses <code>ai_insight_followup</code>. Saved bindings apply to new generation runs.</p>
     </div>
     ${settingsSaveControls(draft,dirty,canWrite)}
+    <dialog class="prompt-management" id="promptManagement" aria-labelledby="promptManagementTitle"></dialog>
     </section>`;
 }
 
@@ -1847,6 +1931,7 @@ function bind(){
         I.settingsView=el.dataset.view; render();
         $('#stage [data-action="settingsView"][aria-pressed="true"]')?.focus(); return;
       }
+      if(a==='managePrompt'){ openPromptManagement(el); return; }
       if(a==='discardSettings'){
         I.configDraft=null; I.settingsNotice='Changes discarded.'; render(); return;
       }
@@ -2116,7 +2201,7 @@ document.addEventListener('click', e=>{
   if(a==='feedReady'){ I.feedState='ready'; render(); return; }
   if(a==='resetCend'){ I.screen='list'; I.listTab='daily'; I.articleId=null; I.buyerIntent=null; clearQuestion(); I.feedState='ready'; I.readArticles=['P3','P4']; render(); }
   if(a==='resetPam'){
-    I.pamSettings=defaultInsightSettings(); I.configDraft=null; I.promptProject=''; I.settingsView='controls'; I.settingsNotice=''; I.scenarioOpen=false;
+    I.pamSettings=defaultInsightSettings(); I.configDraft=null; I.promptProject=''; I.promptDrafts={}; I.settingsView='controls'; I.settingsNotice=''; I.scenarioOpen=false;
     I.pamGenToken=(I.pamGenToken||0)+1;
     PAM=JSON.parse(JSON.stringify(PAM_INIT));PAM.G1.publishedAt='2026-11-10T08:04:00+08:00';PAM.G1.publishedVersion=PAM.G1.version;
     Object.keys(ART).filter(id=>!FIXTURE_ARTICLES.has(id)).forEach(id=>{delete ART[id];});
