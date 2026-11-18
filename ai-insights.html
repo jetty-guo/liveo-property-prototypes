@@ -359,6 +359,30 @@
 @media(max-width:1000px){.gset-grid{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:620px){.gset-nav{gap:10px}.gset-nav button{font-size:13px}.gset-head,.gset-body,.gset-foot{padding:12px}.gset .gset-fields{grid-template-columns:1fr}}
 
+
+/* Project identity and publication metadata in the resident feed. */
+.phone .project-demo{font-size:10px;font-weight:600;letter-spacing:.04em;padding:2px 7px}
+.phone .project-group{margin:14px 0 26px}
+.phone .project-heading{display:flex;align-items:center;gap:11px;width:100%;min-height:66px;padding:12px;background:#edf6f4;border:1px solid #c8dfda;border-radius:12px;text-align:left;cursor:pointer}
+.phone .project-mark{display:inline-grid;place-items:center;flex:none;width:36px;height:36px;border-radius:9px;background:#125952;color:white}
+.phone .project-mark i{position:relative;display:block;width:16px;height:19px;border:1.5px solid currentColor;border-bottom-width:2px;border-radius:2px}
+.phone .project-mark i::before{content:"";position:absolute;left:2.5px;top:3px;width:2px;height:2px;background:currentColor;box-shadow:5px 0,0 4px,5px 4px,0 8px,5px 8px}
+.phone .project-identity{flex:1;min-width:0;line-height:1.35}
+.phone .project-identity strong{display:block;color:#153c38;font-size:18px;font-weight:650;letter-spacing:-.02em}
+.phone .project-identity small,.phone .project-details-link{font-size:12px;color:#305a54}
+.phone .project-details-link{font-weight:600}
+.phone .project-story{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #dde4e7;border-radius:0;background:transparent;padding:15px 2px 16px;cursor:pointer}
+.phone .project-byline{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;font-size:12px;font-weight:450;color:#4f5e68;line-height:1.5;font-variant-numeric:tabular-nums}
+.phone .project-story .project-byline{justify-content:space-between}
+.phone .project-story .t{display:block;margin:5px 0 3px;font-size:16px;line-height:1.35;letter-spacing:-.014em;font-weight:600;color:#172b33}
+.phone .story-summary{display:block;color:#45555f;font-size:13px;font-weight:400;line-height:1.5}
+.phone .project-label{display:inline-flex;align-items:center;gap:7px;color:#17574e;font-size:14px;font-weight:650}
+.phone .project-label .project-mark{width:24px;height:24px;border-radius:6px}
+.phone .project-label .project-mark i{transform:scale(.74)}
+.phone .project-story .project-label{margin-bottom:6px}
+.phone .project-article-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px}
+.phone .project-reading h1{font-weight:650;color:#172b33;font-size:24px;line-height:1.25;letter-spacing:-.023em;margin:7px 0}
+.phone .project-reading .dek{color:#45555f;line-height:1.5}
 </style>
 </head>
 <body>
@@ -470,23 +494,20 @@ ART.G2 = {
 };
 
 ART.P1 = {
-  id:'P1', type:'project', project:'The Landmark', publishedAt:'2026-11-10T08:30:00+08:00',
-  kicker:'Project insight · The Landmark · 10 Nov 2026', title:'The Landmark: two units transact above S$2,100 psf',
-  short:'Two units transact above S$2,100 psf', summary:'Two mid-floor 3-bedroom sales cleared the 24-month median. A signal, not yet a trend.',
-  read:'3 min read', updated:'10 Nov',
-  stats:[['S$2,120','psf · unit 1'],['S$2,145','psf · unit 2'],['S$2,040','24M median']],
-  body:`<p>Two 3-bedroom units at The Landmark changed hands at S$2,120 and S$2,145 psf in the first week of November, both above the project’s 24-month median of S$2,040 psf.</p><p>Both were mid-floor stacks facing the city, which typically clear 4–5% above the block median. That puts the transactions in line with the better stacks rather than a new price floor for the whole project.</p><ul><li>Both sales are within the 968–1,184 sqft area band used by the valuation.</li><li>Two transactions are a useful signal; they are not enough to re-rate every mid-floor unit.</li></ul>`,
+  id:'P1', type:'project', project:"The Landmark", publishedAt:'2026-11-10T08:30:00+08:00',
+  title:"Two November sales clear S$2,100 psf", short:"Two November sales clear S$2,100 psf", summary:"Two three-bedroom sales from 1–7 November are compared with six earlier sales in the same project.",
+  stats:[["S$2,120", "First sale / sq ft"], ["S$2,145", "Second sale / sq ft"], ["6", "Earlier sales"]],
+  body:"<p>In the demonstration register for The Landmark, two three-bedroom homes sold at S$2,120 and S$2,145 per square foot between 1 and 7 November 2026.</p><p>A separate reference set of six earlier sales had a median of S$2,040 psf as at 27 October. The two November observations were S$80 and S$105 psf above that figure. The register supplies no matched floor or condition, so these differences cannot establish a change in value for a particular home.</p>",
   sources:[
-    S('URA caveats','9 Nov 2026','Two matched transactions; demo internal data.','internal'),
-    S('EdgeProp','8 Nov 2026','Project listing context; demo source.'),
-    S('99.co','7 Nov 2026','Comparable asking prices; demo source.'),
-    S('The Business Times','6 Nov 2026','District 3 market context; demo source.')
+    S("The Landmark · November sales register", "9 Nov 2026", "Demo extract. Two three-bedroom sales dated 1–7 November, at S$2,120 and S$2,145 psf."),
+    S("The Landmark · six-sale reference", "28 Oct 2026", "Demo extract. Six earlier sales through 27 October; median S$2,040 psf. The November sales are excluded.")
   ],
   questions:[
-    Q('What does this mean for my block?','The sample suggests firmer pricing for similar mid-floor units at The Landmark. There are only two transactions in the update. Check for additional sales in your block before applying that range to your unit.'),
-    Q('Are these prices sustainable?','Not yet. Two sales above S$2,100 psf show buyer appetite, but the sample is too small to call a trend. Watch whether the next three mid-floor sales hold above S$2,080.'),
-    Q('Should I get a valuation?','A valuation can help if you need a unit-specific range. It would use a broader matched sample over 24 months. Check that the comparison includes similar size and floor segments.')
-  ]
+    Q("Which sales are included?", "The November register contains two three-bedroom sales at The Landmark. Both fall between 1 and 7 November. They are separate from the earlier six-sale reference."),
+    Q("How far above the reference were they?", "The reference median was S$2,040 psf. Subtracting it from the two November prices gives S$80 and S$105 psf."),
+    Q("Does this establish a new price for my unit?", "The comparison covers two November sales. It does not match their floor or condition to your home. It cannot establish a unit-specific value.")
+  ],
+  tenantQuestion:Q("Do these sale prices tell me what rent to pay?", "These records describe completed sales at The Landmark. Neither source contains lease payments. They do not support a rent comparison.")
 };
 
 ART.P2 = {
@@ -509,74 +530,68 @@ ART.P2 = {
 };
 
 ART.P3 = {
-  id:'P3', type:'project', project:'The Landmark', publishedAt:'2026-11-10T08:12:00+08:00',
-  kicker:'Project insight · The Landmark · 10 Nov 2026', title:'How might a different walking route affect access to Havelock MRT?',
-  short:'How might a different walking route affect access to Havelock MRT?', summary:'This sample compares walking routes. The exit and opening date are hypothetical.',
-  read:'3 min read', updated:'10 Nov',
-  stats:[['420m','To Havelock MRT'],['2027','Demo timeline'],['5','Sources']],
-  body:`<p>This sample asks how a hypothetical Havelock MRT exit might change the walk from The Landmark. The answer depends on the entrance used and the pedestrian route.</p><p>The effect is usually gradual and partly priced in before opening. Treat the 2027 date as illustrative until LTA publishes a confirmed project timeline.</p><div class="demobanner" style="margin-top:6px">Demo/unverified: this article is not a confirmed LTA announcement. Do not use it as a factual planning basis.</div>`,
+  id:'P3', type:'project', project:"The Landmark", publishedAt:'2026-11-07T11:20:00+08:00',
+  title:"October asking rents and signed rents differ by S$200", short:"October asking rents and signed rents differ by S$200", summary:"For two-bedroom homes, the median asking rent was S$4,600 a month. The signed-lease median was S$4,400.",
+  stats:[["S$4,600", "Median asking rent"], ["S$4,400", "Median signed rent"]],
+  body:"<p>The October 2026 demo listing register for The Landmark contains three two-bedroom asking rents of S$4,500, S$4,600 and S$4,800 per month. The middle listing was S$4,600.</p><p>A separate October register contains three signed two-bedroom leases at S$4,300, S$4,400 and S$4,500 per month. The S$200 gap compares two groups. The records do not link each advertisement to its eventual lease, so they cannot establish a negotiated discount.</p>",
   sources:[
-    S('LTA — network map','9 Nov 2026','Station distance and exit context; demo/unverified.'),
-    S('URA Master Plan','8 Nov 2026','Planning context; demo source.'),
-    S('CNA — Transport','7 Nov 2026','Commuter impact; demo source.'),
-    S('The Business Times','6 Nov 2026','District connectivity; demo source.'),
-    S('StackedHomes','5 Nov 2026','Project review context; demo source.')
+    S("The Landmark · asking-rent register", "5 Nov 2026", "Demo extract. Three two-bedroom October listings, S$4,500 / S$4,600 / S$4,800 per month."),
+    S("The Landmark · signed-lease register", "6 Nov 2026", "Demo extract. Three two-bedroom October leases, S$4,300 / S$4,400 / S$4,500 per month.")
   ],
   questions:[
-    Q('Which stacks benefit most?','The update offers a possible improvement to walking access. It does not establish a benefit for any particular stack. Verify the exit location and walk the route before using it in a comparison.'),
-    Q('Is the new exit confirmed?','No. The demo source is not a confirmed official announcement. Treat the 2027 date as illustrative until LTA publishes the project timeline.'),
-    Q('Should I buy now because of this?','Base a viewing on the route and commute available today. Check whether the exit has an official opening date. Compare the property with options that already meet your travel needs.')
-  ]
+    Q("What period and home type were compared?", "Both registers cover October 2026 at The Landmark. Each contains three two-bedroom homes. One records asking rents and the other signed rents."),
+    Q("How was the S$200 gap calculated?", "The middle asking rent was S$4,600 a month. The middle signed rent was S$4,400. Subtracting the two gives S$200."),
+    Q("Did each landlord accept S$200 less?", "The registers have no matched listing-to-lease records. Two group medians cannot establish what an individual landlord accepted.")
+  ],
+  tenantQuestion:Q("Which figure describes rent agreed by a tenant?", "The signed leases record agreed monthly rents. Their median was S$4,400 in this sample. The separate S$4,600 figure describes advertisements.")
 };
 
 ART.P4 = {
-  id:'P4', type:'project', project:'The Landmark', publishedAt:'2026-11-10T08:07:00+08:00',
-  kicker:'Project insight · The Landmark · 10 Nov 2026', title:'The Landmark: rental yields hold at 3.2%',
-  short:'Rental yields hold at 3.2%', summary:'Gross yield is stable; net yield is lower after costs and vacancy.',
-  read:'2 min read', updated:'10 Nov',
-  stats:[['3.2%','Gross yield'],['S$4,200','Median rent'],['3','Sources']],
-  body:`<p>Gross rental yields at The Landmark are holding near 3.2%, with a median monthly rent of about S$4,200 for a 3-bedroom unit in this demo set.</p><p>Net yield after maintenance, property tax, agent fees and vacancy is lower. A conservative underwrite is closer to 2.6–2.9%.</p>`,
+  id:'P4', type:'project', project:"The Landmark", publishedAt:'2026-11-04T16:15:00+08:00',
+  title:"One rent-and-price example gives a 3.2% gross yield", short:"One rent-and-price example gives a 3.2% gross yield", summary:"A worked example uses S$4,200 a month and a S$1.575m reference price. It shows how gross yield is calculated.",
+  stats:[["S$50,400", "Annualised rent"], ["3.2%", "Gross yield"]],
+  body:"<p>The Landmark’s demo worksheet dated 3 November pairs an illustrative monthly rent of S$4,200 with an assumed purchase price of S$1,575,000 for one home. At a full 12 months of rent, gross income would be S$50,400.</p><p>Dividing S$50,400 by S$1,575,000 gives 3.2%. The worksheet contains no vacancy, maintenance, tax or financing figures. It cannot establish net yield or an average return across The Landmark.</p>",
   sources:[
-    S('99.co — rental listings','6 Nov 2026','Median asking rent; demo source.'),
-    S('EdgeProp — rental data','5 Nov 2026','Yield estimate; demo source.'),
-    S('URA — private residential data','4 Nov 2026','Transaction context; demo internal data.','internal')
+    S("The Landmark · worked yield example", "3 Nov 2026", "Demo worksheet. Monthly rent S$4,200; assumed price S$1,575,000; 12 occupied months. No operating costs supplied.")
   ],
   questions:[
-    Q('What yield should I expect?','The sample shows a gross yield around 3.2%. Net yield depends on your maintenance fees, property tax and vacancy. Use the unit’s actual costs when converting the gross figure into a cash-flow estimate.'),
-    Q('Should I rent or sell?','Renting keeps the asset and the upside; selling converts to cash but gives up future rent. Run both against your holding period and financing cost before deciding. This is general information, not financial advice.'),
-    Q('What costs reduce the yield?','Include maintenance, property tax and agent fees. Allow for months with no rent. Calculate net income from those costs before comparing yields across properties.')
-  ]
+    Q("How was 3.2% calculated?", "S$4,200 times 12 gives S$50,400 of annualised rent. Dividing that by S$1,575,000 gives 0.032, or a 3.2% gross yield."),
+    Q("Can I calculate net yield from this example?", "The worksheet contains no vacancy or operating cost figures. You cannot derive a net yield from the two inputs alone."),
+    Q("Does the percentage describe the whole project?", "The worksheet is one illustrative rent-and-price pair at The Landmark. It contains no project-wide distribution of rents or sale prices.")
+  ],
+  tenantQuestion:Q("Is S$4,200 a signed rent for my home?", "S$4,200 is an illustrative input in this worksheet. The source contains no signed lease for your home.")
 };
 
 ART.P5 = {
-  id:'P5', type:'project', project:'The Landmark', publishedAt:'2026-11-10T08:06:00+08:00',
-  kicker:'Project insight · The Landmark · 10 Nov 2026', title:'The Landmark: what 6 recent sales say about pricing',
-  short:'What 6 recent sales say about pricing', summary:'The 24-month median is S$2,040 psf; the spread is wider than the headline.',
-  read:'3 min read', updated:'10 Nov',
-  stats:[['6','Matched sales'],['S$2,040','Median PSF'],['S$2,105','High PSF']],
-  body:`<p>Six matched transactions in the last 24 months put The Landmark’s median at S$2,040 psf, with a range from S$2,000 to S$2,105 psf.</p><p>Floor, stack and view explain most of the spread. A mid-floor unit should be priced within the band unless it has a special view or renovation.</p>`,
+  id:'P5', type:'project', project:"The Landmark", publishedAt:'2026-10-29T09:10:00+08:00',
+  title:"Six earlier sales set a S$2,040 psf reference", short:"Six earlier sales set a S$2,040 psf reference", summary:"The six observations range from S$2,000 to S$2,105 per square foot. The two middle sales determine the median.",
+  stats:[["6", "Sales in sample"], ["S$2,040", "Median / sq ft"]],
+  body:"<p>The Landmark’s demonstration register lists six completed sales in the period 1 November 2024 to 27 October 2026. In ascending order, the prices per square foot were S$2,000, S$2,020, S$2,035, S$2,045, S$2,080 and S$2,105.</p><p>With six records, the median is the midpoint of the third and fourth prices: S$2,040 psf. The spread from lowest to highest is S$105 psf. The extract contains no floor or condition data to explain that spread.</p>",
   sources:[
-    S('URA caveats','9 Nov 2026','6 matched transactions; demo internal data.','internal'),
-    S('EdgeProp','8 Nov 2026','Project listing context; demo source.'),
-    S('99.co','7 Nov 2026','Comparable asking prices; demo source.'),
-    S('The Business Times','6 Nov 2026','District market context; demo source.'),
-    S('StackedHomes','5 Nov 2026','Project review context; demo source.'),
-    S('CNA','4 Nov 2026','Market commentary; demo source.')
+    S("The Landmark · six-sale reference", "28 Oct 2026", "Demo extract. Ordered observations: 2,000 / 2,020 / 2,035 / 2,045 / 2,080 / 2,105 S$ psf through 27 October.")
   ],
   questions:[
-    Q('Is S$2,040 psf the new normal?','S$2,040 psf is the median over the 24-month sample. The six sales still span a wider range. Check the size, floor and condition of the comparable units before applying that figure.'),
-    Q('Do high-floor units always command more?','The two high-floor units in the article sold at the top of the sample. Stack, view and condition can also affect the price. Compare similar high-floor transactions before attributing the difference to floor alone.'),
-    Q('How would a valuation use this?','Start with comparable sales from the past 24 months. Match the unit’s size and floor segment. Use the project median as a cross-check for the matched result.')
-  ]
+    Q("Which two sales determine the median?", "The middle prices were S$2,035 and S$2,045 psf. Their midpoint was S$2,040 psf."),
+    Q("How wide was the range?", "The lowest sale was S$2,000 psf and the highest was S$2,105 psf. The difference was S$105 psf."),
+    Q("Can the spread be attributed to higher floors?", "The register does not include floor or condition. It establishes the price range but cannot explain it.")
+  ],
+  tenantQuestion:Q("Do the six records include rent?", "All six records are completed sales. No lease or monthly rent appears in this source.")
 };
 
 ART.TP1 = {
-  id:'TP1', type:'project', project:'Tembusu Grand', publishedAt:'2026-11-10T08:15:00+08:00',
-  kicker:'Project insight · Tembusu Grand · demo', title:'Tembusu Grand: reading the project update',
-  short:'Tembusu Grand project update', summary:'A demo project update for checking resident access and tenant questions.',
-  read:'2 min read', updated:'10 Nov', stats:[['1','Demo source']],
-  body:'<p>This sample describes how a resident can read a project update and check the period covered by its source. It makes no claim about a real event.</p>',
-  sources:[S('LTA sample','10 Nov 2026','Illustrative source label; no announcement is asserted.','demo')]
+  id:'TP1', type:'project', project:"Tembusu Grand", publishedAt:'2026-11-08T09:45:00+08:00',
+  title:"Three October leases span S$300 a month", short:"Three October leases span S$300 a month", summary:"Three two-bedroom leases at Tembusu Grand fall between S$4,700 and S$5,000 a month.",
+  stats:[["3", "Signed leases"], ["S$4,800", "Median monthly rent"]],
+  body:"<p>The Tembusu Grand demo register records three two-bedroom leases signed in October 2026 at S$4,700, S$4,800 and S$5,000 a month. S$4,800 is the middle rent, and S$300 separates the lowest and highest.</p><p>These leases all belong to Tembusu Grand. The register contains no lease terms, furnishing details or figures for other bedroom counts. It cannot establish what a particular tenant should pay on renewal.</p>",
+  sources:[
+    S("Tembusu Grand · signed-lease register", "6 Nov 2026", "Demo extract. Three October two-bedroom leases at S$4,700, S$4,800 and S$5,000 per month.")
+  ],
+  questions:[
+    Q("Which homes were included?", "All three were two-bedroom homes at Tembusu Grand. Each lease was signed in October 2026."),
+    Q("What was the middle rent?", "The monthly rents were S$4,700, S$4,800 and S$5,000. The middle observation was S$4,800."),
+    Q("How large was the rent spread?", "The lowest rent was S$4,700 and the highest was S$5,000. Their difference was S$300 a month.")
+  ],
+  tenantQuestion:Q("Can these leases determine my renewal rent?", "They give three comparisons for two-bedroom homes in this project. The register omits furnishing details and lease terms. It cannot determine a renewal rent for your home.")
 };
 ART.G1.version=3;
 const FIXTURE_ARTICLES = new Set(Object.keys(ART));
@@ -787,6 +802,8 @@ function articleQuestions(a){
    }
    return a.questions;
  }
+ if(a.tenantQuestion && role==='TENANT')return [...a.questions.slice(0,2),a.tenantQuestion];
+ if(a.tenantQuestion && role==='GENERAL')return a.questions;
  if(a.questions&&(role==='OWNER'||(role==='GENERAL'&&a.type!=='project'))) return a.questions;
  if(role==='TENANT') return [
    Q('What should I check before renewing my lease?',`Start with the dated evidence for ${a.project}. Compare it with similar rentals if the update includes rental data. If rental evidence is missing, there is no basis here to reset your rent.`),
@@ -851,10 +868,34 @@ function projectPushStatus(a,id,u){
   return first&&first.id!==a.id?'Waiting for '+first.id+' · '+first.publishedAt.slice(11,16)+' SGT':'Eligible';
 }
 
+const projectPublicationDay = new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Singapore'});
+const projectPublicationTime = new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone:'Asia/Singapore'});
+function projectPublished(article,withTime=false){
+  const stamp=new Date(article.publishedAt);
+  return `<time datetime="${esc(article.publishedAt)}">${projectPublicationDay.format(stamp)}${withTime?' · '+projectPublicationTime.format(stamp)+' SGT':''}</time>`;
+}
+function projectMark(){
+  return '<span class="project-mark" aria-hidden="true"><i></i></span>';
+}
+function projectArticleRow(a,showProject=false){
+  return `<button type="button" class="row project-story" data-action="openArticle" data-id="${esc(a.id)}">
+    ${showProject?`<span class="project-label">${projectMark()}${esc(a.project)}</span>`:''}
+    <span class="project-byline"><span>Published ${projectPublished(a)}</span><span>${a.sources.length} ${a.sources.length===1?'source':'sources'}</span></span>
+    <span class="t">${a.title}</span><span class="story-summary">${a.summary}</span>
+  </button>`;
+}
+function projectArticleGroup(project){
+  const ids=projectArticleIds(project);
+  return `<section class="project-group"><button class="project-heading" type="button" data-action="projectDetails" data-project="${esc(project)}" aria-label="Project details for ${esc(project)}">
+    ${projectMark()}<span class="project-identity"><strong>${esc(project)}</strong><small>${ids.length} published ${ids.length===1?'article':'articles'}</small></span>
+    <span class="project-details-link">Project details ›</span></button>
+    ${ids.length?ids.map(id=>projectArticleRow(ART[id])).join(''):'<p class="story-summary">No published articles for this project yet.</p>'}</section>`;
+}
 function articleRow(id){
   const a=ART[id];if(!canReadArticle(a))return '';
+  if(a.type==='project')return projectArticleRow(a,true);
   const sourceLabel=a.sources.length===1?'source':'sources';
-  return `<div class="row" data-action="openArticle" data-id="${id}"><div class="t">${a.title}</div>${a.type==='general'?`<p class="brief-summary">${a.summary}</p>`:''}<div class="m"><span class="tag ${a.type==='project'?'blue':''}">${a.type==='project'?'Project':'Market'}</span><span>${a.sources.length} ${sourceLabel} · ${a.updated}</span></div></div>`;
+  return `<div class="row" data-action="openArticle" data-id="${id}"><div class="t">${a.title}</div>${a.type==='general'?`<p class="brief-summary">${a.summary}</p>`:''}<div class="m"><span class="tag">Market</span><span>${a.sources.length} ${sourceLabel} · ${a.updated}</span></div></div>`;
 }
 
 function projectLink(project){
@@ -901,7 +942,7 @@ function renderProjectDetails(){
       <div class="news-title"><h2 id="projectInsightsTitle">Project Insights</h2><span class="tag blue">AI</span></div>
       <p class="news-caption">AI-generated updates for ${esc(project)}, reviewed before publication</p>
       ${I.boundProjects.includes(project)?
-        (ids.length?ids.map(articleRow).join(''):'<div class="infobox">No published AI insights for this project yet.</div>'):
+        (ids.length?ids.map(id=>projectArticleRow(ART[id])).join(''):'<div class="infobox">No published AI insights for this project yet.</div>'):
         '<div class="infobox">An active project binding is required to read Project Insights.</div>'}
     </section>
   </div>${homebar()}`;
@@ -952,7 +993,7 @@ function renderList(){
   const state=feedStateBlock();
   if(state){
     return `${statusBar()}
-    ${nav('Property Insights','AI property updates','Home','appHome')}<div class="appbar"><span class="demo-pill">Demo feed</span><button class="linkbtn" data-action="settings">Notifications</button></div>
+    ${nav('Property Insights','AI property updates','Home','appHome')}<div class="appbar"><span class="demo-pill${I.listTab==='projects'?' project-demo':''}">${I.listTab==='projects'?'Demo articles':'Demo feed'}</span><button class="linkbtn" data-action="settings">Notifications</button></div>
     <div class="phone-body">
       <div class="tabs"><button data-action="listTab" data-tab="daily" class="${I.listTab==='daily'?'on':''}">Daily Brief</button><button data-action="listTab" data-tab="projects" class="${I.listTab==='projects'?'on':''}">My Projects</button></div>
       ${state}
@@ -960,7 +1001,7 @@ function renderList(){
     ${homebar()}`;
   }
   return `${statusBar()}
-  ${nav('Property Insights','AI property updates','Home','appHome')}<div class="appbar"><span class="demo-pill">Demo feed</span><button class="linkbtn" data-action="settings">Notifications</button></div>
+  ${nav('Property Insights','AI property updates','Home','appHome')}<div class="appbar"><span class="demo-pill${I.listTab==='projects'?' project-demo':''}">${I.listTab==='projects'?'Demo articles':'Demo feed'}</span><button class="linkbtn" data-action="settings">Notifications</button></div>
   <div class="phone-body">
     <div class="tabs"><button data-action="listTab" data-tab="daily" class="${I.listTab==='daily'?'on':''}">Daily Brief</button><button data-action="listTab" data-tab="projects" class="${I.listTab==='projects'?'on':''}">My Projects</button></div>
     ${I.listTab==='daily'?`
@@ -977,10 +1018,7 @@ function renderList(){
       ${latestArticles().filter(item=>item.id!==a.id).map(item=>articleRow(item.id)).join('')}
       <div class="infobox" style="margin-top:9px;margin-bottom:0">Daily Brief is generated at 08:00 SGT. From 10:00 SGT, a recovered brief is published without a catch-up notification. Project articles are reviewed before push. <button class="linkbtn" data-action="settings">Manage in Settings</button></div>
     `:`
-      ${I.boundProjects.map(project=>`<div class="section"><b>${esc(project)}</b><span>${projectArticleIds(project).length} articles</span></div>${projectLink(project)}${projectArticleIds(project).map(articleRow).join('')}`).join('')}
-      <div class="infobox">Only project-specific articles appear here. General briefs stay in Daily Brief.</div>
-      <div class="section"><b>Sources monitored</b><span>This week</span></div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px"><span class="tag">URA</span><span class="tag">CNA</span><span class="tag">BT</span><span class="tag">EdgeProp</span><span class="tag">MAS</span><span class="tag">LTA</span></div>
+      ${I.boundProjects.map(projectArticleGroup).join('')}
     `}
   </div>
   
@@ -991,9 +1029,10 @@ function renderArticle(){
   const a=ART[I.articleId];
   if(!canReadArticle(a))return accessDeniedArticle();
   return `${statusBar()}
-  ${nav(a.type==='project'?a.project:'Daily Brief', a.type==='project'?'Project Insights · AI':'Property Insights · AI', 'Back', I.articleBack)}
-  <div class="phone-body">
-    <div class="article-kicker"><span>${a.kicker}</span><span class="tag demo">DEMO CONTENT</span></div>
+  ${nav(a.type==='project'?'Project Insights':'Daily Brief', a.type==='project'?'':'Property Insights · AI', 'Back', I.articleBack)}
+  <div class="phone-body${a.type==='project'?' project-reading':''}">
+    ${a.type==='project'?`<div class="project-article-head"><span class="project-label">${projectMark()}${esc(a.project)}</span><span class="tag demo">Demo content</span></div>
+    <div class="project-byline">Published ${projectPublished(a,true)}</div>`:`<div class="article-kicker"><span>${a.kicker}</span><span class="tag demo">DEMO CONTENT</span></div>`}
     <h1>${a.title}</h1>
     <div class="dek">${a.summary}</div>
     <div class="demobanner">${a.historicalSample?'Demo article · historical sales sample. The source date is separate from the simulated publication date.':'Demo article for prototype review — not a real news story. Sources and dates are sample data.'}</div>
@@ -1023,7 +1062,7 @@ function renderDomus(){
   ${nav('Lio','Article question','Back','article')}
   <div class="chat-head"><img src="app-assets/ailogo.png" width="36" height="36" alt="Lio"/><div><div class="who">Lio</div><div class="sub">AI property assistant · demo</div></div></div>
   <div class="chat-body" aria-live="polite">
-    <div class="ctx">↩ Context attached: “${a.short}” · v${I.questionContext.version} · ${I.questionContext.role}</div>
+    <div class="ctx">↩ Context attached: ${a.type==='project'?esc(a.project)+' · ':''}“${a.short}” · v${I.questionContext.version} · ${I.questionContext.role}</div>
     ${I.chatTurns.length?I.chatTurns.map(turn=>`<div class="bub user">${esc(turn.q)}</div><div class="bub ai">${turn.a===null?'Thinking…':`${esc(turn.a)}<span class="cite">${turn.recommended?'Source: '+esc(citations)+'. ':''}Demo answer</span>`}</div>`).join(''):
       '<div class="bub ai">Choose a question about this article to start.</div>'}
     <div class="follow">${articleQuestions(a).map((x,i)=>i===I.question?'':`<div class="qchip" data-action="ask" data-q="${i}">${esc(x.q)}</div>`).join('')}</div>
@@ -1917,6 +1956,7 @@ document.addEventListener('click', e=>{
 
 const qp = new URLSearchParams(location.search);
 if(qp.get('sample')==='twoProjects') I.boundProjects=Object.keys(PROJECT_BINDINGS);
+if(qp.get('view')==='myProjects') I.listTab='projects';
 if(['appHome','appAssistant','projectDetails','editorialList'].includes(qp.get('view'))) I.screen=qp.get('view');
 if(qp.get('project')==='tembusu') I.activeProject='Tembusu Grand';
 if(qp.get('mode')==='pam'){ I.tab='pam'; I.pamView=qp.get('pam')||'queue'; if(Object.hasOwn(PAM,qp.get('review'))) I.pamSelected=qp.get('review'); }
