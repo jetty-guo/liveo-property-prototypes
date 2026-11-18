@@ -738,7 +738,7 @@ const I = {
   settings:{osAllowed:true}, dailyArticleId:'G1', recovery:newRecovery(), briefTopicOverrides:new Map(),
   pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}},
   boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueType:'all', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
-  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', promptProject:'', promptDrafts:{}, promptArea:'public', promptBindingDraft:null, configDraft:null, settingsNotice:'', scenarioOpen:false
+  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamReviewFrom:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', promptProject:'', promptDrafts:{}, promptArea:'public', promptBindingDraft:null, configDraft:null, settingsNotice:'', scenarioOpen:false
 };
 
 const PROJECT_CATALOG = [
@@ -854,7 +854,6 @@ const PAM_INIT = {
 };
 PAM_INIT.G1.reviewHistory=[{version:3,actor:'system',at:'2026-11-10 08:04 SGT',decision:'Validated',reason:'Daily Brief source and content checks passed (demo).'}];
 PAM_INIT.C1.reviewHistory=[{version:1,actor:'demo.ops',at:'2026-11-10 07:10 SGT',decision:'Rejected',reason:PAM_INIT.C1.rejectReason}];
-Object.values(PAM_INIT).filter(a=>a.monitoring).forEach(a=>{a.firstGenerationRequested=true;});
 let PAM = JSON.parse(JSON.stringify(PAM_INIT));
 const DUTIES = {
   full:{label:'Platform full duties', role:'PLATFORM_ADMIN (System Role) · demo duty', scope:'platform',
@@ -1338,10 +1337,13 @@ function renderPam(){
 }
 function renderPamQueue(){
   const typeOptions=[['all','All content types'],['project','Project insights'],['general','General briefs']];
-  const articles=allowedPam().filter(a=>I.queueType==='all'||I.queueType===(a.project==='—'?'general':'project'));
+  const articles=allowedPam().filter(a=>
+    (a.version>0||a.status==='generation_failed') &&
+    (I.queueType==='all'||I.queueType===(a.project==='—'?'general':'project'))
+  );
   const q=(I.queueQuery||'').trim().toLowerCase();
   const rows=articles.filter(a=> (I.queueFilter==='all'||a.status===I.queueFilter) && (!q || (a.title+' '+a.project).toLowerCase().includes(q)));
-  const statusOptions=[['all','All statuses'],['pending_review','Pending review'],['approved','Approved · not published'],['published','Published'],['rejected','Rejected & rewrite'],['generation_failed','Generation failed'],['pending_generation','Pending generation'],['generating','Generating']];
+  const statusOptions=[['all','All statuses'],['pending_review','Pending review'],['approved','Approved · not published'],['published','Published'],['rejected','Rejected & rewrite'],['generation_failed','Generation failed'],['generating','Generating']];
   return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
   <div class="kpis">
     <div class="kpi"><div class="v">${articles.filter(a=>a.status==='pending_review').length}</div><div class="k">Pending review</div></div>
@@ -1356,7 +1358,7 @@ function renderPamQueue(){
   </div>
   <div class="pam-table">
     <div class="ptr head"><div>Title</div><div>Project</div><div>Ver.</div><div>Article</div><div>Push submission</div><div>Time</div></div>
-    ${rows.length?rows.map(a=>`<div class="ptr" data-action="pamSelect" data-id="${a.id}"><div><div class="ti">${esc(a.title)}</div><div class="sub">${a.project==='—'?'General brief · system auto-publish':a.status==='pending_generation'?'Not generated yet':a.status==='generating'?'Generating draft':a.status==='generation_failed'?'Generation failed':'Project-specific'} ${a.project==='—'?briefTopicTag(a):''}</div></div><div>${a.project}</div><div>v${a.version}</div><div>${pamBadge(a.status)}</div><div>${pushBadge(a.push)}</div><div>${a.time}</div></div>`).join(''):`<div class="empty-state" style="margin:0"><b>No articles match these filters</b>Reset the filters or generate a new article.<button data-action="pamQueueReset">Reset filters</button></div>`}
+    ${rows.length?rows.map(a=>`<div class="ptr" data-action="pamSelect" data-id="${a.id}"><div><div class="ti">${esc(a.title)}</div><div class="sub">${a.project==='—'?'General brief · system auto-publish':a.status==='generating'?'Generating draft':a.status==='generation_failed'?'Generation failed':'Project-specific'} ${a.project==='—'?briefTopicTag(a):''}</div></div><div>${a.project}</div><div>v${a.version}</div><div>${pamBadge(a.status)}</div><div>${pushBadge(a.push)}</div><div>${a.time}</div></div>`).join(''):`<div class="empty-state" style="margin:0"><b>No articles match these filters</b>Reset the filters or generate a new article.<button data-action="pamQueueReset">Reset filters</button></div>`}
   </div>
   <div class="pam-note">Article status, version and push status are separate. “Published” does not mean every device received a notification. This list is filtered by the current simulated duty and project scope.</div>`;
 }
@@ -1367,16 +1369,34 @@ function renderPamProjects(){
   const target=I.targetProjects.filter(p=>inScope({project:p}));
   const addable=PROJECT_CATALOG.filter(x=>!I.targetProjects.includes(x.project) && inScope({project:x.project}));
   const rows=target.map(project=>{
-    const a=Object.values(PAM).find(x=>x.project===project);
-    if(!a) return `<div class="project-card" data-project-result="${esc(project)}"><div><div class="t">${esc(project)}</div><div class="s">No article generated yet.</div></div><div class="right"><span class="tag">Not generated</span><button class="pam-btn" data-action="pamRemoveProject" data-project="${project}" ${canCfg?'':'disabled'}>Remove</button></div></div>`;
-    return `<div class="project-card" data-project-result="${esc(a.project)}"><div><div class="t">${esc(a.project)}</div><div class="s">${a.title}</div><div class="s">Source ref: lvoprop.project_info(id) · ${a.audienceCount} demo devices</div><div class="s">Last generated: ${a.time||'—'} · ${a.status}</div></div><div class="right"><span class="tag ${a.monitoring?'green':''}">${a.monitoring?'Monitoring':'Not monitored'}</span>${a.status==='pending_review'||a.status==='approved'?`<button class="pam-btn" data-action="pamSelect" data-id="${a.id}">Open review</button>`:a.status==='generating'?`<button class="pam-btn" disabled>Generating…</button>`:`<button class="pam-btn" data-action="pamGenerate" data-id="${a.id}" ${canGen?'':'disabled'}>${a.status==='pending_generation'?'Generate':a.status==='generation_failed'?'Retry generation':a.status==='rejected'?'Regenerate':'New version'}</button>`}<button class="pam-btn" data-action="pamMonitor" data-id="${a.id}" ${canCfg?'':'disabled'}>${a.monitoring?'Pause':'Monitor'}</button><button class="pam-btn danger" data-action="pamRemoveProject" data-project="${a.project}" ${canCfg?'':'disabled'}>Remove</button></div></div>`;
+    const a=Object.values(PAM).find(article=>article.project===project);
+    if(!a) return '';
+    const mayGenerate=a.monitoring&&canGen;
+    const showReview=a.monitoring&&a.version>0&&a.status!=='generating';
+    const generateLabel={pending_generation:'Generate',generation_failed:'Retry generation',rejected:'Regenerate',published:'New version'}[a.status];
+    return `<div class="project-card" data-project-result="${esc(project)}">
+      <div>
+        <div class="t">${esc(project)}</div>
+        <div class="s">${a.title?esc(a.title):'No draft yet'}</div>
+        ${a.title?`<div class="s">Source ref: lvoprop.project_info(id) · ${a.audienceCount} demo devices</div>`:''}
+        ${a.time!=='—'?`<div class="s">Last generated: ${esc(a.time)} ${pamBadge(a.status)}</div>`:''}
+      </div>
+      <div class="right">
+        <span class="tag ${a.monitoring?'green':''}">${a.monitoring?'Monitoring':'Not monitored'}</span>
+        ${showReview?`<button class="pam-btn" data-action="pamSelect" data-id="${a.id}">Open review</button>`:''}
+        ${a.monitoring&&a.status==='generating'?'<button class="pam-btn" disabled>Generating…</button>':''}
+        ${a.monitoring&&generateLabel?`<button class="pam-btn" data-action="pamGenerate" data-id="${a.id}" ${mayGenerate?'':'disabled'}>${generateLabel}</button>`:''}
+        <button class="pam-btn ${a.monitoring?'':'primary'}" data-action="pamMonitor" data-id="${a.id}" ${canCfg?'':'disabled'}>${a.monitoring?'Pause':'Monitor'}</button>
+        <button class="pam-btn danger" data-action="pamRemoveProject" data-project="${esc(project)}" ${canCfg?'':'disabled'}>Remove</button>
+      </div>
+    </div>`;
   }).join('');
   return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
   <div class="pam-card"><h3 class="project-group-title">Add a project</h3>
     <div class="pam-filters">
       <input type="search" id="pamProjectSearch" aria-label="Search projects" placeholder="Enter project name" value="${esc(I.projectQuery)}" />
     </div>
-    <div class="pam-note">Select Add project in the matching row. The first draft goes to review.</div>
+    <div class="pam-note">Select Add project in the matching row, then enable monitoring when ready.</div>
   </div>
   <section aria-labelledby="projectListTitle"><h3 class="project-group-title" id="projectListTitle">Monitored projects</h3>
     ${rows}
@@ -1449,7 +1469,7 @@ function renderPamReview(){
   const canGen=isProject&&I.pamSettings.enabled&&hasPerm('ai:insight:generate');
   const reviewOk=a.reviewedVersion===a.version;
   return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
-  <div style="margin-bottom:8px"><button class="pam-btn" data-action="pamView" data-view="queue">‹ Back to Review Queue</button></div>
+  <div style="margin-bottom:8px"><button class="pam-btn" data-action="pamView" data-view="${I.pamReviewFrom}">‹ Back to ${I.pamReviewFrom==='projects'?'Target Projects':'Review Queue'}</button></div>
   <div class="pam-grid">
     <div>
       <div class="pam-card">
@@ -1543,7 +1563,6 @@ function renderPamReview(){
             ${demoAcceptedBatch(a)?'<button class="pam-btn" data-action="previewPush">Preview device notification</button>':''}
             ${a.push==='unknown'?`<div class="pam-note">Outcome unknown. The original submission day’s quota remains reserved until reconciliation.</div>`:''}
             ${!isProject?'<span class="pam-note">The system run controls Daily Brief publication and notification.</span>':(!I.pamSettings.enabled||!I.pamSettings.pushEnabled)?'<span class="pam-note">Push is paused in Generation Settings.</span>':!canPush?'<span class="pam-note">Push send requires ai:insight:push:send.</span>':''}${canEdit&&a.status==='published'?`<button class="pam-btn" data-action="pamEdit">New version</button>`:''}
-            <button class="pam-btn" data-action="pamView" data-view="queue">Back to Review Queue</button>
           </div>
           ${a.push==='skipped'?`<div class="pam-note">Skipped: ${(a.pushBatches&&a.pushBatches.length?a.pushBatches[a.pushBatches.length-1].reason:'')||'no eligible users'}.</div>`:''}
           ${a.push==='sent'||a.push==='partial'?`<div class="pam-note">Device delivery is unverified. The preview simulates tapping a notification for the demo reader.</div>`:''}
@@ -1760,7 +1779,7 @@ function renderPamSettings(){
       <aside class="gset-card"><header class="gset-head"><h3>Publication rules</h3></header><dl class="gset-body">
       <div><dt>Daily Brief</dt><dd>08:00 SGT daily</dd><p>Publish after the evidence check passes.</p></div>
       <div><dt>Catch-up notification cutoff</dt><dd>10:00 SGT</dd><p>From 10:00, publish for reading only.</p></div>
-      <div><dt>Project articles</dt><dd>Manual review before publication</dd><p>Generate the first draft on enrolment and later drafts on request.</p></div>
+      <div><dt>Project articles</dt><dd>Manual review before publication</dd><p>Enable monitoring before generating a draft.</p></div>
       <div><dt>Default daily notification limits in this preview</dt><dd>1 general + 1 project per user</dd><p>Both limits apply across devices. The project limit also applies across bound projects.</p></div></dl></aside></div>${renderSourcePolicy()}${audit}`;
   }
   return `<div class="gset"><nav class="gset-nav" aria-label="Generation settings sections">${tabs}</nav>${panel}</div>`;
@@ -1909,7 +1928,7 @@ function bind(){
       if(a==='scopeProbe'){
         const art=PAM.T1;
         if(!hasPerm('ai:insight:article:read') || !inScope(art)){ I.pamToast='Blocked: T1 is outside '+duty().scope+'. The local detail state was not changed.'; render(); return; }
-        I.pamSelected='T1'; I.pamView='review'; I.pamEditing=false; I.pamRejectOpen=false; render(); return;
+        I.pamReviewFrom=I.pamView==='projects'?'projects':'queue'; I.pamSelected='T1'; I.pamView='review'; I.pamEditing=false; I.pamRejectOpen=false; render(); return;
       }
       if(a==='pamView'){
         const vp={projects:'ai:insight:view',queue:'ai:insight:article:read',review:'ai:insight:article:read',pushlog:'ai:insight:push:read',settings:'ai:insight:config:read'}[el.dataset.view];
@@ -1921,6 +1940,7 @@ function bind(){
         const art=PAM[el.dataset.id];
         if(!hasPerm('ai:insight:article:read')){ I.pamToast='Blocked: missing ai:insight:article:read.'; render(); return; }
         if(!art || !inScope(art)){ I.pamToast='Blocked: article is outside the current project scope.'; render(); return; }
+        I.pamReviewFrom=I.pamView==='projects'?'projects':'queue';
         I.pamSelected=el.dataset.id; I.pamView='review'; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; render(); return;
       }
       if(a==='saveBriefTopic'){
@@ -1998,8 +2018,9 @@ function bind(){
       if(a==='pamMonitor'){
         const art=PAM[el.dataset.id]; if(!art) return;
         const auth=authN('monitor',art); if(!auth.ok) return denyN(auth);
-        if(!art.monitoring&&!art.firstGenerationRequested&&art.version<1&&!I.pamSettings.enabled){I.pamToast='Enable AI Property Insights before generating a first draft.'; render(); return;}
-        art.monitoring=!art.monitoring; I.pamToast='Monitoring '+(art.monitoring?'enabled':'paused')+' in the local demo.'; if(art.monitoring && !art.firstGenerationRequested && art.version<1){ art.firstGenerationRequested=true; pamGenerate(art.id,'PROJECT_FIRST_ENABLE'); return; } render(); return;
+        art.monitoring=!art.monitoring;
+        I.pamToast=art.monitoring?'Monitoring enabled.':'Monitoring paused.';
+        render(); return;
       }
       if(a==='settingsView'){
         if(!hasPerm('ai:insight:config:read')||!['controls','prompts','runs'].includes(el.dataset.view)) return;
@@ -2079,12 +2100,14 @@ function bind(){
         if(!inScope({project})){ I.pamToast='Blocked: project is outside '+duty().scope+'.'; render(); return; }
         const meta=PROJECT_CATALOG.find(x=>x.project===project); if(!meta){ I.pamToast='Unknown demo project. No request was created.'; render(); return; }
         const existing=Object.values(PAM).find(x=>x.project===project);
-        if(!I.pamSettings.enabled&&(!existing||(!existing.firstGenerationRequested&&existing.version<1))){I.pamToast='Enable AI Property Insights to generate the first draft for this project.'; render(); return;}
-        I.targetProjects.push(project);
-        if(existing){ existing.monitoring=true; I.pamSelected=existing.id; I.pamView='projects'; I.pamToast='Re-added '+project+'. Existing articles are kept.'; if(existing.version<1 && !existing.firstGenerationRequested){existing.firstGenerationRequested=true;pamGenerate(existing.id,'PROJECT_FIRST_ENABLE');return;} render(); return; }
-        const id='N'+(Object.keys(PAM).length+1);
-        PAM[id]={id,title:project+': first update pending',project,sources:0,version:0,reviewedVersion:null,monitoring:true,status:'pending_generation',push:'not_sent',pushBatches:[],time:'—',audience:'Verified owners & residents',audienceCount:meta.audienceCount,body:'',rejectReason:'',pamQuestions:[],editSource:''};
-        I.pamSelected=id; I.pamView='projects'; I.pamEditing=false; I.pamRejectOpen=false; PAM[id].firstGenerationRequested=true; pamGenerate(id,'PROJECT_FIRST_ENABLE'); return;
+        if(!existing){
+          const id='N'+(Object.keys(PAM).length+1);
+          PAM[id]={id,title:'',project,sources:0,version:0,reviewedVersion:null,monitoring:false,status:'pending_generation',push:'not_sent',pushBatches:[],time:'—',audience:'Verified owners & residents',audienceCount:meta.audienceCount,body:'',rejectReason:'',pamQuestions:[],editSource:''};
+        }
+        I.targetProjects.unshift(project);
+        I.projectQuery='';
+        I.pamToast=esc(project)+' added to Monitored projects.';
+        render(); return;
       }
       if(a==='pamRemoveProject'){
         const auth=authN('monitor',null); if(!auth.ok) return denyN(auth);
@@ -2196,26 +2219,26 @@ function bind(){
   }
 }
 
-function pamGenerate(id,trigger){
+function pamGenerate(id){
   const a=PAM[id]; if(!a) return;
-  const auth=authN(trigger==='PROJECT_FIRST_ENABLE'?'monitor':'generate',a); if(!auth.ok) return denyN(auth);
+  const auth=authN('generate',a); if(!auth.ok) return denyN(auth);
   if(!I.pamSettings.enabled){I.pamToast='Generation is paused in Generation Settings.'; render(); return;}
   if(!a.monitoring||!['pending_generation','rejected','generation_failed','published'].includes(a.status)) return;
-  a.generationTrigger=trigger||({pending_generation:'MANUAL_GENERATE',rejected:'MANUAL_REWRITE',generation_failed:'MANUAL_RETRY',published:'MANUAL_GENERATE'})[a.status];
+  a.generationTrigger={pending_generation:'MANUAL_GENERATE',rejected:'MANUAL_REWRITE',generation_failed:'MANUAL_RETRY',published:'MANUAL_GENERATE'}[a.status];
   const promptSnapshot=effectivePrompt(I.pamSettings,a.project);
-  I.pamGenerating=id; I.pamSelected=id; I.pamToast='Generating draft… no real AI call.';
+  I.pamToast='';
   if(a.status==='published') a.publishedVersion=a.version;
   a.status='generating'; render();
   const token=(a.generationToken||0)+1; a.generationToken=token; const epoch=I.pamResetEpoch||0;
   setTimeout(()=>{
     if(a.generationToken!==token || (I.pamResetEpoch||0)!==epoch || PAM[id]!==a) return;
     if(!PROJECT_ARTICLES[a.project]){
-      a.status='generation_failed'; a.error='No dated sample is available for this project.'; I.pamGenerating=null;
-      I.pamView='review'; I.pamToast='No draft generated.'; render(); return;
+      a.status='generation_failed'; a.error='No dated sample is available for this project.';
+      a.time=I.pushClock; render(); return;
     }
     a.status='pending_review'; a.version++; a.reviewedVersion=null; a.time=I.pushClock;
     Object.assign(a,sampleDraft(a.project),{promptSnapshot});
-    I.pamGenerating=null; I.pamSelected=id; I.pamView='review'; I.pamToast='Draft generated. Moved to pending review.'; render();
+    render();
   }, 1100);
 }
 function pamPush(id){
@@ -2272,7 +2295,7 @@ document.addEventListener('click', e=>{
   if(a==='scopeProbe'){
     const art=PAM.T1;
     if(!hasPerm('ai:insight:article:read') || !inScope(art)){ I.pamToast='Blocked: T1 is outside '+duty().scope+'. Local detail was not changed.'; render(); return; }
-    I.pamSelected='T1'; I.pamView='review'; I.pamEditing=false; I.pamRejectOpen=false; render(); return;
+    I.pamReviewFrom=I.pamView==='projects'?'projects':'queue'; I.pamSelected='T1'; I.pamView='review'; I.pamEditing=false; I.pamRejectOpen=false; render(); return;
   }
   if(a==='demoBinding'){I.boundProjects=I.boundProjects.length?[]:['The Landmark'];I.buyerIntent=null;clearQuestion();render();return;}
   if(a==='demoMulti'){I.boundProjects=I.boundProjects.length===2?['The Landmark']:Object.keys(PROJECT_BINDINGS);I.buyerIntent=null;clearQuestion();render();return;}
@@ -2296,7 +2319,7 @@ document.addEventListener('click', e=>{
     ART.G1=INITIAL_BRIEF; I.dailyArticleId='G1'; I.recovery=newRecovery(); I.publishSeq=0;
     I.pushDay='2026-11-10';
     I.pushUsers={A:{label:'Demo user A',generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}};
-    I.targetProjects=['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park']; I.queueType='all'; I.queueFilter='all'; I.queueQuery=''; I.projectQuery=''; I.pamView='queue'; I.pamSelected='P6'; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; I.pamPushFailNext=false; I.pamPushUnknownNext=false; I.pamResetEpoch=(I.pamResetEpoch||0)+1; render();
+    I.targetProjects=['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park']; I.queueType='all'; I.queueFilter='all'; I.queueQuery=''; I.projectQuery=''; I.pamView='queue'; I.pamReviewFrom='queue'; I.pamSelected='P6'; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; I.pamPushFailNext=false; I.pamPushUnknownNext=false; I.pamResetEpoch=(I.pamResetEpoch||0)+1; render();
   }
   if(a==='nextDay'){
     const day=new Date(I.pushDay+'T00:00:00Z');day.setUTCDate(day.getUTCDate()+1);I.pushDay=day.toISOString().slice(0,10);I.publishSeq=0;
