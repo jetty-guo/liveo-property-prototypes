@@ -541,20 +541,38 @@ const PROJECT_BINDINGS = {
 const GENERAL_RECOVERY_DATE = '2026-11-18';
 const GENERAL_RECOVERY_KEY = 'GENERAL:'+GENERAL_RECOVERY_DATE;
 const newRecovery = () => ({original:'not_started', completion:'09:30', evidence:'valid', status:'ready', attempts:0});
+const EDITORIAL_QUESTIONS = [
+  'What does this article cover?',
+  'What should I check next?',
+  'What does this article not cover?'
+];
 const EDITORIAL_NEWS = {
   E1:{title:'What to prepare for a resale viewing',date:'9 Nov 2026',
     lead:'A checklist from the Liveo editorial team for your next viewing.',
     paragraphs:['Before visiting, ask the agent which fixtures are included and check the floor plan against the listing. Bring a short list of questions about maintenance, recent works and the move-in timeline.',
-      'After the visit, record what you observed and ask for any outstanding details in writing before making a decision.']},
+      'After the visit, record what you observed and ask for any outstanding details in writing before making a decision.'],
+    answers:[
+      'It covers what to check before and after a resale viewing. Before the visit, compare the floor plan with the listing and ask which fixtures are included. Afterwards, record your observations and request outstanding details in writing.',
+      'Ask the agent which fixtures are included and compare the floor plan with the listing. Bring questions about maintenance, recent works and the move-in timeline.',
+      'The checklist tells you to ask about fixtures and maintenance. It leaves the answers for the specific property to be confirmed in writing.'
+    ],
+    boundary:'这篇文章没有提到任何具体房源包含哪些固定装置。'},
   E2:{title:'A guide to reading transaction dates',date:'5 Nov 2026',
     lead:'How to compare the dates you see when reviewing past sales.',
     paragraphs:['Check which date a listing or transaction record uses. An advertisement date and a transaction date describe separate events.',
-      'When comparing sales, use the same date field across records and note the period you reviewed.']}
+      'When comparing sales, use the same date field across records and note the period you reviewed.'],
+    answers:[
+      'It explains why an advertisement date and a transaction date refer to different events. To compare sales, use the same date field across records and note the period reviewed.',
+      'Check which event the date on each record describes. Use the same date field for every sale you compare and write down the period you reviewed.',
+      'The article explains how to compare date fields across records. It identifies the advertisement and the transaction as separate events.'
+    ],
+    boundary:'这篇文章没有提到从刊登广告到成交一般要多久。'}
 };
 
 const I = {
   tab:'cend', screen:'list', listTab:'daily', articleId:null, question:null, chatTurns:[], notificationPreview:null,
   activeProject:'The Landmark', articleBack:'list', questionContext:null, editorialArticleId:null, editorialBack:'editorialList',
+  editorialQuestion:null, editorialAskFrom:'editorialArticle',
   settings:{osAllowed:true}, dailyArticleId:'G1', recovery:newRecovery(),
   pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}},
   boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
@@ -770,10 +788,28 @@ function renderEditorialArticle(){
     <h1>${esc(a.title)}</h1>
     <p class="dek">${esc(a.lead)}</p>
     <div class="bodytext">${a.paragraphs.map(paragraph=>`<p>${esc(paragraph)}</p>`).join('')}</div>
+    <section class="infobox" aria-labelledby="editorialAskTitle">
+      <h2 class="h5" id="editorialAskTitle">Ask AI about this article</h2>
+      <div class="follow">${EDITORIAL_QUESTIONS.map((q,i)=>`<button type="button" class="qchip" data-action="editorialAsk" data-q="${i}">${esc(q)}</button>`).join('')}</div>
+    </section>
   </article>${homebar()}`;
 }
 
-function renderAppAssistant(){return `${statusBar()}${nav('Lio','Liveo AI','','appHome')}<div class="phone-body"><div class="app-card"><img src="app-assets/ailogo.png" width="52" height="52" alt="Lio"/><h1>How can I help?</h1><p>Choose a property task to get started.</p><button class="qchip" data-action="listTab" data-tab="daily">Open Property Insights</button><a class="qchip" href="ai-valuation.html">Get a property valuation</a></div><div class="infobox">To ask about an insight, open it and select one of its questions. The article stays attached to that conversation.</div><p class="app-context-note">Preview · Property insights and valuation.</p></div>${homebar()}`;}
+function renderEditorialAsk(){
+  const article=EDITORIAL_NEWS[I.editorialArticleId];
+  const index=I.editorialQuestion;
+  if(!article||!Number.isInteger(index)||!article.answers[index]) return renderEditorialList();
+  return `${statusBar()}${nav('Lio','Editorial article · Demo','Back',I.editorialAskFrom)}
+    <div class="chat-body" aria-live="polite">
+      <div class="ctx">Context attached: "${esc(article.title)}"</div>
+      <div class="bub user">${esc(EDITORIAL_QUESTIONS[index])}</div>
+      <div class="bub ai"><p>${esc(article.answers[index])}</p><p lang="zh">${esc(article.boundary)}</p><div class="cite">来源：${esc(article.title)} · ${esc(article.date)}</div></div>
+    </div>
+    <div class="composer"><input type="text" aria-label="Demo question" placeholder="Ask about this article… (demo)" disabled><button type="button" class="cbtn send" disabled>Send</button></div>
+    ${homebar()}`;
+}
+
+function renderAppAssistant(){return `${statusBar()}${nav('Lio','Liveo AI','','appHome')}<div class="phone-body"><div class="app-card"><img src="app-assets/ailogo.png" width="52" height="52" alt="Lio"/><h1>How can I help?</h1><p>Choose a property task to get started.</p><button class="qchip" data-action="listTab" data-tab="daily">Open Property Insights</button><a class="qchip" href="ai-valuation.html">Get a property valuation</a></div><div class="infobox">You can ask about an insight or an editorial article. The article stays attached to that conversation.</div><p class="app-context-note">Preview · Property insights and valuation.</p></div>${homebar()}`;}
 
 function renderList(){
   const a=ART[I.dailyArticleId];
@@ -889,6 +925,7 @@ function phone(){
   if(I.screen==='projectDetails') return renderProjectDetails();
   if(I.screen==='editorialList') return renderEditorialList();
   if(I.screen==='editorialArticle') return renderEditorialArticle();
+  if(I.screen==='editorialAsk') return renderEditorialAsk();
   if(I.screen==='appAssistant') return renderAppAssistant();
   if(I.screen==='list') return renderList();
   if(I.screen==='article') return renderArticle();
@@ -1260,7 +1297,7 @@ function renderConsole(){
   actions.innerHTML = I.tab==='cend'
     ? `<button data-action="demoBinding">${I.boundProjects.length?'Unbind project (demo)':'Restore binding (demo)'}</button><button data-action="demoMulti">${I.boundProjects.length===2?'Use one bound project':'Use two bound projects'}</button><button data-action="demoBuyer" ${['article','domus'].includes(I.screen)&&canReadArticle(ART[I.articleId])?'':'disabled'}>Current buying intent: ${I.buyerIntent?'yes':'no'}</button><button data-action="sampleNotification" ${I.settings.osAllowed&&demoAcceptedBatch(PAM[I.dailyArticleId])?'':'disabled'}>Preview current Daily Brief notification</button><button data-action="feedLoading">Feed loading</button><button data-action="feedError">Feed error</button><button data-action="feedEmpty">Feed empty</button><button data-action="feedReady">Feed ready</button><button data-action="resetCend">Reset C-end</button><button data-action="resetAll">Reset all</button>`
     : `<div class="duty-grid" style="grid-column:1/-1">${Object.entries(DUTIES).map(([id,d])=>`<button class="${I.duty===id?'on':''}" data-action="duty" data-duty="${id}">${d.label}<small>${d.role}</small></button>`).join('')}</div><button data-action="resetPam">Reset PAM</button><button data-action="scopeProbe">Probe out-of-scope T1</button><button data-action="nextDay">Next day · reset quota</button><button data-action="pushFail">Simulate next push failure</button><button data-action="pushUnknown">Simulate unknown submission</button><button data-action="resetAll">Reset all</button>`;
-  const editorial=['editorialList','editorialArticle'].includes(I.screen);
+  const editorial=['editorialList','editorialArticle','editorialAsk'].includes(I.screen);
   const aiArticle=['article','domus'].includes(I.screen);
   const a=aiArticle?ART[I.articleId]:null;
   const ctx=validQuestionContext(a)?I.questionContext:null;
@@ -1269,7 +1306,7 @@ function renderConsole(){
     ? `<div class="kv"><span class="k">Tab</span><span class="v">C-end</span></div>
        <div class="kv"><span class="k">Screen</span><span class="v">${I.screen}</span></div>
        ${editorial?`<div class="kv"><span class="k">Section</span><span class="v">Property News · editorial</span></div>
-       <div class="kv"><span class="k">Article_ID</span><span class="v">${I.screen==='editorialArticle'?I.editorialArticleId:'—'}</span></div>`:`
+       <div class="kv"><span class="k">Article_ID</span><span class="v">${I.screen==='editorialList'?'—':I.editorialArticleId}</span></div>`:`
        <div class="kv"><span class="k">List tab</span><span class="v">${I.listTab}</span></div>
        <div class="kv"><span class="k">Article_ID</span><span class="v">${aiArticle?esc(I.articleId):'—'}</span></div>
        <div class="kv"><span class="k">Published version / role</span><span class="v">${ctx?'v'+ctx.version+' / '+ctx.role:'—'}</span></div>
@@ -1324,8 +1361,15 @@ function bind(){
       if(a==='editorialArticle'){
         if(!Object.hasOwn(EDITORIAL_NEWS,el.dataset.id)) return;
         I.editorialArticleId=el.dataset.id;
+        I.editorialQuestion=null;
         I.editorialBack=I.screen;
         I.screen='editorialArticle'; clearQuestion(); render(); return;
+      }
+      if(a==='editorialAsk'&&I.screen==='editorialArticle'){
+        const index=Number(el.dataset.q);
+        if(!Number.isInteger(index)||!EDITORIAL_QUESTIONS[index]) return;
+        I.editorialQuestion=index; I.editorialAskFrom=I.screen;
+        I.screen='editorialAsk'; render(); return;
       }
       if(a==='readerRole'){if(roleOptions(ART[I.articleId]).includes(el.dataset.role)){I.readerRole=el.dataset.role;clearQuestion();}render();return;}
       if(a==='openArticle'){ openArticle(el.dataset.id); render(); return; }
