@@ -377,7 +377,6 @@
 .phone .project-label{display:inline-flex;align-items:center;gap:7px;color:#17574e;font-size:14px;font-weight:650}
 .phone .project-label .project-mark{width:24px;height:24px;border-radius:6px}
 .phone .project-label .project-mark i{transform:scale(.74)}
-.phone .project-story .project-label{margin-bottom:6px}
 .phone .project-article-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px}
 .phone .project-reading h1{font-weight:650;color:#172b33;font-size:24px;line-height:1.25;letter-spacing:-.023em;margin:7px 0}
 .phone .project-reading .dek{color:#45555f;line-height:1.5}
@@ -461,7 +460,7 @@ const Q = (q, a) => ({q, a});
 ART.G1 = {
   id:'G1', type:'general', project:null, date:'10 Nov 2026', publishedAt:'2026-11-10T08:04:00+08:00',
   kicker:'Daily Brief · 10 Nov 2026', title:'Prices up 0.8%, volume down 6%: what October’s resale data says',
-  short:'Prices up 0.8%, volume down 6%', summary:'Slower but steadier: what October’s data means for D03 owners.',
+  short:'Prices up 0.8%, volume down 6%', summary:'Districts 3 and 15 led the slowdown in sales. With fewer transactions, the mix of homes sold matters more when reading the median.',
   read:'3 min read', updated:'08:04 SGT',
   stats:[['+0.8%','Median resale PSF'],['−6%','Transaction volume'],['1,284','Deals in October']],
   body:`<p>October’s resale market was slower but not weaker. Median PSF held firm while transaction volume fell for a second month, led by District 3 and District 15.</p><ul><li>Volume fell 6% month on month; the drop is in deal count, not price.</li><li>New launch pricing stayed flat, narrowing the resale–new gap.</li><li>District 3 listings are taking about 11 days longer to move than in August.</li></ul><p>For owners, the practical risk is time-on-market rather than a sharp price correction. For buyers, the quieter market means more choice and more room to negotiate.</p>`,
@@ -795,7 +794,6 @@ const DUTIES = {
 
 function latestArticles(){return Object.values(ART).sort((a,b)=>(b.publishedAt||'').localeCompare(a.publishedAt||''));}
 function projectIds(){ return latestArticles().filter(a=>a.type==='project').map(a=>a.id); }
-function projectCount(){ return projectIds().filter(id=>canReadArticle(ART[id])).length; }
 function articleParagraphs(body){
   return body.split(/\n\s*\n/).map(paragraph=>'<p>'+esc(paragraph)+'</p>').join('');
 }
@@ -923,25 +921,23 @@ function projectPublished(article,withTime=false){
 function projectMark(){
   return '<span class="project-mark" aria-hidden="true"><i></i></span>';
 }
-function projectArticleRow(a,showProject=false){
+function projectArticleRow(a){
   return `<button type="button" class="row project-story" data-action="openArticle" data-id="${esc(a.id)}">
-    ${showProject?`<span class="project-label">${projectMark()}${esc(a.project)}</span>`:''}
     <span class="project-byline"><span>Published ${projectPublished(a)}</span><span>${a.sources.length} ${a.sources.length===1?'source':'sources'}</span></span>
     <span class="t">${a.title}</span><span class="story-summary">${a.summary}</span>
   </button>`;
 }
 function projectArticleGroup(project){
   const ids=projectArticleIds(project);
+  const unread=ids.filter(id=>!I.readArticles.includes(id)).length;
   return `<section class="project-group"><button class="project-heading" type="button" data-action="projectDetails" data-project="${esc(project)}" aria-label="Project details for ${esc(project)}">
-    ${projectMark()}<span class="project-identity"><strong>${esc(project)}</strong><small>${ids.length} published ${ids.length===1?'article':'articles'}</small></span>
+    ${projectMark()}<span class="project-identity"><strong>${esc(project)}</strong><small>${ids.length} published ${ids.length===1?'article':'articles'}${ids.length?' · '+(unread?unread+' unread':'All read'):''}</small></span>
     <span class="project-details-link">Project details ›</span></button>
     ${ids.length?ids.map(id=>projectArticleRow(ART[id])).join(''):'<p class="story-summary">No published articles for this project yet.</p>'}</section>`;
 }
-function articleRow(id){
-  const a=ART[id];if(!canReadArticle(a))return '';
-  if(a.type==='project')return projectArticleRow(a,true);
+function briefRow(a){
   const sourceLabel=a.sources.length===1?'source':'sources';
-  return `<div class="row" data-action="openArticle" data-id="${id}"><div class="t">${a.title}</div>${a.type==='general'?`<p class="brief-summary">${a.summary}</p>`:''}<div class="m"><span class="tag">Market</span><span>${a.sources.length} ${sourceLabel} · ${a.updated}</span></div></div>`;
+  return `<div class="row" data-action="openArticle" data-id="${esc(a.id)}"><div class="t">${a.title}</div><p class="brief-summary">${a.summary}</p><div class="m"><span class="tag">Market</span><span>${a.sources.length} ${sourceLabel} · ${a.updated}</span></div></div>`;
 }
 
 function projectLink(project){
@@ -1033,8 +1029,21 @@ function renderEditorialAsk(){
 
 function renderAppAssistant(){return `${statusBar()}${nav('Lio','Liveo AI','','appHome')}<div class="phone-body"><div class="app-card"><img src="app-assets/ailogo.png" width="52" height="52" alt="Lio"/><h1>How can I help?</h1><p>Choose a property task to get started.</p><button class="qchip" data-action="listTab" data-tab="daily">Open Property Insights</button><a class="qchip" href="ai-valuation.html">Get a property valuation</a></div><div class="infobox">You can ask about an insight or an editorial article. The article stays attached to that conversation.</div><p class="app-context-note">Preview · Property insights and valuation.</p></div>${homebar()}`;}
 
+function renderDailyBriefFeed(){
+  const [lead,...earlierBriefs]=latestArticles().filter(article=>article.type==='general');
+  if(!lead)return '<div class="empty-state"><b>No public briefs published yet</b></div>';
+  return `<div class="hero" data-action="openArticle" data-id="${lead.id}">
+        <div class="eyebrow">Daily Brief · ${lead.date}</div>
+        <h4>${lead.title}</h4>
+        <p class="brief-summary">${lead.summary}</p>
+        <div class="meta">${lead.read} · ${lead.sources.length} sources · Updated ${lead.updated}</div>
+        <span class="more">Read brief →</span>
+      </div>
+    ${earlierBriefs.length?`<div class="section"><b>Earlier briefs</b></div>${earlierBriefs.map(briefRow).join('')}`:''}
+      <div class="infobox" style="margin-top:9px;margin-bottom:0">Daily Brief is generated at 08:00 SGT. From 10:00 SGT, a recovered brief is published without a catch-up notification. <button class="linkbtn" data-action="settings">Manage in Settings</button></div>`;
+}
+
 function renderList(){
-  const a=ART[I.dailyArticleId];
   if(I.listTab==='projects'&&!I.boundProjects.length)return `${statusBar()}${nav('Property Insights','My Projects','Home','appHome')}<div class="phone-body"><div class="infobox">No active project binding. Project articles are unavailable.</div><button class="btn" data-action="listTab" data-tab="daily">Read Daily Brief</button></div>${homebar()}`;
   const state=feedStateBlock();
   if(state){
@@ -1050,22 +1059,7 @@ function renderList(){
   ${nav('Property Insights','AI property updates','Home','appHome')}<div class="appbar insight-feed-actions"><button class="linkbtn" data-action="settings">Notifications</button></div>
   <div class="phone-body">
     <div class="tabs"><button data-action="listTab" data-tab="daily" class="${I.listTab==='daily'?'on':''}">Daily Brief</button><button data-action="listTab" data-tab="projects" class="${I.listTab==='projects'?'on':''}">My Projects</button></div>
-    ${I.listTab==='daily'?`
-      <div class="hero" data-action="openArticle" data-id="${a.id}">
-        <div class="eyebrow">Daily Brief · ${a.date}</div>
-        <h4>${a.title}</h4>
-        <p class="brief-summary">${a.summary}</p>
-        <div class="meta">${a.read} · ${a.sources.length} sources · Updated ${a.updated}</div>
-        <span class="more">Read brief →</span>
-      </div>
-      <div class="section"><b>My Projects</b><span>${I.boundProjects.length} bound</span></div>
-      ${I.boundProjects.length?`<button class="app-link-row" data-action="listTab" data-tab="projects">View my projects <span>${projectCount()} articles · ${unreadBadge()}</span></button>`:''}
-      <div class="section"><b>Latest insights</b></div>
-      ${latestArticles().filter(item=>item.id!==a.id).map(item=>articleRow(item.id)).join('')}
-      <div class="infobox" style="margin-top:9px;margin-bottom:0">Daily Brief is generated at 08:00 SGT. From 10:00 SGT, a recovered brief is published without a catch-up notification. Project articles are reviewed before push. <button class="linkbtn" data-action="settings">Manage in Settings</button></div>
-    `:`
-      ${I.boundProjects.map(projectArticleGroup).join('')}
-    `}
+    ${I.listTab==='daily'?renderDailyBriefFeed():I.boundProjects.map(projectArticleGroup).join('')}
   </div>
   
   ${homebar()}`;
@@ -1206,8 +1200,6 @@ function lastPushLabel(){
   return r.b.batchId+' · '+r.b.day+' '+r.b.at;
 }
 function projectArticleIds(project){ return projectIds().filter(id=>ART[id].project===project&&canReadArticle(ART[id])); }
-function unreadProjectCount(){ return projectIds().filter(id=>canReadArticle(ART[id])&&!I.readArticles.includes(id)).length; }
-function unreadBadge(){ const n=unreadProjectCount(); return n?n+' unread':'All read'; }
 function firstAllowedId(){ const a=allowedPam()[0]; return a?a.id:null; }
 function setDuty(id){
   I.configDraft=null; I.settingsNotice='';
