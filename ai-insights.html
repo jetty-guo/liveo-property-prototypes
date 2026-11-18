@@ -358,14 +358,20 @@
 .gset .gset-outcome{padding:11px 14px;border-left:3px solid #3271ca;background:#f0f5fc;color:#183757;font-weight:600}
 .gset .gset-message{color:#215b38}.gset .gset-error{color:#9d2f21}
 .gset .gset-list{list-style:none;padding:0;margin:0}.gset-list li{padding:8px 0;border-bottom:1px solid var(--gs-line)}.gset-list li:last-child{border:0}
-.gset code{font-size:12px;overflow-wrap:anywhere}.gset-prompt-scope{border-top:1px solid var(--gs-line);padding-top:12px;margin:12px 0}.gset-prompt-scope h3{font-size:14px;margin:0 0 5px}.gset [hidden]{display:none!important}
-.prompt-preview{background:#f6f8fb;border-radius:6px;padding:10px 12px;margin:8px 0 0;min-width:0}
-.prompt-preview p{margin:4px 0 8px}.prompt-preview strong{display:block;overflow-wrap:anywhere}
-.prompt-preview details{margin:4px 0 8px}.prompt-preview summary{font-size:13px}
-.prompt-preview pre{margin:6px 0;font:inherit;font-size:13px;color:#142038;white-space:pre-wrap;overflow-wrap:anywhere}
+.gset code{font-size:12px;overflow-wrap:anywhere}.gset [hidden]{display:none!important}
+.prompt-area-label,.prompt-fields label{display:block;font-size:13px;font-weight:650;margin-bottom:6px}
+.prompt-area{display:inline-flex;flex-wrap:wrap;gap:4px;background:#edf2f8;border-radius:8px;padding:4px;margin-bottom:8px}
+.prompt-area button{border:1px solid transparent;border-radius:6px;padding:7px 12px;font:inherit;background:transparent;color:var(--gs-muted);cursor:pointer}
+.prompt-area button[aria-pressed=true]{background:#fff;border-color:var(--gs-line);color:var(--gs-blue);font-weight:650}
+.prompt-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),340px));gap:12px;margin:14px 0}
+.prompt-preview{border:1px solid var(--gs-line);border-radius:8px;background:#f6f8fb;padding:14px;min-width:0}
+.prompt-preview header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.prompt-preview h3{font-size:14px}
+.prompt-preview pre{margin:10px 0 0;font:inherit;font-size:13px;color:#142038;white-space:pre-wrap;overflow-wrap:anywhere}
+.gset .source-policy summary{display:list-item}
+.gset .source-policy:not([open]) summary{border-bottom:0}
 .prompt-management{width:min(640px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid #b9c6d6;border-radius:10px;color:#142038}
 .prompt-management::backdrop{background:#16243f66}
-.prompt-management pre{margin:8px 0 16px;padding:12px;background:#f6f8fb;border-radius:6px;font:inherit;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}
 .prompt-management label{font-weight:650}.prompt-management .gset-text{min-height:128px}
 @media(max-width:1000px){.gset-grid{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:620px){.gset-nav{gap:10px}.gset-nav button{font-size:13px}.gset-head,.gset-body,.gset-foot{padding:12px}.gset-save-fields{padding:0 12px}.gset .gset-fields{grid-template-columns:1fr}}
@@ -731,7 +737,7 @@ const I = {
   settings:{osAllowed:true}, dailyArticleId:'G1', recovery:newRecovery(), briefTopicOverrides:new Map(),
   pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}},
   boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueType:'all', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
-  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', promptProject:'', promptDrafts:{}, promptPreviewScope:'public', promptBindingDraft:null, configDraft:null, settingsNotice:'', scenarioOpen:false
+  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', promptProject:'', promptDrafts:{}, promptArea:'public', promptBindingDraft:null, configDraft:null, settingsNotice:'', scenarioOpen:false
 };
 
 const PROJECT_CATALOG = [
@@ -1279,7 +1285,7 @@ function lastPushLabel(){
 function projectArticleIds(project){ return projectIds().filter(id=>ART[id].project===project&&canReadArticle(ART[id])); }
 function firstAllowedId(){ const a=allowedPam()[0]; return a?a.id:null; }
 function setDuty(id){
-  I.promptProject=''; I.promptPreviewScope='public'; I.promptBindingDraft=null; I.configDraft=null; I.settingsNotice='';
+  I.promptProject=''; I.promptArea='public'; I.promptBindingDraft=null; I.configDraft=null; I.settingsNotice='';
   I.duty=id; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast='';
   const first=firstAllowedId(); I.pamSelected=first; I.pamView=hasPerm('ai:insight:view')?'queue':'noaccess';
   render();
@@ -1368,7 +1374,6 @@ function renderPamProjects(){
   <div class="pam-card"><div class="h">Project monitoring</div>
     <div class="pam-filters">
       <input type="search" id="pamProjectSearch" aria-label="Search projects" placeholder="Search projects" value="${esc(I.projectQuery)}" />
-      ${hasPerm('ai:insight:config:read')?'<button type="button" class="pam-btn" data-action="pamView" data-view="settings" data-section="sources">Prompt bindings</button>':''}
     </div>
     <div class="pam-note">Search by name to add a project. Its first draft will go to the review queue.</div>
   </div>
@@ -1607,54 +1612,52 @@ function recoverGeneral(){
 }
 
 function settingsDraftPatch(){
-  if(I.settingsView==='sources'){
+  if(I.settingsView==='prompts'){
     return I.promptBindingDraft?{promptBindings:I.promptBindingDraft}:{};
   }
   return I.configDraft||{};
 }
 
 function settingsSaveControls(draft,dirty,canWrite,requiresReason){
+  const saveLabel=requiresReason?'Save changes':'Save prompt settings';
   return `<div class="gset-save-fields">${canWrite&&requiresReason?`<div id="cfgReasonRow" ${dirty?'':'hidden'}><label for="cfgReason"><strong>Reason for change</strong> (required)</label><textarea class="gset-text" id="cfgReason" maxlength="500" rows="2">${esc(draft.reason||'')}</textarea></div>`:''}
     <p id="cfgFeedback" class="gset-message" role="status">${esc(I.settingsNotice||(dirty?'Unsaved changes.':''))}</p></div>
-    <footer class="gset-foot"><small>${canWrite?'Changes apply to this preview until reload.':'Read-only access'}</small>${canWrite?`<div class="gset-actions"><button class="pam-btn" data-action="discardSettings" ${dirty?'':'disabled'}>Discard</button><button class="pam-btn primary" data-action="pamSaveSettings" ${dirty?'':'disabled'}>Save changes</button></div>`:''}</footer>`;
+    <footer class="gset-foot"><small>${canWrite?(requiresReason?'Changes apply to this preview until reload.':'Saved prompt settings apply to new runs in this preview.'):'Read-only access'}</small>${canWrite?`<div class="gset-actions"><button class="pam-btn" data-action="discardSettings" ${dirty?'':'disabled'}>Discard</button><button class="pam-btn primary" data-action="pamSaveSettings" ${dirty?'':'disabled'}>${saveLabel}</button></div>`:''}</footer>`;
 }
 
 function renderPromptPreview(prompt,scope){
   const effective=scope==='project-override';
-  const identity=`${effective?esc(prompt.binding)+': ':''}<code>${esc(prompt.code)}</code> · v${prompt.version}`;
-  if(!hasPerm('user:aiPrompt:detail')) return `<p ${effective?'data-effective-prompt':''}>${identity}</p>`;
-  const body=PROMPT_SAMPLES[prompt.code][prompt.version];
-  const selected=I.promptPreviewScope===scope;
-  return `<div class="prompt-preview" data-prompt-preview="${scope}" aria-live="polite">
-    <strong ${effective?'data-effective-prompt':''}>${identity}</strong>
-    ${selected?'':`<p>${esc(body.split('\n\n')[0])}</p>`}
-    <details ${selected?'open':''}><summary>Prompt text</summary><pre>${esc(body)}</pre></details>
-    <button type="button" class="pam-btn" data-action="managePrompt" data-code="${esc(prompt.code)}" data-version="${prompt.version}">${hasPerm('user:aiPrompt:save')?'Manage prompt':'View prompt'}</button>
-  </div>`;
+  const identity=`${effective?esc(prompt.binding)+' · ':''}<code>${esc(prompt.code)}</code> · v${prompt.version}`;
+  const canRead=hasPerm('user:aiPrompt:detail');
+  const canEdit=canRead&&hasPerm('user:aiPrompt:save');
+  const body=canRead?PROMPT_SAMPLES[prompt.code][prompt.version]:null;
+  return `<section class="prompt-preview" data-prompt-preview="${scope}" aria-labelledby="promptTextHeading">
+    <header><div><h3 id="promptTextHeading">Prompt text</h3>
+    <small ${effective?'data-effective-prompt':''}>${identity}</small></div>
+    ${canEdit?`<button type="button" class="pam-btn" data-action="managePrompt" data-code="${esc(prompt.code)}" data-version="${prompt.version}">Edit draft</button>`:''}</header>
+    ${canRead?`<pre>${esc(body)}</pre>`:'<p>Prompt text is available to users with permission to view prompts.</p>'}
+  </section>`;
 }
 
 function openPromptManagement(button){
-  if(!hasPerm('user:aiPrompt:detail')) return;
+  if(!hasPerm('user:aiPrompt:detail')||!hasPerm('user:aiPrompt:save')) return;
   const {code,version}=button.dataset;
   if(!Object.hasOwn(PROMPT_SAMPLES,code)||!Object.hasOwn(PROMPT_SAMPLES[code],version)) return;
   const body=PROMPT_SAMPLES[code][version];
   const key=code+':'+version;
   const draft=I.promptDrafts[key];
-  const canSave=hasPerm('user:aiPrompt:save');
   const dialog=$('#promptManagement');
   dialog.innerHTML=`<header class="gset-head"><h3 id="promptManagementTitle">Prompt Management</h3><small>Preview</small></header>
     <div class="gset-body">
-      <p><code>${esc(code)}</code> · v${esc(version)} · Published sample</p>
-      <pre aria-label="Selected prompt body">${esc(body)}</pre>
-      ${canSave?`<form id="promptDraftForm">
-        <label for="promptDraftBody">Draft based on v${esc(version)}</label>
+      <form id="promptDraftForm">
+        <label for="promptDraftBody">Draft based on <code>${esc(code)}</code> · v${esc(version)}</label>
         <textarea class="gset-text" id="promptDraftBody" required>${esc(draft??body)}</textarea>
-        <p>Drafts stay in this preview. Publish approved versions in Prompt Management in Liveo Admin.</p>
+        <p>Save a draft in this preview. Publish approved versions in Liveo Admin.</p>
         <button type="submit" class="pam-btn primary">Save draft</button>
         <p role="status">${draft?'Draft saved in this preview.':''}</p>
-      </form>`:''}
+      </form>
     </div>
-    <form method="dialog" class="gset-foot"><button class="pam-btn" autofocus>Back to bindings</button></form>`;
+    <form method="dialog" class="gset-foot"><button class="pam-btn" autofocus>Back to prompts</button></form>`;
   const form=dialog.querySelector('#promptDraftForm');
   form?.addEventListener('submit',event=>{
     event.preventDefault();
@@ -1671,61 +1674,55 @@ function openPromptManagement(button){
   dialog.showModal();
 }
 
-function renderPromptBindings(config,draft,dirty,canWrite){
+function renderPromptSettings(config,draft,dirty,canWrite){
   const bindings=draft.promptBindings;
+  const area=I.promptArea;
   const project=I.promptProject;
   const choices=PROJECT_CATALOG.filter(item=>inScope(item));
-  const selectProject=(id,label,value,inherit='')=>`<div><label for="${id}">${label}</label>
-    <select id="${id}" data-prompt-binding="${id}" ${canWrite?'':'disabled'}>
-      ${inherit?`<option value="" ${value?'':'selected'}>${inherit}</option>`:''}
+  const disabled=canWrite?'':'disabled';
+  const selectProjectPrompt=(id,value,allowDefault)=>`<div><label for="${id}">Prompt template and version</label>
+    <select id="${id}" data-prompt-binding="${id}" ${disabled}>
+      ${allowDefault?'<option value="">Use project default</option>':''}
       ${Object.entries(PROJECT_PROMPTS).map(([key,item])=>`<option value="${key}" ${value===key?'selected':''}>${esc(promptLabel(item))}</option>`).join('')}
-    </select>
-    </div>`;
-  const effective=project?effectivePrompt(draft,project):null;
-  const overrides=choices.filter(x=>bindings.overrides[x.project]);
-  return `<section class="gset-card"><header class="gset-head"><h3>Prompt bindings</h3><small>Rev. ${config.revision}</small></header>
+    </select></div>`;
+  const controls=area==='public'?`<div class="prompt-fields">
+    <div><label for="promptGeneral">Published version</label>
+      <select id="promptGeneral" data-prompt-binding="promptGeneral" ${disabled}>
+        ${PUBLIC_BRIEF_VERSIONS.map(version=>`<option value="${version}" ${bindings.generalVersion===version?'selected':''}>v${version}</option>`).join('')}
+      </select></div>
+  </div>`:`<div class="prompt-fields">
+    <div><label for="promptProjectChoice">Applies to</label>
+      <select id="promptProjectChoice">
+        <option value="">All projects (default)</option>
+        <optgroup label="Individual projects">${choices.map(item=>`<option value="${esc(item.project)}" ${project===item.project?'selected':''}>${esc(item.project)}${bindings.overrides[item.project]?' · custom prompt':''}</option>`).join('')}</optgroup>
+      </select></div>
+    ${project?selectProjectPrompt('promptProjectOverride',bindings.overrides[project],true):selectProjectPrompt('promptProjectDefault',bindings.project,false)}
+  </div>`;
+  const prompt=area==='public'?effectivePrompt(draft,'—'):project?effectivePrompt(draft,project):PROJECT_PROMPTS[bindings.project];
+  const scope=area==='public'?'public':project?'project-override':'project-default';
+  const hint=area==='public'?'Choose the version of the Daily Brief template used for new public briefs.':
+    project?'Choose a custom prompt for this project, or use the project default.':'This default applies to projects without a custom prompt.';
+  return `<section class="gset-card">
+    <header class="gset-head"><h3>Generation prompts</h3><small>Rev. ${config.revision}</small></header>
     <div class="gset-body">
-      <p>Public brief uses one template. Choose its published version here. Manage prompt text and publish versions in Prompt Management.</p>
-      <div class="gset-fields">
-        <div><label for="promptGeneral">Public brief version (Daily Brief)</label>
-          <select id="promptGeneral" data-prompt-binding="promptGeneral" ${canWrite?'':'disabled'}>
-            ${PUBLIC_BRIEF_VERSIONS.map(version=>`<option value="${version}" ${bindings.generalVersion===version?'selected':''}>v${version}</option>`).join('')}
-          </select>
-          ${renderPromptPreview(effectivePrompt(draft,'—'),'public')}
-        </div>
-        <div>${selectProject('promptProjectDefault','Project default',bindings.project)}
-          ${renderPromptPreview(PROJECT_PROMPTS[bindings.project],'project-default')}</div>
+      <div class="prompt-area-label" id="promptAreaLabel">Content area</div>
+      <div class="prompt-area" role="group" aria-labelledby="promptAreaLabel">
+        <button type="button" data-action="promptArea" data-area="public" aria-pressed="${area==='public'}">Daily Brief</button>
+        <button type="button" data-action="promptArea" data-area="project" aria-pressed="${area==='project'}">Project Insights</button>
       </div>
-      <div class="gset-prompt-scope"><h3>Project overrides</h3>
-        <p>Set a template for a specific project, or let it inherit the project default.</p>
-        <div class="gset-fields">
-          <div><label for="promptProjectChoice">Project</label><select id="promptProjectChoice">
-            <option value="">Select a project</option>
-            ${choices.map(item=>`<option value="${esc(item.project)}" ${project===item.project?'selected':''}>${esc(item.project)}</option>`).join('')}
-          </select></div>
-          ${project?selectProject('promptProjectOverride','Project template',bindings.overrides[project]||'','Use project default'):''}
-        </div>
-        ${effective?renderPromptPreview(effective,'project-override'):''}
-        ${overrides.length?`<ul class="gset-list" aria-label="Projects with overrides">${overrides.map(({project:name})=>`<li><strong>${esc(name)}</strong> · ${esc(promptLabel(PROJECT_PROMPTS[bindings.overrides[name]]))}</li>`).join('')}</ul>`:''}
-      </div>
-      <p>Article follow-up uses <code>ai_insight_followup</code>. Saved bindings apply to new generation runs.</p>
+      <p>${hint}</p>
+      ${controls}
+      ${renderPromptPreview(prompt,scope)}
     </div>
     ${settingsSaveControls(draft,dirty,canWrite,false)}
     <dialog class="prompt-management" id="promptManagement" aria-labelledby="promptManagementTitle"></dialog>
-    </section>`;
+  </section>`;
 }
 
-function renderPamSettings(){
-  const config=I.pamSettings, draft={...config,...settingsDraftPatch()};
-  const canWrite=authN('settings',null,true).ok;
-  const dirty=configurationChanges(draft,config).length>0;
-  const views=[['controls','Configuration'],['sources','Prompt bindings'],['runs','Daily Brief runs']];
-  const tabs=views.map(([id,name])=>`<button type="button" data-action="settingsView" data-view="${id}" aria-pressed="${I.settingsView===id}">${name}</button>`).join('');
-  let panel;
-  if(I.settingsView==='runs') panel=renderGeneralRecovery();
-  else if(I.settingsView==='sources'){
-    panel=`<div class="gset-grid">${renderPromptBindings(config,draft,dirty,canWrite)}<section class="gset-card"><header class="gset-head"><h3>Source policy</h3></header>
-      <dl class="gset-body">
+function renderSourcePolicy(){
+  return `<details class="gset-card source-policy">
+    <summary class="gset-head">Source policy</summary>
+    <dl class="gset-body">
         <div><dt>Official sources</dt><dd>URA, MAS, LTA, gov.sg and <a href="https://www.hdb.gov.sg/" target="_blank" rel="noopener">HDB</a></dd>
           <p>Use HDB announcements and resale statistics for public housing coverage in Daily Brief.</p></div>
         <div><dt>Additional reporting</dt><dd>CNA, The Business Times and EdgeProp</dd>
@@ -1736,8 +1733,20 @@ function renderPamSettings(){
           <p>Use reporting on Singapore housing. Project articles require evidence about the specific project.</p></div>
         <div><dt>Evidence window</dt><dd>Prefer news from the past 7 days</dd>
           <p>Use the latest effective policy or transaction data and cite the period it covers. Hold a brief if evidence is insufficient or undated.</p></div>
-      </dl></section>
-      </div>`;
+      </dl>
+  </details>`;
+}
+
+function renderPamSettings(){
+  const config=I.pamSettings, draft={...config,...settingsDraftPatch()};
+  const canWrite=authN('settings',null,true).ok;
+  const dirty=configurationChanges(draft,config).length>0;
+  const views=[['controls','Configuration'],['prompts','Prompts'],['runs','Daily Brief runs']];
+  const tabs=views.map(([id,name])=>`<button type="button" data-action="settingsView" data-view="${id}" aria-pressed="${I.settingsView===id}">${name}</button>`).join('');
+  let panel;
+  if(I.settingsView==='runs') panel=renderGeneralRecovery();
+  else if(I.settingsView==='prompts'){
+    panel=renderPromptSettings(config,draft,dirty,canWrite);
   }else{
     const switchRow=(id,key,name,help)=>`<div class="gset-switchrow"><div><label for="${id}">${name}</label><p id="${id}Help">${help}</p></div>
       <input type="checkbox" role="switch" class="gset-switch" id="${id}" data-setting="${key}" aria-describedby="${id}Help" ${draft[key]?'checked':''} ${canWrite?'':'disabled'}></div>`;
@@ -1751,7 +1760,7 @@ function renderPamSettings(){
       <div><dt>Daily Brief</dt><dd>08:00 SGT daily</dd><p>Publish after the evidence check passes.</p></div>
       <div><dt>Catch-up notification cutoff</dt><dd>10:00 SGT</dd><p>From 10:00, publish for reading only.</p></div>
       <div><dt>Project articles</dt><dd>Manual review before publication</dd><p>Generate the first draft on enrolment and later drafts on request.</p></div>
-      <div><dt>Default daily notification limits in this preview</dt><dd>1 general + 1 project per user</dd><p>Both limits apply across devices. The project limit also applies across bound projects.</p></div></dl></aside></div>${audit}`;
+      <div><dt>Default daily notification limits in this preview</dt><dd>1 general + 1 project per user</dd><p>Both limits apply across devices. The project limit also applies across bound projects.</p></div></dl></aside></div>${renderSourcePolicy()}${audit}`;
   }
   return `<div class="gset"><nav class="gset-nav" aria-label="Generation settings sections">${tabs}</nav>${panel}</div>`;
 }
@@ -1905,12 +1914,7 @@ function bind(){
         const vp={projects:'ai:insight:view',queue:'ai:insight:article:read',review:'ai:insight:article:read',pushlog:'ai:insight:push:read',settings:'ai:insight:config:read'}[el.dataset.view];
         if(vp && !hasPerm(vp)){ I.pamToast='Blocked: missing '+vp+'. The local state was not changed.'; render(); return; }
         I.pamView=el.dataset.view;
-        const opensPromptBindings=I.pamView==='settings'&&el.dataset.section==='sources';
-        if(opensPromptBindings){ I.settingsView='sources'; I.settingsNotice=''; }
-        I.pamEditing=false; I.pamRejectOpen=false; I.pamToast='';
-        render();
-        if(opensPromptBindings) $('#stage [data-action="settingsView"][data-view="sources"]')?.focus();
-        return;
+        I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; render(); return;
       }
       if(a==='pamSelect'){
         const art=PAM[el.dataset.id];
@@ -1997,13 +2001,20 @@ function bind(){
         art.monitoring=!art.monitoring; I.pamToast='Monitoring '+(art.monitoring?'enabled':'paused')+' in the local demo.'; if(art.monitoring && !art.firstGenerationRequested && art.version<1){ art.firstGenerationRequested=true; pamGenerate(art.id,'PROJECT_FIRST_ENABLE'); return; } render(); return;
       }
       if(a==='settingsView'){
-        if(!hasPerm('ai:insight:config:read')||!['controls','sources','runs'].includes(el.dataset.view)) return;
+        if(!hasPerm('ai:insight:config:read')||!['controls','prompts','runs'].includes(el.dataset.view)) return;
         I.settingsView=el.dataset.view; I.settingsNotice=''; render();
         $('#stage [data-action="settingsView"][aria-pressed="true"]')?.focus(); return;
       }
+      if(a==='promptArea'){
+        const area=el.dataset.area;
+        if(I.settingsView!=='prompts'||!hasPerm('ai:insight:config:read')||!['public','project'].includes(area)) return;
+        if(area===I.promptArea) return;
+        I.promptArea=area; render();
+        $('#stage [data-action="promptArea"][aria-pressed="true"]')?.focus(); return;
+      }
       if(a==='managePrompt'){ openPromptManagement(el); return; }
       if(a==='discardSettings'){
-        if(I.settingsView==='sources') I.promptBindingDraft=null;
+        if(I.settingsView==='prompts') I.promptBindingDraft=null;
         else I.configDraft=null;
         I.settingsNotice='Changes discarded.'; render(); return;
       }
@@ -2012,7 +2023,7 @@ function bind(){
         const config=I.pamSettings, d={...config,...settingsDraftPatch()};
         const changes=configurationChanges(d,config);
         if(!changes.length) return;
-        const savesBindings=I.settingsView==='sources';
+        const savesBindings=I.settingsView==='prompts';
         const reason=savesBindings?'':(d.reason||'').trim();
         if(!savesBindings&&!reason){
           const feedback=$('#cfgFeedback'); feedback.textContent='Enter a reason to save these changes.'; feedback.className='gset-error';
@@ -2131,7 +2142,6 @@ function bind(){
       }
       const dirty=configurationChanges({...config,promptBindings:bindings},config).length>0;
       I.promptBindingDraft=dirty?bindings:null;
-      I.promptPreviewScope={promptGeneral:'public',promptProjectDefault:'project-default',promptProjectOverride:'project-override'}[id];
       I.settingsNotice='';
       render(); $('#'+id)?.focus();
     });
@@ -2140,7 +2150,6 @@ function bind(){
     const project=event.target.value;
     if(project && !PROJECT_CATALOG.some(item=>item.project===project&&inScope(item))) return;
     I.promptProject=project;
-    I.promptPreviewScope=project?'project-override':'project-default';
     render(); $('#promptProjectChoice')?.focus();
   });
   const scenario=$('#scenarioInputs');
@@ -2279,7 +2288,7 @@ document.addEventListener('click', e=>{
   if(a==='feedReady'){ I.feedState='ready'; render(); return; }
   if(a==='resetCend'){ I.screen='list'; I.listTab='daily'; I.articleId=null; I.buyerIntent=null; clearQuestion(); I.feedState='ready'; I.readArticles=['P3','P4']; render(); }
   if(a==='resetPam'){
-    I.pamSettings=defaultInsightSettings(); I.configDraft=null; I.promptBindingDraft=null; I.promptProject=''; I.promptPreviewScope='public'; I.promptDrafts={}; I.settingsView='controls'; I.settingsNotice=''; I.scenarioOpen=false;
+    I.pamSettings=defaultInsightSettings(); I.configDraft=null; I.promptBindingDraft=null; I.promptProject=''; I.promptArea='public'; I.promptDrafts={}; I.settingsView='controls'; I.settingsNotice=''; I.scenarioOpen=false;
     I.pamGenToken=(I.pamGenToken||0)+1;
     PAM=JSON.parse(JSON.stringify(PAM_INIT)); I.briefTopicOverrides.clear();
     Object.keys(ART).filter(id=>!FIXTURE_ARTICLES.has(id)).forEach(id=>{delete ART[id];});
@@ -2305,7 +2314,7 @@ if(['appHome','appAssistant','projectDetails','editorialList'].includes(qp.get('
 if(qp.get('project')==='tembusu') I.activeProject='Tembusu Grand';
 if(qp.get('mode')==='pam'){ I.tab='pam'; I.pamView=qp.get('pam')||'queue'; if(Object.hasOwn(PAM,qp.get('review'))) I.pamSelected=qp.get('review'); }
 if(qp.get('focus')==='recovery') I.settingsView='runs';
-if(qp.get('focus')==='prompts') I.settingsView='sources';
+if(qp.get('focus')==='prompts') I.settingsView='prompts';
 if(qp.get('article')) openArticle(qp.get('article'));
 if(qp.get('q')!==null&&I.articleId) openChat(Number(qp.get('q')));
 render();
