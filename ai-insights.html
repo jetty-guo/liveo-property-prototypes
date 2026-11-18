@@ -189,6 +189,14 @@
   .kpi .k{font-size:7.5px;color:var(--muted);margin-top:1px}
   .pam-table{border:1px solid var(--line);border-radius:8px;overflow:hidden}
   .ptr{display:grid;grid-template-columns:1.6fr 100px 50px 92px 90px 48px;gap:6px;padding:7px 9px;border-bottom:1px solid var(--line);font-size:8.5px;align-items:center;cursor:pointer}
+  .notification-log{max-width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+  .notification-log table{width:100%;min-width:780px;border-collapse:collapse;font-size:13px;text-align:left}
+  .notification-log th,.notification-log td{padding:10px 9px;vertical-align:top;border-bottom:1px solid var(--line)}
+  .notification-log th{background:#F8FAFC;font-size:12px;font-weight:600;color:#566174}
+  .notification-log tbody tr:last-child td{border-bottom:0}
+  .notification-log .detail{margin-top:3px;color:#566174;font-size:12px;line-height:1.4}
+  .notification-log .tag{white-space:normal}
+  .notification-log .count{text-align:right;font-variant-numeric:tabular-nums}
   .ptr:last-child{border-bottom:0}
   .ptr.head{background:#F8FAFC;font-size:7px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);cursor:default}
   .ptr:hover:not(.head){background:#F8FBFF}
@@ -1088,7 +1096,7 @@ function noAccessPanel(code){
 }
 function syncInsightUrl(){ const u=new URL(location.href); if(I.tab==='pam') u.searchParams.set('mode','pam'); else u.searchParams.delete('mode'); history.replaceState(null,'',u); }
 function pushBadge(p){
-  return ({unknown:'<span class="tag amber">Unknown · quota held</span>', sent:'<span class="tag green">Submitted · not delivery</span>', partial:'<span class="tag amber">Some users waiting</span>', not_sent:'<span class="tag">Not sent</span>', skipped:'<span class="tag amber">Skipped</span>', failed:'<span class="tag red">Failed</span>'})[p] || p;
+  return ({unknown:'<span class="tag amber">Unknown · quota held</span>', sent:'<span class="tag green">Accepted</span>', partial:'<span class="tag amber">Some users waiting</span>', not_sent:'<span class="tag">Not submitted</span>', skipped:'<span class="tag amber">Skipped</span>', failed:'<span class="tag red">Failed</span>'})[p] || p;
 }
 function demoAcceptedBatch(a){return a.pushBatches?.findLast(b=>b.version===a.publishedVersion&&b.status==='sent'&&b.demoReaderAccepted);}
 
@@ -1148,7 +1156,7 @@ function renderPamQueue(){
     <button class="pam-btn" data-action="pamQueueReset">Reset</button>
   </div>
   <div class="pam-table">
-    <div class="ptr head"><div>Title</div><div>Project</div><div>Ver.</div><div>Article</div><div>Push</div><div>Time</div></div>
+    <div class="ptr head"><div>Title</div><div>Project</div><div>Ver.</div><div>Article</div><div>Push submission</div><div>Time</div></div>
     ${rows.length?rows.map(a=>`<div class="ptr" data-action="pamSelect" data-id="${a.id}"><div><div class="ti">${esc(a.title)}</div><div class="sub">${a.project==='—'?'General brief · system auto-publish':a.status==='pending_generation'?'Not generated yet':a.status==='generating'?'Generating draft':a.status==='generation_failed'?'Generation failed':'Project-specific'}</div></div><div>${a.project}</div><div>v${a.version}</div><div>${pamBadge(a.status)}</div><div>${pushBadge(a.push)}</div><div>${a.time}</div></div>`).join(''):`<div class="empty-state" style="margin:0"><b>No articles match these filters</b>Reset the filters or generate a new article.<button data-action="pamQueueReset">Reset filters</button></div>`}
   </div>
   <div class="pam-note">Article status, version and push status are separate. “Published” does not mean every device received a notification. This list is filtered by the current simulated duty and project scope.</div>`;
@@ -1223,7 +1231,7 @@ function renderPamReview(){
       <div class="pam-card">
         <div class="h">Status</div>
         <div class="pam-row"><span class="k">Article</span><span class="v">${pamBadge(a.status)}</span></div>
-        <div class="pam-row"><span class="k">Push</span><span class="v">${pushBadge(a.push)}</span></div>
+        <div class="pam-row"><span class="k">Push submission</span><span class="v">${pushBadge(a.push)}</span></div>
         <div class="pam-row"><span class="k">Project</span><span class="v">${a.project}</span></div>
         <div class="pam-row"><span class="k">Version</span><span class="v">v${a.version}</span></div><div class="pam-row"><span class="k">Source cut-off</span><span class="v">${usesHistoricalSource(a)?SNAPSHOT_DATE:'Not recorded (demo)'}</span></div>
         <div class="pam-row"><span class="k">Live published</span><span class="v">${a.publishedVersion?'v'+a.publishedVersion:'—'}</span></div>
@@ -1270,7 +1278,7 @@ function renderPamReview(){
         <div class="pam-card"><div class="h">Publish result</div>
           <div class="pam-row"><span class="k">Article</span><span class="v" style="color:var(--green)">Published v${a.publishedVersion}</span></div>
           <div class="pam-row"><span class="k">Publication day (SGT)</span><span class="v">${a.publishedAt.slice(0,10)}</span></div>
-          <div class="pam-row"><span class="k">Push</span><span class="v">${pushBadge(a.push)}</span></div>
+          <div class="pam-row"><span class="k">Push submission</span><span class="v">${pushBadge(a.push)}</span></div>
           <div class="pam-actions">
             <button class="pam-btn" data-action="readPublished">${ART[a.id]?.historicalSample&&!I.boundProjects.includes(a.project)?'View as current reader (unbound)':'View published in App'}</button>
             ${ART[a.id]?.historicalSample&&!I.boundProjects.includes(a.project)?'<button class="pam-btn primary" data-action="previewBoundSample">Preview as a bound resident (demo)</button>':''}
@@ -1335,7 +1343,7 @@ function recoverGeneral(){
     PAM[a.id]={...a,status:'published',reviewedVersion:1,publishedVersion:1,monitoring:false,
       push,sources:3,time,audience:'All app users',audienceCount:sample.length,generationTrigger:scheduled?'GENERAL_SCHEDULED':'GENERAL_RECOVERY',
       reviewHistory:[{version:1,decision:'Validated',actor:'system',at:GENERAL_RECOVERY_DATE+' '+time+' SGT',reason:'Daily Brief source and content checks passed (demo).'}],
-      pushBatches:[{batchId:GENERAL_RECOVERY_KEY+'-v1',version:1,title:a.title,project:'—',target:'All app users',status:push,eligible:sample.length,sent:r.sent,skipped:sample.length-r.sent,day:GENERAL_RECOVERY_DATE,at:time,reason,demoReaderAccepted:eligible.some(([id])=>id==='A')}]};
+      pushBatches:[{batchId:GENERAL_RECOVERY_KEY+'-v1',version:1,title:a.title,project:'—',target:'All app users',status:push,retries:0,eligible:sample.length,sent:r.sent,skipped:sample.length-r.sent,day:GENERAL_RECOVERY_DATE,at:time,reason,demoReaderAccepted:eligible.some(([id])=>id==='A')}]};
     publishToCend(a);
     r.status='published'; render();
   },450);
@@ -1364,11 +1372,22 @@ function renderPamSettings(){
 }
 function renderPamPushLog(){
   const rows=allowedPam().flatMap(a=>(a.pushBatches||[]).map(b=>({a,b}))).sort((x,y)=>(y.b.day+' '+y.b.at).localeCompare(x.b.day+' '+x.b.at));
-  return `<div class="pam-table">
-    <div class="ptr head"><div>Batch / article</div><div>Project</div><div>Ver.</div><div>Target</div><div>Push</div><div>Retries</div></div>
-    ${rows.length?rows.map(({a,b})=>`<div class="ptr"><div><div class="ti">${b.batchId}</div><div class="sub">${esc(b.title||a.title)} · ${b.day} ${b.at} SGT</div></div><div>${b.project}</div><div>v${b.version}</div><div>${b.target} · ${b.sent}/${b.eligible} submitted${b.waiting?' · '+b.waiting+' waiting':''}${b.skipped?' · '+b.skipped+' skipped':''}${b.reason?' · '+b.reason:''}</div><div>${pushBadge(b.status)}</div><div>${b.retries||0}</div></div>`).join(''):'<div class="pam-note" style="padding:12px">No push batch yet.</div>'}
-  </div>
-  <div class="pam-note">Each row records a simulated attempt. The article version identifies the logical batch; a definite failed retry retains that identity. Submitted does not mean device-delivered. Editing a new draft does not rewrite an old batch. No user contact details are shown.</div>`;
+  return `<div class="notification-log" role="region" aria-label="Push attempts" tabindex="0">
+    <table aria-label="Notification submission log"><thead><tr>
+      <th scope="col">Batch / article</th><th scope="col">Project</th><th scope="col">Version</th>
+      <th scope="col">Audience</th><th scope="col">Channel result</th>
+      <th scope="col">Device delivery</th><th scope="col" class="count">Retries</th>
+    </tr></thead><tbody>
+    ${rows.length?rows.map(({a,b})=>`<tr>
+      <td><strong>${esc(b.batchId)}</strong><div class="detail">${esc(b.title||a.title)}</div><div class="detail">${b.day} ${b.at} SGT</div></td>
+      <td>${esc(b.project)}</td><td>v${b.version}</td>
+      <td>${esc(b.target)}<div class="detail">${b.eligible.toLocaleString('en-SG')} in batch</div></td>
+      <td>${pushBadge(b.status)}<div class="detail">${b.status==='unknown'?b.unknown+' unconfirmed':b.sent.toLocaleString('en-SG')+' accepted'}${b.waiting?' · '+b.waiting+' waiting':''}${b.skipped?' · '+b.skipped+' skipped':''}</div>${b.reason?'<div class="detail">'+esc(b.reason)+'</div>':''}</td>
+      <td>${['failed','skipped'].includes(b.status)?'Not applicable':'No receipt'}</td>
+      <td class="count">${b.retries}</td>
+    </tr>`).join(''):'<tr><td colspan="7">No push attempts recorded.</td></tr>'}
+    </tbody></table></div>
+    <div class="pam-note">Demo data. “Accepted” means the push service accepted the notification. Device delivery requires a separate receipt. The first attempt has zero retries.</div>`;
 }
 
 function render(){
@@ -1719,8 +1738,9 @@ function pamPush(id){
     a.pushBatches.push({...base,status:'skipped',sent:0,retries:a.retries||0,reason});
     a.push=existing?.status||'skipped'; I.pamToast='Skipped: '+reason+'.'; render(); return;
   }
+  if(a.push==='failed') a.retries++;
   if(I.pamPushFailNext){
-    a.retries=(a.retries||0)+1; I.pamPushFailNext=false;
+    I.pamPushFailNext=false;
     a.pushBatches.push({...base,status:'failed',sent:0,retries:a.retries,reason:'simulated push gateway failure'});
     a.push='failed'; I.pamToast='Push failed in the demo. The batch is recorded; retry is available.'; render(); return;
   }
