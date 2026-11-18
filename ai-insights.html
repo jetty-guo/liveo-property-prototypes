@@ -666,21 +666,17 @@ const EDITORIAL_NEWS = {
     boundary:'这篇文章没有提到从刊登广告到成交一般要多久。'}
 };
 
-const PUBLISHED_PROMPTS = {
-  general:{
-    market:{name:'Market and policy',code:'ai_insight_general',version:1},
-    financing:{name:'Rates and financing',code:'ai_insight_general_financing',version:2}
-  },
-  project:{
-    overview:{name:'Project overview',code:'ai_insight_project',version:1},
-    transactions:{name:'Transactions and rents',code:'ai_insight_project_transactions',version:2},
-    amenities:{name:'Transport and amenities',code:'ai_insight_project_amenities',version:1}
-  }
+const PUBLIC_BRIEF_PROMPT_CODE='ai_insight_general';
+const PUBLIC_BRIEF_VERSIONS=['1','2'];
+const PROJECT_PROMPTS = {
+  overview:{name:'Project overview',code:'ai_insight_project',version:1},
+  transactions:{name:'Transactions and rents',code:'ai_insight_project_transactions',version:2},
+  amenities:{name:'Transport and amenities',code:'ai_insight_project_amenities',version:1}
 };
 
 const defaultInsightSettings=()=>({
   enabled:true,pushEnabled:true,revision:1,history:[],
-  promptBindings:{general:'market',project:'overview',overrides:{}}
+  promptBindings:{generalVersion:'1',project:'overview',overrides:{}}
 });
 const I = {
   tab:'cend', screen:'list', listTab:'daily', articleId:null, question:null, chatTurns:[], notificationPreview:null,
@@ -1322,11 +1318,13 @@ function promptLabel(prompt){ return prompt.name+' · v'+prompt.version; }
 
 function effectivePrompt(config,project){
   const bindings=config.promptBindings;
-  const override=project==='—'?null:bindings.overrides[project];
-  const track=project==='—'?'general':'project';
+  if(project==='—'){
+    return {code:PUBLIC_BRIEF_PROMPT_CODE,version:Number(bindings.generalVersion),binding:'Public brief',revision:config.revision};
+  }
+  const override=bindings.overrides[project];
   return {
-    ...PUBLISHED_PROMPTS[track][override||bindings[track]],
-    binding:track==='general'?'Public brief':override?'Project override':'Project default',
+    ...PROJECT_PROMPTS[override||bindings.project],
+    binding:override?'Project override':'Project default',
     revision:config.revision
   };
 }
@@ -1337,16 +1335,16 @@ function configurationChanges(draft,config){
     if(draft[key]!==config[key]) changes.push(label+': '+(config[key]?'On':'Off')+' → '+(draft[key]?'On':'Off'));
   }
   const before=config.promptBindings, after=draft.promptBindings;
-  for(const [track,label] of [['general','Public brief prompt'],['project','Project default prompt']]){
-    if(before[track]!==after[track]){
-      const bank=PUBLISHED_PROMPTS[track];
-      changes.push(label+': '+promptLabel(bank[before[track]])+' → '+promptLabel(bank[after[track]]));
-    }
+  if(before.generalVersion!==after.generalVersion){
+    changes.push('Public brief version: v'+before.generalVersion+' → v'+after.generalVersion);
+  }
+  if(before.project!==after.project){
+    changes.push('Project default prompt: '+promptLabel(PROJECT_PROMPTS[before.project])+' → '+promptLabel(PROJECT_PROMPTS[after.project]));
   }
   const projects=new Set([...Object.keys(before.overrides),...Object.keys(after.overrides)]);
   for(const project of projects){
     if(before.overrides[project]!==after.overrides[project]){
-      const label=key=>key?promptLabel(PUBLISHED_PROMPTS.project[key]):'Use project default';
+      const label=key=>key?promptLabel(PROJECT_PROMPTS[key]):'Use project default';
       changes.push(project+': '+label(before.overrides[project])+' → '+label(after.overrides[project]));
     }
   }
@@ -1537,20 +1535,25 @@ function renderPromptBindings(config,draft,dirty,canWrite){
   const bindings=draft.promptBindings;
   const project=I.promptProject;
   const choices=PROJECT_CATALOG.filter(item=>inScope(item));
-  const select=(id,label,track,value,inherit='')=>`<div><label for="${id}">${label}</label>
+  const selectProject=(id,label,value,inherit='')=>`<div><label for="${id}">${label}</label>
     <select id="${id}" data-prompt-binding="${id}" ${canWrite?'':'disabled'}>
       ${inherit?`<option value="" ${value?'':'selected'}>${inherit}</option>`:''}
-      ${Object.entries(PUBLISHED_PROMPTS[track]).map(([key,item])=>`<option value="${key}" ${value===key?'selected':''}>${esc(promptLabel(item))}</option>`).join('')}
+      ${Object.entries(PROJECT_PROMPTS).map(([key,item])=>`<option value="${key}" ${value===key?'selected':''}>${esc(promptLabel(item))}</option>`).join('')}
     </select>
-    ${!inherit?`<code>${esc(PUBLISHED_PROMPTS[track][value].code)}</code>`:''}</div>`;
+    ${!inherit?`<code>${esc(PROJECT_PROMPTS[value].code)}</code>`:''}</div>`;
   const effective=project?effectivePrompt(draft,project):null;
   const overrides=choices.filter(x=>bindings.overrides[x.project]);
   return `<section class="gset-card"><header class="gset-head"><h3>Prompt bindings</h3><small>Rev. ${config.revision}</small></header>
     <div class="gset-body">
-      <p>Choose a template and version. The production catalogue is maintained in Prompt Management.</p>
+      <p>Public brief uses one template. Choose its published version here. Manage prompt text and publish versions in Prompt Management.</p>
       <div class="gset-fields">
-        ${select('promptGeneral','Public brief (Daily Brief)','general',bindings.general)}
-        ${select('promptProjectDefault','Project default','project',bindings.project)}
+        <div><label for="promptGeneral">Public brief version (Daily Brief)</label>
+          <select id="promptGeneral" data-prompt-binding="promptGeneral" ${canWrite?'':'disabled'}>
+            ${PUBLIC_BRIEF_VERSIONS.map(version=>`<option value="${version}" ${bindings.generalVersion===version?'selected':''}>v${version}</option>`).join('')}
+          </select>
+          <code>${PUBLIC_BRIEF_PROMPT_CODE}</code>
+        </div>
+        ${selectProject('promptProjectDefault','Project default',bindings.project)}
       </div>
       <div class="gset-prompt-scope"><h3>Project overrides</h3>
         <p>Set a template for a specific project, or let it inherit the project default.</p>
@@ -1559,10 +1562,10 @@ function renderPromptBindings(config,draft,dirty,canWrite){
             <option value="">Select a project</option>
             ${choices.map(item=>`<option value="${esc(item.project)}" ${project===item.project?'selected':''}>${esc(item.project)}</option>`).join('')}
           </select></div>
-          ${project?select('promptProjectOverride','Project template','project',bindings.overrides[project]||'','Use project default'):''}
+          ${project?selectProject('promptProjectOverride','Project template',bindings.overrides[project]||'','Use project default'):''}
         </div>
         ${effective?`<p data-effective-prompt><strong>${effective.binding}:</strong> <code>${esc(effective.code)}</code> · v${effective.version}</p>`:''}
-        ${overrides.length?`<ul class="gset-list" aria-label="Projects with overrides">${overrides.map(({project:name})=>`<li><strong>${esc(name)}</strong> · ${esc(promptLabel(PUBLISHED_PROMPTS.project[bindings.overrides[name]]))}</li>`).join('')}</ul>`:''}
+        ${overrides.length?`<ul class="gset-list" aria-label="Projects with overrides">${overrides.map(({project:name})=>`<li><strong>${esc(name)}</strong> · ${esc(promptLabel(PROJECT_PROMPTS[bindings.overrides[name]]))}</li>`).join('')}</ul>`:''}
       </div>
       <p>Article follow-up uses <code>ai_insight_followup</code>. Saved bindings apply to new generation runs.</p>
     </div>
@@ -1946,9 +1949,9 @@ function bind(){
       control.addEventListener('change',()=>{
         if(!authN('settings',null,true).ok) return;
         const id=control.dataset.promptBinding;
-        const track=id==='promptGeneral'?'general':'project';
         const value=control.value;
-        if(value && !Object.hasOwn(PUBLISHED_PROMPTS[track],value)) return;
+        if(id==='promptGeneral' && !PUBLIC_BRIEF_VERSIONS.includes(value)) return;
+        if(id!=='promptGeneral' && value && !Object.hasOwn(PROJECT_PROMPTS,value)) return;
         if(id==='promptProjectOverride' && !PROJECT_CATALOG.some(item=>item.project===I.promptProject&&inScope(item))) return;
         const draft=getDraft();
         if(id==='promptProjectOverride'){
@@ -1956,7 +1959,7 @@ function bind(){
           else delete draft.promptBindings.overrides[I.promptProject];
         }else{
           if(!value) return;
-          draft.promptBindings[track]=value;
+          draft.promptBindings[id==='promptGeneral'?'generalVersion':'project']=value;
         }
         const dirty=configurationChanges(draft,I.pamSettings).length>0;
         if(!dirty) I.configDraft=null;
