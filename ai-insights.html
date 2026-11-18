@@ -200,6 +200,9 @@
   .notification-log .detail{margin-top:3px;color:#566174;font-size:12px;line-height:1.4}
   .notification-log .tag{white-space:normal}
   .notification-log .count{text-align:right;font-variant-numeric:tabular-nums}
+  .notification-log time{white-space:nowrap}
+  .notification-log .article-link{border:0;background:none;padding:0;text-align:left;color:var(--blue);font:inherit;font-weight:650;cursor:pointer}
+  .notification-log .article-link:hover,.notification-log .article-link:focus-visible{text-decoration:underline}
   .ptr:last-child{border-bottom:0}
   .ptr.head{background:#F8FAFC;font-size:7px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);cursor:default}
   .ptr:hover:not(.head){background:#F8FBFF}
@@ -885,7 +888,7 @@ function historicalPushAttempt(articleId, timestamp, counts){
   const article=ART[articleId];
   const version=article.version||1;
   return {
-    batchId:articleId+'-v'+version, version, title:article.title, project:article.project??'—',
+    articleId, batchId:articleId+'-v'+version, version, title:article.title, project:article.project??'—',
     target:article.type==='general'?'All app users':'Verified owners & residents',
     day:timestamp.slice(0,10), at:timestamp.slice(11,16), sent:0, skipped:0, retries:0, ...counts
   };
@@ -893,30 +896,45 @@ function historicalPushAttempt(articleId, timestamp, counts){
 
 const PUSH_LOG_HISTORY = [
   historicalPushAttempt('P1','2026-11-10 08:48',{
-    status:'sent',eligible:142,sent:134,skipped:8,reason:'8 recipients had notifications off.'
-  }),
-  historicalPushAttempt('G2','2026-11-09 08:05',{
-    status:'failed',eligible:12400,reason:'Channel unavailable. The failure was confirmed and the batch could be retried.'
+    status:'sent',eligible:142,sent:134,skipped:8,reasonZh:'8 位用户已关闭通知。'
   }),
   historicalPushAttempt('G2','2026-11-09 09:12',{
-    status:'sent',eligible:12400,sent:12400,retries:1,reason:'The channel accepted the retry for the same batch.'
+    status:'sent',eligible:12400,sent:12400,retries:1,reasonZh:'同一批次重试后，渠道已受理。'
+  }),
+  historicalPushAttempt('G2','2026-11-09 08:05',{
+    status:'failed',eligible:12400,reasonZh:'渠道不可用，已确认失败，可重试。'
   }),
   historicalPushAttempt('TP1','2026-11-08 09:52',{
-    status:'unknown',eligible:63,unknown:63,reason:'The channel timed out before confirming acceptance. Quota is held pending reconciliation.'
+    status:'unknown',eligible:63,unknown:63,reasonZh:'渠道响应超时，保留额度，等待核对。'
   }),
   historicalPushAttempt('P2','2026-11-08 10:12',{
-    status:'skipped',eligible:12400,skipped:12400,reason:'Catch-up cutoff was 10:00 SGT. The brief remained available to read.'
+    status:'skipped',eligible:12400,skipped:12400,reasonZh:'已过新加坡时间 10:00 的补通知截止，简报仍可阅读。'
   }),
   historicalPushAttempt('P3','2026-11-07 11:24',{
-    status:'skipped',eligible:6,skipped:6,reason:'All 6 recipients had notifications off.'
+    status:'skipped',eligible:6,skipped:6,reasonZh:'6 位用户均已关闭通知。'
   }),
   historicalPushAttempt('P4','2026-11-04 16:20',{
-    status:'skipped',eligible:28,skipped:28,reason:'All 28 recipients had used their daily project notification quota.'
+    status:'skipped',eligible:28,skipped:28,reasonZh:'28 位用户均已用完当天的项目通知额度。'
   }),
   historicalPushAttempt('P5','2026-10-30 08:20',{
-    status:'skipped',eligible:51,skipped:51,reason:'Published the previous day. Project notifications do not carry over.'
+    status:'skipped',eligible:51,skipped:51,reasonZh:'文章前一天已发布，项目通知仅在发布当天处理。'
   })
 ];
+const ARCHIVED_REVIEW_ARTICLES = Object.fromEntries(
+  PUSH_LOG_HISTORY.filter(batch=>!Object.hasOwn(PAM_INIT,batch.articleId)).map(batch=>{
+    const article=ART[batch.articleId];
+    const html=new DOMParser().parseFromString(article.body,'text/html');
+    return [article.id,{
+      id:article.id, title:article.title, project:article.project, summary:article.summary,
+      body:Array.from(html.querySelectorAll('p,li'),node=>node.textContent).join('\n\n'),
+      status:'published', version:batch.version, publishedVersion:batch.version, publishedAt:article.publishedAt,
+      time:article.publishedAt.slice(11,16), sources:article.sources.length,
+      editSource:article.sources.map(source=>source.name).join(' + '),
+      pamQuestions:article.questions.map(item=>item.q),
+      archived:true
+    }];
+  })
+);
 let PAM = JSON.parse(JSON.stringify(PAM_INIT));
 const DUTIES = {
   full:{label:'Platform full duties', role:'PLATFORM_ADMIN (System Role) · demo duty', scope:'platform',
@@ -1307,6 +1325,14 @@ function inScope(a){
   return false;
 }
 function allowedPam(){ return Object.values(PAM).filter(inScope); }
+function reviewArticle(id){
+  if(Object.hasOwn(PAM,id)) return PAM[id];
+  return Object.hasOwn(ARCHIVED_REVIEW_ARTICLES,id)?ARCHIVED_REVIEW_ARTICLES[id]:null;
+}
+function reviewPushResult(article){
+  if(article.pushBatches?.length) return article.push;
+  return PUSH_LOG_HISTORY.find(batch=>batch.articleId===article.id&&batch.version===article.version)?.status??article.push;
+}
 const N_ACTION_PERM={monitor:'ai:insight:project:configure',generate:'ai:insight:generate',edit:'ai:insight:article:edit',saveEdit:'ai:insight:article:edit',reject:'ai:insight:article:review',approve:'ai:insight:article:review',publish:'ai:insight:article:publish',push:'ai:insight:push:send',settings:'ai:insight:config:write',briefTopic:'ai:insight:article:edit'};
 function authN(action, art, platformOnly=false){
   const perm=N_ACTION_PERM[action];
@@ -1339,11 +1365,11 @@ function pushEligible(a){
  return pushAudience(a).filter(([uid,u])=>userPushSettings(uid,u).osAllowed&&(a.project==='—'?quotaUsed(uid,'general')<I.pamSettings.generalLimit:quotaUsed(uid,'project')<I.pamSettings.projectLimit&&firstProjectForUser(uid)?.id===a.id));
 }
 function pushBlockReason(a){
- if(!a.publishedAt||a.publishedAt.slice(0,10)!==I.pushDay)return 'not a newly published version today; no carryover';
- if(a.project==='—'&&I.pushClock>=I.pamSettings.catchupCutoff)return 'GENERAL catch-up cutoff '+I.pamSettings.catchupCutoff+' SGT; content remains readable';
- const audience=pushAudience(a);if(!audience.length)return 'no current bound users';
- if(audience.every(([id,u])=>!userPushSettings(id,u).osAllowed))return 'device notification permission is off';
- return 'daily quota or an earlier published project version has priority';
+ if(!a.publishedAt||a.publishedAt.slice(0,10)!==I.pushDay)return ['not a newly published version today; no carryover','这版文章的推送窗口已随发布日结束。'];
+ if(a.project==='—'&&I.pushClock>=I.pamSettings.catchupCutoff)return ['GENERAL catch-up cutoff '+I.pamSettings.catchupCutoff+' SGT; content remains readable','已过新加坡时间 '+I.pamSettings.catchupCutoff+' 的补通知截止，文章仍可阅读。'];
+ const audience=pushAudience(a);if(!audience.length)return ['no current bound users','当前没有绑定该楼盘的用户。'];
+ if(audience.every(([id,u])=>!userPushSettings(id,u).osAllowed))return ['device notification permission is off','目标用户均已关闭设备通知。'];
+ return ['daily quota or an earlier published project version has priority','已达到当天通知额度，或更早发布的项目文章优先。'];
 }
 function pushSummary(a){ const u=pushAudience(a); const e=pushEligible(a); return e.length+'/'+u.length+' sample users eligible'; }
 function lastPushLabel(){
@@ -1372,8 +1398,8 @@ function demoAcceptedBatch(a){return a.pushBatches?.findLast(b=>b.version===a.pu
 
 function pamShell(inner){
   const d=duty();
-  const title={projects:'Target Projects',queue:'Review Queue',review:'Review Article',pushlog:'Push Log',settings:'Generation Settings'}[I.pamView]||'Review Queue';
-  const crumb={projects:'AI Property Services / Target Projects',queue:'AI Property Services / Review Queue',review:'AI Property Services / Review Queue / Article',pushlog:'AI Property Services / Push Log',settings:'AI Property Services / Generation Settings'}[I.pamView]||'';
+  const title={projects:'Target Projects',queue:'Review Queue',review:'Review Article',pushlog:'推送日志',settings:'Generation Settings'}[I.pamView]||'Review Queue';
+  const crumb={projects:'AI Property Services / Target Projects',queue:'AI Property Services / Review Queue',review:'AI Property Services / Review Queue / Article',pushlog:'AI Property Services / 推送日志',settings:'AI Property Services / Generation Settings'}[I.pamView]||'';
   const chips=['ai:insight:view','ai:insight:article:read','ai:insight:article:review','ai:insight:push:send'];
   return `<div class="pam">
     <aside class="pam-side">
@@ -1381,7 +1407,7 @@ function pamShell(inner){
       <div style="font-size:7px;color:var(--muted);padding:0 9px;margin:-8px 0 10px">AI Property Services</div>
       <div class="navi ${I.pamView==='projects'?'on':''}" data-action="pamView" data-view="projects">Target Projects</div>
       <div class="navi ${I.pamView==='queue'||I.pamView==='review'?'on':''}" data-action="pamView" data-view="queue">Review Queue <span class="badge">${allowedPam().filter(a=>a.status==='pending_review'||a.status==='approved').length}</span></div>
-      <div class="navi ${I.pamView==='pushlog'?'on':''}" data-action="pamView" data-view="pushlog">Push Log</div>
+      <div class="navi ${I.pamView==='pushlog'?'on':''}" data-action="pamView" data-view="pushlog">推送日志</div>
       <div class="navi ${I.pamView==='settings'?'on':''}" data-action="pamView" data-view="settings">Generation Settings</div>
       <div style="margin-top:auto;font-size:7px;color:var(--muted);padding:0 9px;line-height:1.45">SIMULATED ACCESS<br/>No real login, push or review</div>
     </aside>
@@ -1408,7 +1434,7 @@ function renderPam(){
 }
 function renderPamQueue(){
   const typeOptions=[['all','All content types'],['project','Project insights'],['general','General briefs']];
-  const articles=allowedPam().filter(a=>
+  const articles=[...allowedPam(),...Object.values(ARCHIVED_REVIEW_ARTICLES).filter(inScope)].filter(a=>
     (a.version>0||a.status==='generation_failed') &&
     (I.queueType==='all'||I.queueType===(a.project==='—'?'general':'project'))
   );
@@ -1428,8 +1454,8 @@ function renderPamQueue(){
     <button class="pam-btn" data-action="pamQueueReset">Reset</button>
   </div>
   <div class="pam-table">
-    <div class="ptr head"><div>Title</div><div>Project</div><div>Ver.</div><div>Article</div><div>Push submission</div><div>Time</div></div>
-    ${rows.length?rows.map(a=>`<div class="ptr" data-action="pamSelect" data-id="${a.id}"><div><div class="ti">${esc(a.title)}</div><div class="sub">${a.project==='—'?'General brief · system auto-publish':a.status==='generating'?'Generating draft':a.status==='generation_failed'?'Generation failed':'Project-specific'} ${a.project==='—'?briefTopicTag(a):''}</div></div><div>${a.project}</div><div>v${a.version}</div><div>${pamBadge(a.status)}</div><div>${pushBadge(a.push)}</div><div>${a.time}</div></div>`).join(''):`<div class="empty-state" style="margin:0"><b>No articles match these filters</b>Reset the filters or generate a new article.<button data-action="pamQueueReset">Reset filters</button></div>`}
+    <div class="ptr head"><div>文章标题</div><div>Project</div><div>文章版本</div><div>Article</div><div>Push submission</div><div>Time</div></div>
+    ${rows.length?rows.map(a=>`<div class="ptr" data-action="pamSelect" data-id="${a.id}"><div><div class="ti">${esc(a.title)}</div><div class="sub">${a.project==='—'?'General brief · system auto-publish':a.status==='generating'?'Generating draft':a.status==='generation_failed'?'Generation failed':'Project-specific'} ${a.project==='—'?briefTopicTag(a):''}</div></div><div>${a.project}</div><div>v${a.version}</div><div>${pamBadge(a.status)}</div><div>${pushBadge(reviewPushResult(a))}</div><div>${a.time}</div></div>`).join(''):`<div class="empty-state" style="margin:0"><b>No articles match these filters</b>Reset the filters or generate a new article.<button data-action="pamQueueReset">Reset filters</button></div>`}
   </div>
   <div class="pam-note">Article status, version and push status are separate. “Published” does not mean every device received a notification. This list is filtered by the current simulated duty and project scope.</div>`;
 }
@@ -1536,7 +1562,7 @@ function renderBriefTopicForm(article){
 }
 
 function renderPamReview(){
-  const a=PAM[I.pamSelected] || PAM.P6;
+  const a=reviewArticle(I.pamSelected) || PAM.P6;
   if(!inScope(a)) return `<div class="pam-card"><div class="h">Out of scope</div><div class="pam-preview"><p>This article belongs to <b>${a.project}</b>, outside the current simulated scope <b>${duty().scope}</b>. The detail is not rendered even if the ID is supplied directly.</p></div></div>`;
   const editing=I.pamEditing;
   const isProject=a.project!=='—';
@@ -1547,7 +1573,7 @@ function renderPamReview(){
   const canGen=isProject&&I.pamSettings.enabled&&hasPerm('ai:insight:generate');
   const reviewOk=a.reviewedVersion===a.version;
   return `
-  <div style="margin-bottom:8px"><button class="pam-btn" data-action="pamView" data-view="${I.pamReviewFrom}">‹ Back to ${I.pamReviewFrom==='projects'?'Target Projects':'Review Queue'}</button></div>
+  <div style="margin-bottom:8px"><button class="pam-btn" data-action="pamView" data-view="${I.pamReviewFrom}">${I.pamReviewFrom==='pushlog'?'‹ 返回推送日志':I.pamReviewFrom==='projects'?'‹ Back to Target Projects':'‹ Back to Review Queue'}</button></div>
   <div class="pam-grid">
     <div>
       <div class="pam-card">
@@ -1556,7 +1582,7 @@ function renderPamReview(){
         ${a.historicalSample?'<span class="tag demo">Historical sales sample</span>':''}
         ${a.summary?`<p class="pam-note">${esc(a.summary)}</p>`:''}
         ${isProject?'':renderBriefTopicForm(a)}
-        <div style="font-size:8px;color:var(--muted);margin-bottom:6px">${a.sources} sources · generated ${a.time} · demo model v0.1 · review ${a.reviewedVersion?'v'+a.reviewedVersion:'pending'}</div>
+        <div style="font-size:8px;color:var(--muted);margin-bottom:6px">${a.sources} sources · ${a.archived?'Published '+projectPublished(a,true):'generated '+a.time+' · demo model v0.1 · review '+(a.reviewedVersion?'v'+a.reviewedVersion:'pending')}</div>
         ${editing?`<div style="font-size:8px;color:var(--muted);margin-bottom:3px">Title</div><input class="pam-input" id="pamEditTitle" value="${esc(a.title)}" /><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Body</div><textarea class="pam-textarea" id="pamEditBody">${esc(a.body)}</textarea><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Recommended questions (one per line)</div><textarea class="pam-textarea" id="pamEditQuestions">${esc((a.pamQuestions||[]).join('\n'))}</textarea><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Source correction note</div><input class="pam-input" id="pamEditSource" value="${esc(a.editSource||'')}" /><div class="pam-actions"><button class="pam-btn primary" data-action="pamSaveEdit">Save as new version</button><button class="pam-btn" data-action="pamCancelEdit">Cancel</button></div>`:`<div class="pam-preview">${a.body?`${articleParagraphs(a.body)}`:'<p style="color:var(--muted)">Not generated yet. Start generation to create a draft for review.</p>'}${a.pamQuestions&&a.pamQuestions.length?`<div style="font-size:7.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:5px"><b>Recommended questions</b><ul style="margin:3px 0 0;padding-left:13px">${a.pamQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div>`:''}</div>`}
       </div>
       <div class="pam-card">
@@ -1578,19 +1604,19 @@ function renderPamReview(){
         <div class="pam-row"><span class="k">Publish allowed for current version</span><span class="v" style="color:${reviewOk&&a.status==='approved'?'var(--green)':'var(--amber)'}">${reviewOk&&a.status==='approved'?'Yes':a.status==='published'?'Already published':'No — review current version first'}</span></div>
         <div class="pam-note">Editing or regenerating increments the version and clears the previous review. A published article is not reverted when a new draft is created.</div>
       </div>
-      <div class="pam-card"><div class="h">Review history</div>${(a.reviewHistory||[]).slice().reverse().map(r=>`<div class="pam-row"><span class="k">v${r.version} · ${r.decision}</span><span class="v">${r.actor} · ${r.at}</span></div><div class="pam-note">${esc(r.reason)}</div>`).join('')||'<div class="pam-note">No review recorded yet.</div>'}</div>
+      <div class="pam-card"><div class="h">Review history</div>${(a.reviewHistory||[]).slice().reverse().map(r=>`<div class="pam-row"><span class="k">v${r.version} · ${r.decision}</span><span class="v">${r.actor} · ${r.at}</span></div><div class="pam-note">${esc(r.reason)}</div>`).join('')||(a.archived?'<div class="pam-note">Review details are unavailable for this archived publication.</div>':'<div class="pam-note">No review recorded yet.</div>')}</div>
     </div>
     <div>
       <div class="pam-card">
         <div class="h">Status</div>
         <div class="pam-row"><span class="k">Article</span><span class="v">${pamBadge(a.status)}</span></div>
-        <div class="pam-row"><span class="k">Push submission</span><span class="v">${pushBadge(a.push)}</span></div>
+        <div class="pam-row"><span class="k">Push submission</span><span class="v">${pushBadge(reviewPushResult(a))}</span></div>
         <div class="pam-row"><span class="k">Project</span><span class="v">${a.project}</span></div>
-        <div class="pam-row"><span class="k">Version</span><span class="v">v${a.version}</span></div><div class="pam-row"><span class="k">Source cut-off</span><span class="v">${usesHistoricalSource(a)?SNAPSHOT_DATE:'Not recorded (demo)'}</span></div>
+        <div class="pam-row"><span class="k">文章版本</span><span class="v">v${a.version}</span></div><div class="pam-row"><span class="k">Source cut-off</span><span class="v">${usesHistoricalSource(a)?SNAPSHOT_DATE:'Not recorded (demo)'}</span></div>
         <div class="pam-row"><span class="k">Live published</span><span class="v">${a.publishedVersion?'v'+a.publishedVersion:'—'}</span></div>
         <div class="pam-row"><span class="k">Time</span><span class="v">${a.time}</span></div>
       </div>
-      <div class="pam-card">
+      ${a.archived?'':`<div class="pam-card">
         <div class="h">Audience &amp; cap</div>
         <div class="pam-row"><span class="k">Audience</span><span class="v">${a.audience}</span></div>
         <div class="pam-row"><span class="k">Demo devices</span><span class="v">${a.audienceCount.toLocaleString()}</span></div><div class="pam-row"><span class="k">Cohort sample</span><span class="v">${pushAudience(a).length} users · ${a.project==='—'?'general':'project'}</span></div>
@@ -1601,7 +1627,7 @@ function renderPamReview(){
         <div class="pam-row"><span class="k">Eligible today</span><span class="v">${pushEligible(a).length} / ${pushAudience(a).length} sample users · ${I.pushDay}</span></div>
         <div class="pam-note">Project notifications are ordered by publication time, then article ID, for each user.</div>
         ${a.project!=='—'&&hasPublishedVersion(a)?pushAudience(a).map(([id,u])=>`<div class="pam-row"><span class="k">${u.label}</span><span class="v">${projectPushStatus(a,id,u)}</span></div>`).join(''):''}
-      </div>
+      </div>`}
       ${a.status==='generating'?`<div class="pam-card"><div class="h">Generating</div><div class="pam-note">Draft is being generated. It will move to Pending review when complete; this is a local timer, not a real model call.</div></div>`:''}
       ${a.status==='pending_review'?`
         <div class="pam-card"><div class="h">Review actions</div>
@@ -1629,11 +1655,11 @@ function renderPamReview(){
       ${a.status==='generation_failed'?`<div class="pam-card"><div class="h">Generation failed</div><div class="pam-preview"><p><b>Reason:</b> ${esc(a.error||'Not recorded')}</p><p>No draft was produced. Retry creates a new generation attempt; it does not publish anything.</p></div><div class="pam-actions">${canGen?`<button class="pam-btn primary" data-action="pamGenerate" data-id="${a.id}">Retry generation</button>`:`<button class="pam-btn" disabled>Retry unavailable</button>`}</div></div>`:''}
       ${a.status==='pending_generation'?`
         <div class="pam-card"><div class="h">Not generated</div><div class="pam-note">Start a simulated generation. It will move to pending review; no real AI call is made.</div><div class="pam-actions">${canGen?`<button class="pam-btn primary" data-action="pamGenerate" data-id="${a.id}">Generate article</button>`:`<button class="pam-btn" disabled>Generate unavailable</button>`}</div></div>`:''}
-      ${hasPublishedVersion(a)?`
+      ${!a.archived&&hasPublishedVersion(a)?`
         <div class="pam-card"><div class="h">Publish result</div>
           <div class="pam-row"><span class="k">Article</span><span class="v" style="color:var(--green)">Published v${a.publishedVersion}</span></div>
           <div class="pam-row"><span class="k">Publication day (SGT)</span><span class="v">${a.publishedAt.slice(0,10)}</span></div>
-          <div class="pam-row"><span class="k">Push submission</span><span class="v">${pushBadge(a.push)}</span></div>
+          <div class="pam-row"><span class="k">Push submission</span><span class="v">${pushBadge(reviewPushResult(a))}</span></div>
           <div class="pam-actions">
             <button class="pam-btn" data-action="readPublished">${ART[a.id]?.historicalSample&&!I.boundProjects.includes(a.project)?'View as current reader (unbound)':'View published in App'}</button>
             ${ART[a.id]?.historicalSample&&!I.boundProjects.includes(a.project)?'<button class="pam-btn primary" data-action="previewBoundSample">Preview as a bound resident (demo)</button>':''}
@@ -1728,11 +1754,14 @@ function recoverGeneral(){
       body:'This sample market brief looks at resale transaction volumes and changes in the mix of homes sold. Compare the same period and home types before interpreting median prices. Check the dates in the source notes.',
       editSource:evidence.map(item=>item.name).join(' + '),evidenceSources:evidence,promptSnapshot:r.promptSnapshot};
     const push=r.sent>0?'sent':'skipped';
-    const reason=!pushOn?'Push paused in Generation Settings':time>=config.catchupCutoff?'GENERAL catch-up cutoff '+config.catchupCutoff+' SGT':!devices.length?'No eligible devices':!quota.length?'Public brief quota reached':null;
+    const [reason,reasonZh]=!pushOn?['Push paused in Generation Settings','生成设置中已暂停推送。']:
+      time>=config.catchupCutoff?['GENERAL catch-up cutoff '+config.catchupCutoff+' SGT','已过新加坡时间 '+config.catchupCutoff+' 的补通知截止。']:
+      !devices.length?['No eligible devices','没有开启通知的设备。']:
+      !quota.length?['Public brief quota reached','已达到当天的公共简报通知额度。']:[null,null];
     PAM[a.id]={...a,status:'published',reviewedVersion:1,publishedVersion:1,monitoring:false,
       push,sources:evidence.length,time,audience:'All app users',audienceCount:sample.length,generationTrigger:scheduled?'GENERAL_SCHEDULED':'GENERAL_RECOVERY',
       reviewHistory:[{version:1,decision:'Validated',actor:'system',at:GENERAL_RECOVERY_DATE+' '+time+' SGT',reason:'Daily Brief source and content checks passed (demo).'}],
-      pushBatches:[{batchId:GENERAL_RECOVERY_KEY+'-v1',version:1,title:a.title,project:'—',target:'All app users',status:push,retries:0,eligible:sample.length,sent:r.sent,skipped:sample.length-r.sent,day:GENERAL_RECOVERY_DATE,at:time,reason,demoReaderAccepted:eligible.some(([id])=>id==='A')}]};
+      pushBatches:[{batchId:GENERAL_RECOVERY_KEY+'-v1',version:1,title:a.title,project:'—',target:'All app users',status:push,retries:0,eligible:sample.length,sent:r.sent,skipped:sample.length-r.sent,day:GENERAL_RECOVERY_DATE,at:time,reason,reasonZh,demoReaderAccepted:eligible.some(([id])=>id==='A')}]};
     publishToCend(a);
     r.notificationNote=r.sent?'Published · channel accepted for '+r.sent+' sample user(s).':'Published · '+reason+'.';
     r.status='published'; render();
@@ -1904,39 +1933,56 @@ function renderPamSettings(){
   return `<div class="gset"><nav class="gset-nav" aria-label="Generation settings sections">${tabs}</nav>${panel}</div>`;
 }
 
+const PUSH_LOG_STATUS = {
+  sent:['green','渠道已受理'],
+  failed:['red','渠道失败'],
+  unknown:['amber','结果未知 · 额度保留'],
+  skipped:['amber','已跳过']
+};
+
 function pushAttemptCounts(batch){
-  let channelCount=batch.sent.toLocaleString('en-SG')+' accepted';
-  if(batch.status==='skipped') channelCount='';
-  if(batch.status==='unknown') channelCount=batch.unknown.toLocaleString('en-SG')+' unconfirmed';
+  const people=n=>n.toLocaleString('en-SG')+' 人';
+  let channelCount=batch.sent?people(batch.sent)+'已受理':'';
+  if(batch.status==='unknown') channelCount=people(batch.unknown)+'待确认';
   if(batch.status==='failed'){
     const failed=batch.eligible-(batch.waiting||0)-(batch.skipped||0);
-    channelCount=failed.toLocaleString('en-SG')+' failed';
+    channelCount=people(failed)+'失败';
   }
   return [
     channelCount,
-    batch.waiting?batch.waiting.toLocaleString('en-SG')+' waiting':'',
-    batch.skipped?batch.skipped.toLocaleString('en-SG')+' skipped':''
+    batch.waiting?people(batch.waiting)+'等待处理':'',
+    batch.skipped?people(batch.skipped)+'已跳过':''
   ].filter(Boolean).join(' · ');
 }
 
 function renderPamPushLog(){
-  const rows = [...allowedPam().flatMap(a=>a.pushBatches), ...PUSH_LOG_HISTORY.filter(inScope)]
-    .sort((x,y)=>(y.day+' '+y.at).localeCompare(x.day+' '+x.at));
-  return `<div class="pam-note" style="margin:0 0 10px"><b>${rows.length} ${rows.length===1?'attempt':'attempts'}</b> · Simulated notifications. “Accepted” confirms channel submission. Device delivery requires a separate receipt.</div>
-  <div class="notification-log" role="region" aria-label="Push attempts" tabindex="0">
-    <table aria-label="Notification submission log"><thead><tr>
-      <th scope="col">Batch / article</th><th scope="col">Project</th><th scope="col">Version</th>
-      <th scope="col">Audience</th><th scope="col">Channel result</th>
-      <th scope="col">Device delivery</th><th scope="col" class="count">Retries</th>
+  const rows = [
+    ...allowedPam().flatMap(article=>article.pushBatches.map(batch=>({...batch,articleId:article.id}))),
+    ...PUSH_LOG_HISTORY.filter(inScope)
+  ].sort((a,b)=>(b.day+' '+b.at).localeCompare(a.day+' '+a.at)||b.retries-a.retries);
+  return `<div class="pam-note" style="margin:0 0 10px"><b>${rows.length} 条模拟记录</b> · 推送时间为本次处理的记录时间，使用新加坡时间。设备送达以回执为准。</div>
+  <div class="notification-log" role="region" aria-label="推送记录" tabindex="0">
+    <table aria-label="推送日志"><thead><tr>
+      <th scope="col">文章标题</th><th scope="col">推送时间</th><th scope="col">文章版本</th>
+      <th scope="col">楼盘</th><th scope="col">目标受众</th><th scope="col">渠道处理结果</th>
+      <th scope="col">设备送达</th><th scope="col" class="count">重试次数</th>
     </tr></thead><tbody>
-    ${rows.length?rows.map(b=>`<tr>
-      <td><strong>${esc(b.batchId)}</strong><div class="detail">${esc(b.title)}</div><div class="detail">${b.day} ${b.at} SGT</div></td>
-      <td>${esc(b.project)}</td><td>v${b.version}</td>
-      <td>${esc(b.target)}<div class="detail">${b.eligible.toLocaleString('en-SG')} recipients</div></td>
-      <td>${pushBadge(b.status)}<div class="detail">${pushAttemptCounts(b)}</div>${b.reason?'<div class="detail">'+esc(b.reason)+'</div>':''}</td>
-      <td>${['failed','skipped'].includes(b.status)?'Not applicable':'No receipt'}</td>
-      <td class="count">${b.retries}</td>
-    </tr>`).join(''):'<tr><td colspan="7">No push attempts recorded.</td></tr>'}
+    ${rows.length?rows.map(batch=>{
+      const article=reviewArticle(batch.articleId);
+      const canOpen=hasPerm('ai:insight:article:read')&&article?.version===batch.version&&inScope(article);
+      const [color,label]=PUSH_LOG_STATUS[batch.status];
+      const counts=pushAttemptCounts(batch);
+      const title=esc(batch.title);
+      return `<tr>
+        <td>${canOpen?`<button type="button" class="article-link" data-action="pamSelect" data-id="${esc(batch.articleId)}" data-version="${batch.version}">${title}</button>`:`<strong>${title}</strong>`}</td>
+        <td><time datetime="${batch.day}T${batch.at}:00+08:00">${batch.day} ${batch.at}</time></td>
+        <td>v${batch.version}</td><td>${batch.project==='—'?'公共简报':esc(batch.project)}</td>
+        <td>${batch.project==='—'?'App 用户':'已验证业主和住户'}<div class="detail">${batch.eligible.toLocaleString('en-SG')} 人</div></td>
+        <td><span class="tag ${color}">${label}</span>${counts?`<div class="detail">${counts}</div>`:''}${batch.reasonZh?`<div class="detail">${esc(batch.reasonZh)}</div>`:''}</td>
+        <td>${['failed','skipped'].includes(batch.status)?'不适用':'暂无回执'}</td>
+        <td class="count">${batch.retries}</td>
+      </tr>`;
+    }).join(''):'<tr><td colspan="8">暂无推送记录。</td></tr>'}
     </tbody></table></div>`;
 }
 
@@ -1962,7 +2008,7 @@ function renderConsole(){
   const aiArticle=['article','domus'].includes(I.screen);
   const a=aiArticle?ART[I.articleId]:null;
   const ctx=validQuestionContext(a)?I.questionContext:null;
-  const pam=PAM[I.pamSelected];
+  const pam=reviewArticle(I.pamSelected);
   $('#statebox').innerHTML = I.tab==='cend'
     ? `<div class="kv"><span class="k">Tab</span><span class="v">C-end</span></div>
        <div class="kv"><span class="k">Screen</span><span class="v">${I.screen}</span></div>
@@ -1980,8 +2026,8 @@ function renderConsole(){
        <div class="kv"><span class="k">Selected</span><span class="v">${I.pamSelected||'—'}</span></div>
        <div class="kv"><span class="k">Article</span><span class="v">${pam?pam.status+' · v'+pam.version:'—'}</span></div>
        <div class="kv"><span class="k">Reviewed</span><span class="v">${pam&&pam.reviewedVersion?'v'+pam.reviewedVersion:'—'}</span></div>
-       <div class="kv"><span class="k">Push</span><span class="v">${pam?pam.push:'—'}</span></div>
-       <div class="kv"><span class="k">Eligible users</span><span class="v">${pam&&pam.project!=='—'?pushSummary(pam):'—'}</span></div>`;
+       <div class="kv"><span class="k">Push</span><span class="v">${pam?reviewPushResult(pam):'—'}</span></div>
+       <div class="kv"><span class="k">Eligible users</span><span class="v">${pam&&!pam.archived&&pam.project!=='—'?pushSummary(pam):'—'}</span></div>`;
   $('#checklist').innerHTML = I.tab==='cend'
     ? `<div><b>人工新闻</b> · Project Details → Property News → More → 阅读原 CMS 稿件样例。</div>
        <div><b>AI 舆情</b> · Home → Property Insights，切换 Daily Brief / My Projects。</div>
@@ -2072,10 +2118,11 @@ function bind(){
         I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; render(); return;
       }
       if(a==='pamSelect'){
-        const art=PAM[el.dataset.id];
+        const art=reviewArticle(el.dataset.id);
         if(!hasPerm('ai:insight:article:read')){ I.pamToast='Blocked: missing ai:insight:article:read.'; render(); return; }
         if(!art || !inScope(art)){ I.pamToast='Blocked: article is outside the current project scope.'; render(); return; }
-        I.pamReviewFrom=I.pamView==='projects'?'projects':'queue';
+        if(I.pamView==='pushlog'&&Number(el.dataset.version)!==art.version) return;
+        I.pamReviewFrom=['projects','pushlog'].includes(I.pamView)?I.pamView:'queue';
         I.pamSelected=el.dataset.id; I.pamView='review'; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; render(); return;
       }
       if(a==='saveBriefTopic'){
@@ -2416,15 +2463,15 @@ function pamPush(id){
     if(waiting){
       I.pamToast='Waiting for the earlier published article. No quota reserved for this attempt.'; render(); return;
     }
-    const reason=pushBlockReason(a);
+    const [reason,reasonZh]=pushBlockReason(a);
     const existing=a.pushBatches.findLast(b=>b.version===a.publishedVersion&&['sent','unknown'].includes(b.status));
-    a.pushBatches.push({...base,status:'skipped',sent:0,retries:a.retries||0,reason});
+    a.pushBatches.push({...base,status:'skipped',sent:0,retries:a.retries||0,reason,reasonZh});
     a.push=existing?.status||'skipped'; I.pamToast='Skipped: '+reason+'.'; render(); return;
   }
   if(a.push==='failed') a.retries++;
   if(I.pamPushFailNext){
     I.pamPushFailNext=false;
-    a.pushBatches.push({...base,status:'failed',sent:0,retries:a.retries,reason:'simulated push gateway failure'});
+    a.pushBatches.push({...base,status:'failed',sent:0,retries:a.retries,reason:'simulated push gateway failure',reasonZh:'模拟推送渠道故障，已确认失败。'});
     a.push='failed'; I.pamToast='Push failed in the demo. The batch is recorded; retry is available.'; render(); return;
   }
   const unknown=I.pamPushUnknownNext;
@@ -2438,7 +2485,8 @@ function pamPush(id){
   const status=unknown?'unknown':'sent';
   a.pushBatches.push({...base,status,sent:unknown?0:eligible.length,unknown:unknown?eligible.length:0,retries:a.retries||0,
     demoReaderAccepted:!unknown&&eligible.some(([uid])=>uid==='A'),
-    reason:unknown?'Submission outcome unknown; daily quota remains reserved; no automatic resend':null});
+    reason:unknown?'Submission outcome unknown; daily quota remains reserved; no automatic resend':null,
+    reasonZh:unknown?'提交结果未知，保留当日额度，等待核对。':null});
   a.push=waiting?'partial':status;
   I.pamToast=unknown?'Submission unknown. Quota remains occupied; retry is blocked until reconciliation.':
     'Channel accepted for '+eligible.length+'/'+pending.length+' sample users; batch '+base.batchId+'.';
@@ -2495,7 +2543,7 @@ if(qp.get('sample')==='twoProjects') I.boundProjects=Object.keys(PROJECT_BINDING
 if(qp.get('view')==='myProjects') I.listTab='projects';
 if(['appHome','appAssistant','projectDetails','editorialList'].includes(qp.get('view'))) I.screen=qp.get('view');
 if(qp.get('project')==='tembusu') I.activeProject='Tembusu Grand';
-if(qp.get('mode')==='pam'){ I.tab='pam'; I.pamView=qp.get('pam')||'queue'; if(Object.hasOwn(PAM,qp.get('review'))) I.pamSelected=qp.get('review'); }
+if(qp.get('mode')==='pam'){ I.tab='pam'; I.pamView=qp.get('pam')||'queue'; if(reviewArticle(qp.get('review'))) I.pamSelected=qp.get('review'); }
 if(qp.get('focus')==='recovery') I.settingsView='runs';
 if(qp.get('focus')==='prompts') I.settingsView='prompts';
 if(qp.get('article')) openArticle(qp.get('article'));
