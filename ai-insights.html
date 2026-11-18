@@ -590,10 +590,10 @@ const PROJECT_CATALOG = [
 
 const PAM_INIT = {
   G1:{id:'G1', title:ART.G1.title, project:'—', sources:ART.G1.sources.length, version:3, reviewedVersion:3, monitoring:false, status:'published', push:'sent', pushBatches:[{batchId:'G1-B1',version:3,title:ART.G1.title,demoReaderAccepted:true,project:'—',target:'All app users',status:'sent',eligible:12400,sent:12400,skipped:0,retries:0,day:'2026-11-10',at:'08:05'}], time:'08:00', audience:'All app users', audienceCount:12400, summary:ART.G1.summary, body:Array.from(new DOMParser().parseFromString(ART.G1.body,'text/html').querySelectorAll('p,li'),node=>node.textContent).join(' ')},
-  P6:{id:'P6', title:'The Landmark: October transactions update', project:'The Landmark', sources:4, version:1, reviewedVersion:null, monitoring:true, status:'pending_review', push:'not_sent', pushBatches:[], time:'06:20', audience:'Verified owners & residents', audienceCount:420, body:'Three 3-bedroom units at The Landmark changed hands at S$2,080–2,120 psf in October, around the 24-month median of S$2,040. Mid-floor stacks led the activity, while high-floor units continued to clear at a premium. The sample is still small; this is an update, not a new price floor.', rejectReason:'', pamQuestions:['What changed in October?','Does this change my unit’s range?','How does this compare with District 3?'], editSource:'URA caveats + EdgeProp + CNA + BT'},
-  T1:{id:'T1', title:'Tembusu Grand: how to assess walking access to the MRT', project:'Tembusu Grand', sources:0, version:0, reviewedVersion:null, monitoring:true, status:'pending_generation', push:'not_sent', pushBatches:[], time:'—', audience:'Verified owners & residents', audienceCount:310, body:'', rejectReason:'', pamQuestions:[], editSource:'LTA + URA + CNA + BT'},
-  C1:{id:'C1', title:'Parc Clematis: rental yields slip to 3.1%', project:'Parc Clematis', sources:3, version:1, reviewedVersion:null, monitoring:true, status:'rejected', push:'not_sent', pushBatches:[], time:'06:22', audience:'Verified owners & residents', audienceCount:280, body:'Rental yields at Parc Clematis slipped to 3.1% in October as asking rents softened. The change is small and based on a thin sample; the article should be rewritten with the latest URA rental data.', rejectReason:'Source date mismatch: URA figure is from August, not October.', pamQuestions:['Are yields still falling?','What is the net yield?','Should owners rent or sell?'], editSource:'CNA + EdgeProp + URA'},
-  F1:{id:'F1', title:'Normanton Park: 3-bedroom rents up 4% QoQ', project:'Normanton Park', sources:0, version:0, reviewedVersion:null, monitoring:true, status:'generation_failed', push:'not_sent', pushBatches:[], time:'06:25', audience:'Verified owners & residents', audienceCount:180, body:'', error:'Source timeout during generation', rejectReason:'', pamQuestions:[], editSource:'CNA + URA demo'}
+  P6:{id:'P6', title:'The Landmark: one September deal at S$2,208 psf is too thin to re-rate the project', project:'The Landmark', sources:1, version:1, reviewedVersion:null, monitoring:true, status:'pending_review', push:'not_sent', pushBatches:[], time:'06:20', audience:'Verified owners & residents', audienceCount:420, body:'A single 495 sqft unit at The Landmark sold in September at S$2,208 psf, 22% below the 24-month median of S$2,830 psf. One transaction cannot be read as a project-level move: small units trade at a different PSF from larger stacks, and a single print is dominated by that difference. This update records one sale. It does not support a new price level, and the 24-month median remains the reference until more deals print.', rejectReason:'', pamQuestions:['Does this change the range for a 495 sqft unit?','Is one deal a month normal for The Landmark?','Why is a single small-unit sale not a trend?'], editSource:'URA caveats (internal baseline) · cutoff 2025-10-07'},
+  T1:{id:'T1', title:'Tembusu Grand: first update pending generation', project:'Tembusu Grand', sources:0, version:0, reviewedVersion:null, monitoring:true, status:'pending_generation', push:'not_sent', pushBatches:[], time:'—', audience:'Verified owners & residents', audienceCount:310, body:'', rejectReason:'', pamQuestions:[], editSource:'URA caveats (internal baseline)'},
+  C1:{id:'C1', title:'Parc Clematis: October median at S$2,165 psf, 5% above the 24-month level', project:'Parc Clematis', sources:1, version:1, reviewedVersion:null, monitoring:true, status:'rejected', push:'not_sent', pushBatches:[], time:'06:22', audience:'Verified owners & residents', audienceCount:280, body:'Four units at Parc Clematis sold in October at a median of S$2,165 psf, against a 24-month median of S$2,060 psf. The deals ranged from 452 to 915 sqft and from S$2,035 to S$2,388 psf. The October spread between the smallest and largest unit was S$353 psf, wider than the month-on-month move.', rejectReason:'Unit mix not disclosed: the median move is driven by 452 sqft units.', pamQuestions:['Does this change the range for a 452–915 sqft unit?','Is four deals a month normal for Parc Clematis?','Why is the small-unit spread so wide here?'], editSource:'URA caveats (internal baseline) · cutoff 2025-10-07'},
+  F1:{id:'F1', title:'Normanton Park: first update failed during generation', project:'Normanton Park', sources:0, version:0, reviewedVersion:null, monitoring:true, status:'generation_failed', push:'not_sent', pushBatches:[], time:'06:25', audience:'Verified owners & residents', audienceCount:180, body:'', error:'Source timeout during generation', rejectReason:'', pamQuestions:[], editSource:'URA caveats (internal baseline)'}
 };
 PAM_INIT.G1.editSource=ART.G1.sources.map(source=>source.name).join(' + ');
 PAM_INIT.G1.pamQuestions=ART.G1.questions.map(q=>q.q);
@@ -1523,7 +1523,7 @@ function bind(){
         I.targetProjects.push(project);
         if(existing){ existing.monitoring=true; I.pamSelected=existing.id; I.pamView='projects'; I.pamToast='Re-added '+project+'. Existing articles are kept.'; if(existing.version<1 && !existing.firstGenerationRequested){existing.firstGenerationRequested=true;pamGenerate(existing.id,'PROJECT_FIRST_ENABLE');return;} render(); return; }
         const id='N'+(Object.keys(PAM).length+1);
-        PAM[id]={id,title:project+': monitoring started',project,sources:0,version:0,reviewedVersion:null,monitoring:true,status:'pending_generation',push:'not_sent',pushBatches:[],time:'—',audience:'Verified owners & residents',audienceCount:meta.audienceCount,body:'',rejectReason:'',pamQuestions:[],editSource:'URA + EdgeProp + 99.co'};
+        PAM[id]={id,title:project+': first update pending',project,sources:0,version:0,reviewedVersion:null,monitoring:true,status:'pending_generation',push:'not_sent',pushBatches:[],time:'—',audience:'Verified owners & residents',audienceCount:meta.audienceCount,body:'',rejectReason:'',pamQuestions:[],editSource:'URA + EdgeProp + 99.co'};
         I.pamSelected=id; I.pamView='projects'; I.pamEditing=false; I.pamRejectOpen=false; PAM[id].firstGenerationRequested=true; pamGenerate(id,'PROJECT_FIRST_ENABLE'); return;
       }
       if(a==='pamRemoveProject'){
@@ -1554,11 +1554,50 @@ function bind(){
   }
 }
 
-function generatedBody(id){
-  if(id==='T1') return 'The sample considers how to compare walking routes from Tembusu Grand to MRT entrances. Follow the pedestrian route from the project gate and check the station map for entrances currently open. A proposed exit or opening date needs an official announcement before residents can rely on it.';
-  if(id==='C1') return 'Rental yields at Parc Clematis slipped to 3.1% in October as asking rents softened. The October sample is small. Compare leases of similar size over the same period before interpreting the change.';
-  if(id==='F1') return 'Three-bedroom rents at Normanton Park rose about 4% quarter on quarter in this demo. The sample covers three-bedroom units only. Check the lease dates and compare similar floor areas before applying the quarterly figure to a unit.';
-  return 'In the sample, three 3-bedroom units at The Landmark changed hands at S$2,080–2,120 psf in October, around the 24-month median of S$2,040. Mid-floor stacks led the activity, while high-floor units continued to clear at a premium. Three sales give a snapshot of activity and are too few to establish a new project-wide price floor.';
+// Demo article content for the prototype. Figures are real URA caveat aggregates
+// from TEST123 (cleaned_transaction_info), cutoff 2025-10-07, rounded to whole psf.
+// Only aggregates are shown: no unit numbers, no individual price rows.
+const PROJECT_ARTICLES = {
+  'The Continuum':{
+    title:'The Continuum: October median holds at S$2,909 psf on three deals',
+    body:'Three units at The Continuum changed hands in October at a median of S$2,909 psf, 1.5% above the 24-month median of S$2,866 psf. The deals covered 1,249 to 1,690 sqft and closed between S$2,885 and S$2,922 psf. Volume has fallen for three months, from eight deals in August to five in September and three in October, while the monthly median moved less than 3%. The project is quiet rather than repricing. For owners, the practical risk is time on market rather than a lower PSF. With three deals a month a single sale moves the median, so treat October as an update, not a new price level.',
+    source:'URA caveats (internal baseline) · cutoff 2025-10-07',
+    questions:['Does this change the range for a 1,249–1,690 sqft unit?','Is three deals a month normal for The Continuum?','How does the D15 cohort compare with this project?']},
+  'Parc Clematis':{
+    title:'Parc Clematis: October median at S$2,165 psf, 5% above the 24-month level',
+    body:'Four units at Parc Clematis sold in October at a median of S$2,165 psf, against a 24-month median of S$2,060 psf. The deals ranged from 452 to 915 sqft and from S$2,035 to S$2,388 psf. Volume fell from eleven deals in August to four in September and four in October. September’s median dipped to S$1,984 psf before recovering in October, so the monthly series is volatile at this sample size. The October spread between the smallest and largest unit was S$353 psf, wider than the month-on-month move: unit size and stack explain more of the variance than the market does.',
+    source:'URA caveats (internal baseline) · cutoff 2025-10-07',
+    questions:['Does this change the range for a 452–915 sqft unit?','Is four deals a month normal for Parc Clematis?','Why is the small-unit spread so wide here?']},
+  'Normanton Park':{
+    title:'Normanton Park: September median at S$2,151 psf on ten deals',
+    body:'Ten units at Normanton Park sold in September at a median of S$2,151 psf, 2.7% above the 24-month median of S$2,094 psf. Deals ranged from 797 to 1,313 sqft and from S$1,769 to S$2,196 psf. Volume eased from fifteen deals in August to ten in September while the median rose, a combination that points to a thinner market rather than stronger pricing. At ten deals a month the median is still sensitive to unit mix, so check the size band before reading the move as a price change.',
+    source:'URA caveats (internal baseline) · cutoff 2025-10-07',
+    questions:['Does this change the range for a 797–1,313 sqft unit?','Is ten deals a month normal for Normanton Park?','How much of the move is unit mix?']},
+  'Tembusu Grand':{
+    title:'Tembusu Grand: October median at S$2,358 psf on two deals',
+    body:'Two units at Tembusu Grand sold in October at a median of S$2,358 psf, 2.4% below the 24-month median of S$2,416 psf. Both deals were 1,711 sqft and closed at S$2,354 and S$2,361 psf. Volume dropped from thirteen deals in September to two in October. With identical unit sizes the two October prints carry almost no price signal. Treat this as a transaction record, not a trend: a two-deal month cannot establish a new level for the project.',
+    source:'URA caveats (internal baseline) · cutoff 2025-10-07',
+    questions:['Does this change the range for a 1,711 sqft unit?','Why did volume fall from thirteen deals to two?','Can two deals establish a new price level?']},
+  'Sky Everton':{
+    title:'Sky Everton: two September deals at S$2,682 psf',
+    body:'Two units at Sky Everton sold in September at a median of S$2,682 psf, 4.8% below the 24-month median of S$2,818 psf. The deals were 624 to 764 sqft and closed at S$2,487 and S$2,877 psf. Two transactions in a month, spanning a S$390 psf range, are not enough to describe a project trend. This update is a record of what sold, not evidence of a price move; more months of data are needed before the median can be read as direction.',
+    source:'URA caveats (internal baseline) · cutoff 2025-10-07',
+    questions:['Does this change the range for a 624–764 sqft unit?','Is two deals a month normal for Sky Everton?','What sample size would make this median reliable?']},
+  'The Landmark':{
+    title:'The Landmark: one September deal at S$2,208 psf is too thin to re-rate the project',
+    body:'A single 495 sqft unit at The Landmark sold in September at S$2,208 psf, 22% below the 24-month median of S$2,830 psf. One transaction cannot be read as a project-level move: small units trade at a different PSF from larger stacks, and a single print is dominated by that difference. This update records one sale. It does not support a new price level, and the 24-month median remains the reference until more deals print.',
+    source:'URA caveats (internal baseline) · cutoff 2025-10-07',
+    questions:['Does this change the range for a 495 sqft unit?','Is one deal a month normal for The Landmark?','Why is a single small-unit sale not a trend?']}
+};
+function articleFor(project){
+  const a=PROJECT_ARTICLES[project];
+  if(a) return a;
+  return {
+    title:project+': no verified transactions in the current window',
+    body:'No dated transaction record was available for this project in the current window, so no price statement is made. The article is withheld from publication until evidence is available.',
+    source:'URA caveats (internal baseline) · no records in window',
+    questions:['Why is there no update for this project?','What evidence is required before publishing?','When will this project be reviewed again?']
+  };
 }
 function pamGenerate(id,trigger){
   const a=PAM[id]; if(!a) return;
@@ -1572,9 +1611,10 @@ function pamGenerate(id,trigger){
   setTimeout(()=>{
     if(a.generationToken!==token || (I.pamResetEpoch||0)!==epoch || PAM[id]!==a) return;
     a.status='pending_review'; a.version=(a.version||0)+1; a.reviewedVersion=null; a.time='06:31';
-    a.sources=(a.editSource||'').split('+').map(x=>x.trim()).filter(Boolean).length;
-    a.body=id.startsWith('N')?'Project update for '+a.project+'. This sample shows how to read a project update. Check the dated sources for the period covered and the details that apply to your building.':generatedBody(id);
-    if(!a.pamQuestions.length) a.pamQuestions=['What does the latest update say?','Which sources support this update?','What should a resident check next?'];
+    const art=articleFor(a.project);
+    a.title=art.title; a.body=art.body; a.editSource=art.source;
+    a.sources=(art.source||'').split('+').map(x=>x.trim()).filter(Boolean).length;
+    if(!a.pamQuestions.length) a.pamQuestions=art.questions;
     I.pamGenerating=null; I.pamSelected=id; I.pamView='review'; I.pamToast='Draft generated. Moved to pending review.'; render();
   }, 1100);
 }
