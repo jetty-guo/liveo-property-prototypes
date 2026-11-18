@@ -1305,7 +1305,10 @@ function renderPamProjects(){
   }).join('');
   return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
   <div class="pam-card"><div class="h">Project monitoring</div>
-    <div class="pam-filters"><input type="search" id="pamProjectSearch" aria-label="Search projects" placeholder="Search by project name" value="${esc(I.projectQuery)}" /></div>
+    <div class="pam-filters">
+      <input type="search" id="pamProjectSearch" aria-label="Search projects" placeholder="Search projects" value="${esc(I.projectQuery)}" />
+      ${hasPerm('ai:insight:config:read')?'<button type="button" class="pam-btn" data-action="pamView" data-view="settings" data-section="sources">Prompt bindings</button>':''}
+    </div>
     <div class="pam-note">Search by name to add a project. Its first draft will go to the review queue.</div>
   </div>
   <section aria-labelledby="projectListTitle"><h3 class="project-group-title" id="projectListTitle">Monitored projects</h3>
@@ -1534,12 +1537,12 @@ function renderPromptBindings(config,draft,dirty,canWrite){
   const bindings=draft.promptBindings;
   const project=I.promptProject;
   const choices=PROJECT_CATALOG.filter(item=>inScope(item));
-  const select=(id,label,track,value,inherit='')=>`<label for="${id}">${label}
+  const select=(id,label,track,value,inherit='')=>`<div><label for="${id}">${label}</label>
     <select id="${id}" data-prompt-binding="${id}" ${canWrite?'':'disabled'}>
       ${inherit?`<option value="" ${value?'':'selected'}>${inherit}</option>`:''}
       ${Object.entries(PUBLISHED_PROMPTS[track]).map(([key,item])=>`<option value="${key}" ${value===key?'selected':''}>${esc(promptLabel(item))}</option>`).join('')}
     </select>
-    ${!inherit?`<code>${esc(PUBLISHED_PROMPTS[track][value].code)}</code>`:''}</label>`;
+    ${!inherit?`<code>${esc(PUBLISHED_PROMPTS[track][value].code)}</code>`:''}</div>`;
   const effective=project?effectivePrompt(draft,project):null;
   const overrides=choices.filter(x=>bindings.overrides[x.project]);
   return `<section class="gset-card"><header class="gset-head"><h3>Prompt bindings</h3><small>Rev. ${config.revision}</small></header>
@@ -1552,10 +1555,10 @@ function renderPromptBindings(config,draft,dirty,canWrite){
       <div class="gset-prompt-scope"><h3>Project overrides</h3>
         <p>Set a template for a specific project, or let it inherit the project default.</p>
         <div class="gset-fields">
-          <label for="promptProjectChoice">Project<select id="promptProjectChoice">
+          <div><label for="promptProjectChoice">Project</label><select id="promptProjectChoice">
             <option value="">Select a project</option>
             ${choices.map(item=>`<option value="${esc(item.project)}" ${project===item.project?'selected':''}>${esc(item.project)}</option>`).join('')}
-          </select></label>
+          </select></div>
           ${project?select('promptProjectOverride','Project template','project',bindings.overrides[project]||'','Use project default'):''}
         </div>
         ${effective?`<p data-effective-prompt><strong>${effective.binding}:</strong> <code>${esc(effective.code)}</code> · v${effective.version}</p>`:''}
@@ -1571,7 +1574,7 @@ function renderPamSettings(){
   const config=I.pamSettings, draft=I.configDraft||config;
   const canWrite=authN('settings',null,true).ok;
   const dirty=configurationChanges(draft,config).length>0;
-  const views=[['controls','Configuration'],['sources','Sources & prompts'],['runs','Daily Brief runs']];
+  const views=[['controls','Configuration'],['sources','Prompt bindings'],['runs','Daily Brief runs']];
   const tabs=views.map(([id,name])=>`<button type="button" data-action="settingsView" data-view="${id}" aria-pressed="${I.settingsView===id}">${name}</button>`).join('');
   let panel;
   if(I.settingsView==='runs') panel=renderGeneralRecovery();
@@ -1746,7 +1749,13 @@ function bind(){
       if(a==='pamView'){
         const vp={projects:'ai:insight:view',queue:'ai:insight:article:read',review:'ai:insight:article:read',pushlog:'ai:insight:push:read',settings:'ai:insight:config:read'}[el.dataset.view];
         if(vp && !hasPerm(vp)){ I.pamToast='Blocked: missing '+vp+'. The local state was not changed.'; render(); return; }
-        I.pamView=el.dataset.view; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; render(); return;
+        I.pamView=el.dataset.view;
+        const opensPromptBindings=I.pamView==='settings'&&el.dataset.section==='sources';
+        if(opensPromptBindings) I.settingsView='sources';
+        I.pamEditing=false; I.pamRejectOpen=false; I.pamToast='';
+        render();
+        if(opensPromptBindings) $('#stage [data-action="settingsView"][data-view="sources"]')?.focus();
+        return;
       }
       if(a==='pamSelect'){
         const art=PAM[el.dataset.id];
