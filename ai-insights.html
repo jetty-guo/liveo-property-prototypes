@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <link rel="icon" href="data:," />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>RE9 AI Property Insights — Interactive Prototype v0.3</title>
+<title>RE9 AI Property Insights — Interactive Prototype Review</title>
 <style>
   :root{
     --ink:#111827; --muted:#6B7280; --line:#E5E7EB; --bg:#F5F6F7;
@@ -246,10 +246,6 @@
   table.cov th,table.cov td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:10px;vertical-align:top;line-height:1.55}
   table.cov th{background:#F8FAFC;font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
   table.cov tr:last-child td{border-bottom:0}
-  .rules{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 18px;font-size:10.5px;line-height:1.75;color:#374151}
-  .rules ol{margin:6px 0 0;padding-left:18px}
-  .rules li{margin-bottom:5px}
-  .footer-note{max-width:1180px;margin:0 auto;padding:0 32px 50px;font-size:9px;color:var(--muted);line-height:1.6}
   @media(max-width:1200px){.pam:not(.demo-wrap){width:100%;min-width:0}.demo-wrap.pam{grid-template-columns:1fr;justify-items:start}}
   @media(max-width:900px){.pam-side{width:150px}}
 
@@ -275,7 +271,16 @@
 .phone .app-dock a,.phone .app-dock button{min-height:48px;border:0;background:none;display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:10px;color:#666;gap:3px;cursor:pointer;font-family:inherit}
 .phone .app-dock .selected{color:#0355D5}.phone .app-dock img{width:24px;height:24px;object-fit:contain}.phone .app-dock .lio img{width:48px;height:48px}
 .phone .app-context-note{font-size:12px;color:#666;line-height:1.5;margin-top:16px}
+.phone .news-section{border:1px solid #E5E5E5;border-radius:10px;background:#fff;padding:14px;margin:0 0 12px}
+.phone .news-section.insights{border-color:#D2E3FC;background:#F7FAFF}
+.phone .news-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.phone .news-title h2{margin:0;font-size:17px;line-height:1.35}
+.phone .news-caption{font-size:12px;color:#595959;margin:3px 0 0}
+.phone .news-link{display:block;width:100%;min-height:44px;text-align:left;background:none;border:0;border-top:1px solid #E5E5E5;color:var(--ink);font:inherit;padding:10px 0;margin-top:8px;cursor:pointer}
+.phone .news-link b{display:block;font-size:14px;line-height:1.4}
+.phone .news-link span{display:block;margin-top:3px;font-size:11px;color:#595959}
 .phone .hero h4{font-size:20px}.phone .hero{padding:16px}.phone .hero .eyebrow,.phone .hero .meta,.phone .hero .more{font-size:12px}
+.phone .brief-summary{margin:6px 0;color:var(--muted);font-size:13px;line-height:1.5}
 .phone .tabs button{font-size:14px;min-height:44px}.phone .row{padding:16px 0}.phone .row .t{font-size:15px}.phone .row .m{font-size:11px;flex-wrap:wrap}
 .phone .pcard{padding:14px;margin-bottom:12px}.phone .pcard .t{font-size:15px}.phone .pcard .s{font-size:12px}.phone .badge{font-size:11px}.phone .section b,.phone .section span{font-size:11px}
 .phone .phone-body h1{font-size:25px;line-height:1.3}.phone .dek{font-size:15px}.phone .bodytext{font-size:15px;line-height:1.75}.phone .bodytext p{margin:14px 0}
@@ -291,6 +296,15 @@
  body[data-preview-mode="cend"] .phone-col{position:static}
  body[data-preview-mode="cend"] .phone{width:100%;height:100dvh;min-height:0;border-radius:0;border:0;box-shadow:none}
  body[data-preview-mode="cend"] .stage{width:100%;max-width:none}
+ #demoWrap.pam{padding:12px}
+ #demoWrap.pam .stage{width:100%}
+ #demoWrap.pam #stage .pam{height:auto;display:block}
+ #demoWrap.pam .pam-side{width:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:8px}
+ #demoWrap.pam .pam-side>div:not(.navi){display:none}
+ #demoWrap.pam .pam-body{padding:12px;overflow-wrap:anywhere}
+ #demoWrap.pam .pam-table{overflow-x:auto}
+ #demoWrap.pam .pam-table .ptr{min-width:560px}
+ #demoWrap.pam .pam-select{max-width:100%}
 }
 
 
@@ -303,14 +317,11 @@
 <body>
 
 <header class="page-head">
-  <div class="kicker">RE9 · AI Property Insights · Interactive prototype v0.3</div>
+  <div class="kicker">RE9 · AI Property Insights · Interactive prototype review</div>
   <h1>AI 舆情 — 可操作原型</h1>
-  <p>按本地 RE9 快照（版本 3）补齐：双轨内容、3–4 个推荐问题、Article_ID 上下文交接、PAM 项目配置与四态审核、驳回原因与重写、发布与推送状态区分、每日频控与关闭 Push 后列表仍可读。所有文章、来源、人数与推送均为演示数据，不是真实新闻或真实送达。</p>
+  <p>在项目详情可以分别打开既有 Property News 和新增 Project Insights。两条阅读路径使用各自的演示文章。</p>
   <div class="meta">
-    <span class="pill">2026-11-13</span>
-    <span class="pill">RE8／RE9快照 · 本轮确认规则已同步</span>
-    <span class="pill">可点击 · 本地模拟</span>
-    <span class="pill">Demo data</span>
+    <span class="pill">2026-11-18 · 原型评审</span>
   </div>
 </header>
 
@@ -319,10 +330,10 @@
 
   <aside class="console">
     <h2>Review console</h2>
-    <div class="sub">切换场景只用于评审，不是产品流程。C 端与 PAM 各自保留本地状态。</div>
+    <div class="sub">App 内可分别阅读人工新闻和 AI 舆情。AI Insights Admin 用于评审 RE9 的生成、审核与推送。</div>
     <div class="mode-tabs" id="modeTabs">
-      <button data-action="mode" data-mode="cend" class="on">C-end app</button>
-      <button data-action="mode" data-mode="pam">PAM ops</button>
+      <button data-action="mode" data-mode="cend" class="on">App preview</button>
+      <button data-action="mode" data-mode="pam">AI Insights Admin</button>
     </div>
 
     <div class="label">Demo actions</div>
@@ -336,41 +347,26 @@
 
     <div class="label">Demo links</div>
     <div style="font-size:9px;line-height:1.9">
-      <div><a href="https://kcnd4ywblq18.feishu.cn/wiki/CQyIwzgVeiyebvkdBQNcsV6XnDc" target="_blank" rel="noopener">Open requirement mapping →</a></div>
+      <div><a href="#screen-coverage">View screen and requirement coverage →</a></div>
       <div><a href="index.html">Back to review index →</a></div>
     </div>
 
-    <div class="footnote">本地模拟不含真实抓取、AI 调用、审核账号、推送通道或用户权限。文章、来源、推送人数与状态均为演示。PAM 的“发布”与“推送”是两条独立状态，不代表真实送达。C-end 与 PAM 使用独立演示数据，PAM 发布不会改动 C-end 列表。</div>
+    <div class="footnote">AI 后台发布的样例会出现在 Property Insights。Property News 的人工稿样例独立展示。文章、来源及通知状态均为演示数据。</div>
   </aside>
 </main>
 
 <section class="coverage">
-  <h2>Screen & state coverage</h2>
+  <h2 id="screen-coverage">Screen &amp; state coverage</h2>
   <table class="cov">
     <tr><th style="width:70px">Screen</th><th style="width:250px">What is interactive</th><th>Requirement coverage</th></tr>
-    <tr><td><b>N1</b> Property News</td><td>Daily Brief / My Projects tabs; open articles; settings.</td><td>General brief + project-specific aggregation; no user profiling; push-off still keeps list.</td></tr>
+    <tr><td>Property News</td><td>Project Details → Property News → article</td><td>Existing manually published news, with its own list and detail.</td></tr>
+    <tr><td><b>N1</b> Property Insights</td><td>Home → Property Insights → Daily Brief / My Projects</td><td>RE9 general and project articles with separate notification rules.</td></tr>
     <tr><td><b>N2</b> Article</td><td>3 recommended questions; source list; project attribution; demo disclaimer.</td><td>3–4 questions; source count matches list; name/date/evidence; project-only isolation.</td></tr>
     <tr><td><b>N3</b> Domus</td><td>Question → article-specific answer; different articles keep different contexts; custom input.</td><td>Silent Article_ID; 3–4 sentence answer; no article re-telling; sources separated.</td></tr>
-    <tr><td><b>N4</b> Project Insights</td><td>Only The Landmark articles; back to list; ask Domus.</td><td>Project page isolation; project attribution; no unrelated project content.</td></tr>
-    <tr><td><b>N5</b> PAM</td><td>Projects → generate → pending review; edit, reject with reason, regenerate, approve; push sent/skipped/failed.</td><td>Four states; target audience; cap check; published vs push; multi-project priority open.</td></tr>
-    <tr><td><b>N6</b> Settings</td><td>Master push, daily brief, project updates toggles.</td><td>1 general + 1 project max per day; push off still updates list; no extra project quota.</td></tr>
+    <tr><td><b>N4</b> Project Insights</td><td>Project Details → Project Insights → article → Lio</td><td>Published AI articles scoped to the current project and active binding.</td></tr>
+    <tr><td><b>N5</b> AI Insights Admin</td><td>Projects → generate → review → publish → notify</td><td>AI review and notification run independently from the existing news CMS.</td></tr>
+    <tr><td><b>N6</b> Settings</td><td>Device notification permission and its effect on the feed.</td><td>At most one general and one project notification per day. Published articles remain readable.</td></tr>
   </table>
-
-  <h2>Rules still to be decided</h2>
-  <div class="rules">
-    <ol>
-      <li><b>多项目绑定优先级</b>：每天只有 1 条项目专属 Push，但有多个绑定项目时先发哪个，RE9 未定义；原型不自行排序。</li>
-      <li><b>推送时段</b>：通用简报每日何时发布未定义；原型用 07:00 仅作演示。</li>
-      <li><b>审核 SLA 与权限</b>：谁审、多久审完、驳回后谁重写、是否留痕，未定义；原型只演示最小动作。</li>
-      <li><b>编辑能力</b>：富文本编辑器是否本期需要未确定；原型只做纯文本编辑，避免把选型写成已定需求。</li>
-      <li><b>来源链接</b>：生产需要可核验原文链接或证据位置；原型全部标“Demo / unverified”，不伪造 URL。</li>
-      <li><b>目标人数</b>：原型用 420 / 310 / 280 演示，真实受众口径与去重规则未定义。</li>
-      <li><b>情感评分</b>：RE9 / RE6 快照没有定义；本次不新增，不用 Positive/Watch 伪装成评分。</li>
-      <li><b>文章生成 Prompt</b>：推荐问题、项目归属、来源优先级仍需 PRD 细化；原型只验证交互。</li>
-    </ol>
-  </div>
-
-  <div class="footer-note">本地需求快照为 2026-11-03 导出的版本 3；本页不声称已核对飞书在线最新版本。录音只用于理解“通用舆情 + 项目专属 + 人工审核 + Domus 承接”的产品定位。所有文章、来源、日期、人数和推送结果均为演示数据。</div>
 </section>
 
 <script>
@@ -389,7 +385,7 @@ ART.G1 = {
   id:'G1', type:'general', project:null,
   kicker:'Daily Brief · 10 Nov 2026', title:'Prices up 0.8%, volume down 6%: what October’s resale data says',
   short:'Prices up 0.8%, volume down 6%', summary:'Slower but steadier: what October’s data means for D03 owners.',
-  read:'3 min read', updated:'07:00',
+  read:'3 min read', updated:'08:04 SGT',
   stats:[['+0.8%','Median resale PSF'],['−6%','Transaction volume'],['1,284','Deals in October']],
   body:`<p>October’s resale market was slower but not weaker. Median PSF held firm while transaction volume fell for a second month, led by District 3 and District 15.</p><ul><li>Volume fell 6% month on month; the drop is in deal count, not price.</li><li>New launch pricing stayed flat, narrowing the resale–new gap.</li><li>District 3 listings are taking about 11 days longer to move than in August.</li></ul><p>For owners, the practical risk is time-on-market rather than a sharp price correction. For buyers, the quieter market means more choice and more room to negotiate.</p>`,
   sources:[
@@ -401,9 +397,9 @@ ART.G1 = {
     S('MAS — SORA statement','6 Nov 2026','Rate environment; demo source.')
   ],
   questions:[
-    Q('Does this affect my unit’s value?','For a 3-bedroom at The Landmark, October’s median held near S$2,040 psf, so this week’s data is unlikely to move your range much. The bigger risk is supply: 412 D03 units are listed, up 9% from September. For sellers, time-on-market matters more than price today.'),
-    Q('Should I sell now or wait?','Waiting has a cost: D03 listings are taking about 11 days longer to move than in August. If you need to sell in the next six months, price to the 2,040 psf median rather than the top of the range. If you can hold, watch the next two months of supply before deciding.'),
-    Q('How does this compare with District 15?','D03’s median is S$2,010 psf; D15 is S$1,760 psf in this demo set. D03 has tighter supply but a wider price spread, so a unit-level valuation matters more than the district average.')
+    Q('What does lower volume mean for the resale market?','The sample shows fewer completed purchases while median prices stayed firm. That combination can make a single month’s median sensitive to which units sold. Check the next month’s deal count before drawing a trend.'),
+    Q('Which metric should I check in the next update?','Compare the next transaction count with the same month last year. Then check whether the mix of districts or unit sizes changed. Compare price movements within the same segment where possible.'),
+    Q('How does this compare with District 15?','D03’s median is S$2,010 psf; D15 is S$1,760 psf in this demo set. D03 has tighter supply and a wider price spread. Compare like-for-like unit sizes before using the district figures.')
   ]
 };
 
@@ -420,9 +416,9 @@ ART.G2 = {
     S('The Business Times — Markets','4 Nov 2026','Analyst expectations; demo source.')
   ],
   questions:[
-    Q('What does a steady SORA mean for my mortgage?','A steady SORA means your monthly instalment is unlikely to jump in Q4, but it stays elevated versus 2021–22. If you are on a floating package, budget for a small buffer rather than assuming cuts.'),
+    Q('What does a steady SORA mean for a floating mortgage?','A steady SORA limits immediate changes in the benchmark component of a floating mortgage. Your next instalment still depends on your contract’s reset date. Check your latest statement for that date and the applicable spread.'),
     Q('Should I choose fixed or floating?','Fixed packages trade certainty for a small premium; floating packages keep the downside if SORA rises. The right choice depends on your loan size and holding period, not on a market call. This is general information, not financial advice.'),
-    Q('What should I watch next?','Watch the next MAS statement and the 3M SORA print. A single steady statement is not a trend; two consecutive cuts would be more meaningful.')
+    Q('What should I watch next?','Watch the next MAS statement and the 3M SORA print. Compare the new reading with the same tenor in this update. Several consistent readings give more context than a single move.')
   ]
 };
 
@@ -440,9 +436,9 @@ ART.P1 = {
     S('The Business Times','6 Nov 2026','District 3 market context; demo source.')
   ],
   questions:[
-    Q('What does this mean for my block?','Mid-floor units at The Landmark cleared S$2,120–2,145 psf, about 4–5% above the 24-month median of S$2,040. That is a real signal for similar stacks, but two transactions are not a new floor.'),
+    Q('What does this mean for my block?','The sample suggests firmer pricing for similar mid-floor units at The Landmark. There are only two transactions in the update. Check for additional sales in your block before applying that range to your unit.'),
     Q('Are these prices sustainable?','Not yet. Two sales above S$2,100 psf show buyer appetite, but the sample is too small to call a trend. Watch whether the next three mid-floor sales hold above S$2,080.'),
-    Q('Should I get a valuation?','A valuation would use the 24-month matched sample, not just these two deals. It can tell you whether your unit sits above or below the block median.')
+    Q('Should I get a valuation?','A valuation can help if you need a unit-specific range. It would use a broader matched sample over 24 months. Check that the comparison includes similar size and floor segments.')
   ]
 };
 
@@ -459,19 +455,19 @@ ART.P2 = {
     S('URA — private residential data','5 Nov 2026','Transaction context; demo internal data.','internal')
   ],
   questions:[
-    Q('Will this push prices down?','More supply usually softens the top of the range before it moves the median. With 412 D03 listings, up 9%, buyers have more choice and sellers have less pricing power.'),
-    Q('How long will my unit take to sell?','Time-on-market is the first thing to move. D03 listings are already taking about 11 days longer than in August; a further 9% supply increase would likely extend that.'),
-    Q('Which projects are most affected?','The pressure is broadest in D03’s resale segment, especially older 99-year projects. New launches with deferred payment or incentives can divert buyers even if their headline psf is higher.')
+    Q('Will this push prices down?','More supply gives buyers more listings to compare. The listing count does not establish a change in completed prices. Check the next batch of comparable sales for evidence of a shift.'),
+    Q('How should I read the time-on-market figures?','D03 listings in the sample are taking longer to move than in August. That is a district-level observation. Compare listings with similar size, age and condition for a more relevant benchmark.'),
+    Q('Which projects are most affected?','The demo highlights D03 resale projects, including older 99-year developments. New-launch incentives can affect how buyers compare the two segments. Check the project-level activity before inferring any individual impact.')
   ]
 };
 
 ART.P3 = {
   id:'P3', type:'project', project:'The Landmark',
-  kicker:'Project insight · The Landmark · 10 Nov 2026', title:'New MRT exit at Havelock: what it changes',
-  short:'New MRT exit at Havelock: what it changes', summary:'A shorter walk could support demand, but the timeline is demo content and needs verification.',
+  kicker:'Project insight · The Landmark · 10 Nov 2026', title:'How might a different walking route affect access to Havelock MRT?',
+  short:'How might a different walking route affect access to Havelock MRT?', summary:'This sample compares walking routes. The exit and opening date are hypothetical.',
   read:'3 min read', updated:'1d ago',
   stats:[['420m','To Havelock MRT'],['2027','Demo timeline'],['5','Sources']],
-  body:`<p>A new Havelock MRT exit could shorten the walk from parts of The Landmark, especially the mid- and high-floor stacks facing away from the expressway.</p><p>The effect is usually gradual and partly priced in before opening. Treat the 2027 date as illustrative until LTA publishes a confirmed project timeline.</p><div class="demobanner" style="margin-top:6px">Demo/unverified: this article is not a confirmed LTA announcement. Do not use it as a factual planning basis.</div>`,
+  body:`<p>This sample asks how a hypothetical Havelock MRT exit might change the walk from The Landmark. The answer depends on the entrance used and the pedestrian route.</p><p>The effect is usually gradual and partly priced in before opening. Treat the 2027 date as illustrative until LTA publishes a confirmed project timeline.</p><div class="demobanner" style="margin-top:6px">Demo/unverified: this article is not a confirmed LTA announcement. Do not use it as a factual planning basis.</div>`,
   sources:[
     S('LTA — network map','9 Nov 2026','Station distance and exit context; demo/unverified.'),
     S('URA Master Plan','8 Nov 2026','Planning context; demo source.'),
@@ -480,9 +476,9 @@ ART.P3 = {
     S('StackedHomes','5 Nov 2026','Project review context; demo source.')
   ],
   questions:[
-    Q('Which stacks benefit most?','Mid- and high-floor stacks facing away from the expressway are the most likely beneficiaries, but this is a demo assumption, not a confirmed LTA plan. Verify the exit location and timeline before pricing it in.'),
+    Q('Which stacks benefit most?','The update offers a possible improvement to walking access. It does not establish a benefit for any particular stack. Verify the exit location and walk the route before using it in a comparison.'),
     Q('Is the new exit confirmed?','No. The demo source is not a confirmed official announcement. Treat the 2027 date as illustrative until LTA publishes the project timeline.'),
-    Q('Should I buy now because of this?','If the exit is confirmed, the effect is usually gradual and already partly priced in. Buyers should underwrite the current commute, not a future exit that may slip.')
+    Q('Should I buy now because of this?','Base a viewing on the route and commute available today. Check whether the exit has an official opening date. Compare the property with options that already meet your travel needs.')
   ]
 };
 
@@ -499,9 +495,9 @@ ART.P4 = {
     S('URA — private residential data','4 Nov 2026','Transaction context; demo internal data.','internal')
   ],
   questions:[
-    Q('What yield should I expect?','Gross yields are holding near 3.2%, but net yield after maintenance, tax and vacancy is lower. Use 2.6–2.9% for a conservative underwrite.'),
+    Q('What yield should I expect?','The sample shows a gross yield around 3.2%. Net yield depends on your maintenance fees, property tax and vacancy. Use the unit’s actual costs when converting the gross figure into a cash-flow estimate.'),
     Q('Should I rent or sell?','Renting keeps the asset and the upside; selling converts to cash but gives up future rent. Run both against your holding period and financing cost before deciding. This is general information, not financial advice.'),
-    Q('What costs reduce the yield?','Maintenance, property tax, agent fees and vacancy are the main drags. A 3.2% gross yield can fall below 2.8% net in a normal year.')
+    Q('What costs reduce the yield?','Include maintenance, property tax and agent fees. Allow for months with no rent. Calculate net income from those costs before comparing yields across properties.')
   ]
 };
 
@@ -521,17 +517,48 @@ ART.P5 = {
     S('CNA','4 Nov 2026','Market commentary; demo source.')
   ],
   questions:[
-    Q('Is S$2,040 psf the new normal?','S$2,040 psf is the 24-month median, not a ceiling. The six sales range from S$2,000 to S$2,105, so a mid-floor unit should be priced within that band unless it has a special view or renovation.'),
-    Q('Do high-floor units always command more?','High-floor units cleared the top of the range, but floor alone does not explain the spread; stack, view and condition matter. Two high-floor sales are not enough to price every high-floor unit at S$2,105.'),
-    Q('How would a valuation use this?','A valuation should use the matched 24-month sample and the unit’s floor segment, not the headline project median alone.')
+    Q('Is S$2,040 psf the new normal?','S$2,040 psf is the median over the 24-month sample. The six sales still span a wider range. Check the size, floor and condition of the comparable units before applying that figure.'),
+    Q('Do high-floor units always command more?','The two high-floor units in the article sold at the top of the sample. Stack, view and condition can also affect the price. Compare similar high-floor transactions before attributing the difference to floor alone.'),
+    Q('How would a valuation use this?','Start with comparable sales from the past 24 months. Match the unit’s size and floor segment. Use the project median as a cross-check for the matched result.')
   ]
 };
 
+ART.TP1 = {
+  id:'TP1', type:'project', project:'Tembusu Grand',
+  kicker:'Project insight · Tembusu Grand · demo', title:'Tembusu Grand: reading the project update',
+  short:'Tembusu Grand project update', summary:'A demo project update for checking resident access and tenant questions.',
+  read:'2 min read', updated:'10 Nov', stats:[['1','Demo source']],
+  body:'<p>This sample describes how a resident can read a project update and check the period covered by its source. It makes no claim about a real event.</p>',
+  sources:[S('LTA sample','10 Nov 2026','Illustrative source label; no announcement is asserted.','demo')]
+};
+ART.G1.version=3;
+const FIXTURE_ARTICLES = new Set(Object.keys(ART));
+const INITIAL_BRIEF = ART.G1;
+const PROJECT_BINDINGS = {
+  'The Landmark':['OWNER','TENANT'],
+  'Tembusu Grand':['TENANT']
+};
+const GENERAL_RECOVERY_DATE = '2026-11-18';
+const GENERAL_RECOVERY_KEY = 'GENERAL:'+GENERAL_RECOVERY_DATE;
+const newRecovery = () => ({original:'not_started', completion:'09:30', evidence:'valid', status:'ready', attempts:0});
+const EDITORIAL_NEWS = {
+  E1:{title:'What to prepare for a resale viewing',date:'9 Nov 2026',
+    lead:'A checklist from the Liveo editorial team for your next viewing.',
+    paragraphs:['Before visiting, ask the agent which fixtures are included and check the floor plan against the listing. Bring a short list of questions about maintenance, recent works and the move-in timeline.',
+      'After the visit, record what you observed and ask for any outstanding details in writing before making a decision.']},
+  E2:{title:'A guide to reading transaction dates',date:'5 Nov 2026',
+    lead:'How to compare the dates you see when reviewing past sales.',
+    paragraphs:['Check which date a listing or transaction record uses. An advertisement date and a transaction date describe separate events.',
+      'When comparing sales, use the same date field across records and note the period you reviewed.']}
+};
+
 const I = {
-  tab:'cend', screen:'list', listTab:'daily', articleId:null, question:null, customQ:'', customA:'',
-  settings:{master:true}, pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{master:true}},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{master:true}}},
+  tab:'cend', screen:'list', listTab:'daily', articleId:null, question:null, chatTurns:[], notificationPreview:null,
+  activeProject:'The Landmark', articleBack:'list', questionContext:null, editorialArticleId:null, editorialBack:'editorialList',
+  settings:{osAllowed:true}, dailyArticleId:'G1', recovery:newRecovery(),
+  pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}},
   boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
-  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full', readerRole:'OWNER',verifiedRoles:['OWNER','TENANT'],buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:{schedule:'08:00 Asia/Singapore', sources:'Official first: URA + MAS + LTA + gov.sg; supplementary CNA + BT + EdgeProp; news 7 days', prompt:'ai_insight_general / ai_insight_project / ai_insight_followup · drafts prepared'}
+  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full', readerRole:'OWNER',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:{sources:'Official first: URA + MAS + LTA + gov.sg; supplementary CNA + BT + EdgeProp; news 7 days', prompt:'ai_insight_general / ai_insight_project / ai_insight_followup · drafts prepared'}
 };
 
 const PROJECT_CATALOG = [
@@ -544,12 +571,17 @@ const PROJECT_CATALOG = [
 ];
 
 const PAM_INIT = {
-  G1:{id:'G1', title:'October resale market: prices up 0.8%, volume down 6%', project:'—', sources:6, version:3, reviewedVersion:3, monitoring:false, status:'published', push:'sent', pushBatches:[{batchId:'G1-B1',version:3,project:'—',target:'All app users',status:'sent',eligible:12400,sent:12400,skipped:0,retries:0,day:'2026-11-10',at:'08:05'}], time:'08:05', audience:'All app users', audienceCount:12400, body:'October’s resale market was slower but not weaker. Median PSF held firm while transaction volume fell for a second month...'},
+  G1:{id:'G1', title:ART.G1.title, project:'—', sources:ART.G1.sources.length, version:3, reviewedVersion:3, monitoring:false, status:'published', push:'sent', pushBatches:[{batchId:'G1-B1',version:3,title:ART.G1.title,demoReaderAccepted:true,project:'—',target:'All app users',status:'sent',eligible:12400,sent:12400,skipped:0,retries:0,day:'2026-11-10',at:'08:05'}], time:'08:00', audience:'All app users', audienceCount:12400, summary:ART.G1.summary, body:Array.from(new DOMParser().parseFromString(ART.G1.body,'text/html').querySelectorAll('p,li'),node=>node.textContent).join(' ')},
   P6:{id:'P6', title:'The Landmark: October transactions update', project:'The Landmark', sources:4, version:1, reviewedVersion:null, monitoring:true, status:'pending_review', push:'not_sent', pushBatches:[], time:'06:20', audience:'Verified owners & residents', audienceCount:420, body:'Three 3-bedroom units at The Landmark changed hands at S$2,080–2,120 psf in October, around the 24-month median of S$2,040. Mid-floor stacks led the activity, while high-floor units continued to clear at a premium. The sample is still small; this is an update, not a new price floor.', rejectReason:'', pamQuestions:['What changed in October?','Does this change my unit’s range?','How does this compare with District 3?'], editSource:'URA caveats + EdgeProp + CNA + BT'},
-  T1:{id:'T1', title:'Tembusu Grand: new MRT exit within 400m', project:'Tembusu Grand', sources:0, version:0, reviewedVersion:null, monitoring:true, status:'pending_generation', push:'not_sent', pushBatches:[], time:'—', audience:'Verified owners & residents', audienceCount:310, body:'', rejectReason:'', pamQuestions:[], editSource:'LTA + URA + CNA + BT'},
+  T1:{id:'T1', title:'Tembusu Grand: how to assess walking access to the MRT', project:'Tembusu Grand', sources:0, version:0, reviewedVersion:null, monitoring:true, status:'pending_generation', push:'not_sent', pushBatches:[], time:'—', audience:'Verified owners & residents', audienceCount:310, body:'', rejectReason:'', pamQuestions:[], editSource:'LTA + URA + CNA + BT'},
   C1:{id:'C1', title:'Parc Clematis: rental yields slip to 3.1%', project:'Parc Clematis', sources:3, version:1, reviewedVersion:null, monitoring:true, status:'rejected', push:'not_sent', pushBatches:[], time:'06:22', audience:'Verified owners & residents', audienceCount:280, body:'Rental yields at Parc Clematis slipped to 3.1% in October as asking rents softened. The change is small and based on a thin sample; the article should be rewritten with the latest URA rental data.', rejectReason:'Source date mismatch: URA figure is from August, not October.', pamQuestions:['Are yields still falling?','What is the net yield?','Should owners rent or sell?'], editSource:'CNA + EdgeProp + URA'},
   F1:{id:'F1', title:'Normanton Park: 3-bedroom rents up 4% QoQ', project:'Normanton Park', sources:0, version:0, reviewedVersion:null, monitoring:true, status:'generation_failed', push:'not_sent', pushBatches:[], time:'06:25', audience:'Verified owners & residents', audienceCount:180, body:'', error:'Source timeout during generation', rejectReason:'', pamQuestions:[], editSource:'CNA + URA demo'}
 };
+PAM_INIT.G1.editSource=ART.G1.sources.map(source=>source.name).join(' + ');
+PAM_INIT.G1.pamQuestions=ART.G1.questions.map(q=>q.q);
+PAM_INIT.G1.reviewHistory=[{version:3,actor:'system',at:'2026-11-10 08:04 SGT',decision:'Validated',reason:'Daily Brief source and content checks passed (demo).'}];
+PAM_INIT.C1.reviewHistory=[{version:1,actor:'demo.ops',at:'2026-11-10 07:10 SGT',decision:'Rejected',reason:PAM_INIT.C1.rejectReason}];
+Object.values(PAM_INIT).filter(a=>a.monitoring).forEach(a=>{a.firstGenerationRequested=true;});
 let PAM = JSON.parse(JSON.stringify(PAM_INIT));
 PAM.G1.publishedAt='2026-11-10T08:04:00+08:00';PAM.G1.publishedVersion=PAM.G1.version;
 const DUTIES = {
@@ -566,74 +598,190 @@ const DUTIES = {
   property:{label:'Property operations', role:'ROLE_OPS_STAFF · no platform AI ops', scope:'company', perms:[]}
 };
 
-function projectIds(){ return ['P1','P3','P4','P5'].concat(ART.P6?['P6']:[]); }
+function latestArticles(){return Object.values(ART).sort((a,b)=>(b.publishedAt||'').localeCompare(a.publishedAt||''));}
+function projectIds(){ return latestArticles().filter(a=>a.type==='project').map(a=>a.id); }
 function projectCount(){ return projectIds().filter(id=>canReadArticle(ART[id])).length; }
 function publishToCend(a){
-  if(a.id!=='P6') return false;
-  const sourceNames=(a.editSource||'URA caveats + EdgeProp + CNA + BT').split('+').map(x=>x.trim()).filter(Boolean);
-  const sourceList=sourceNames.map((name,i)=>S(esc(name),'10 Nov 2026','Published from PAM v'+a.version+'; demo source.',/ura/i.test(name)?'internal':'demo'));
+  const isGeneral=a.project==='—';
+  const sourceNames=a.editSource.split('+').map(x=>x.trim()).filter(Boolean);
+  const date=a.publishedAt.slice(0,10);
+  const sourceList=sourceNames.map(name=>S(esc(name),date,'Published v'+a.version+' · demo source.',/ura/i.test(name)?'internal':'demo'));
   a.sources=sourceList.length;
   const qs=(a.pamQuestions&&a.pamQuestions.length?a.pamQuestions:['What changed in this update?','Does this change my unit’s range?','How does this compare with District 3?']);
-  const first=(a.body||'').split('. ')[0]+'.';
+  const first=a.body.split('. ',1)[0].replace(/[.!?]$/,'')+'.';
   const questions=qs.map((q,i)=>Q(esc(q),
-    i===0?`The approved v${a.version} update says: ${first}`:
-    i===1?`The approved change is based on the v${a.version} snapshot. It is a local demo and does not call a live model.`:
-    `Compare it with the 24-month median and the article sources; this demo does not provide a live market call.`));
-  ART.P6={
-    id:'P6', type:'project', project:'The Landmark',
-    kicker:'Project insight · The Landmark · 10 Nov 2026',
+    i===0?`${first} Check the dates in the attached sources. Treat the findings as specific to the evidence in this update.`:
+    i===1?`The current version uses the listed sources. Check the publication date and the period each source covers. Confirm that the evidence applies to the reported change.`:
+    `Check the publication period and the sources attached to this article. Compare the figures only with the same type of evidence. Use the original source if you need unit-level detail.`));
+  ART[a.id]={
+    id:a.id, version:a.version, type:isGeneral?'general':'project', project:isGeneral?null:a.project, date, publishedAt:a.publishedAt,
+    kicker:isGeneral?'Daily Brief · '+date:'Project insight · '+a.project+' · '+date,
     title:esc(a.title), short:esc(a.title),
-    summary:'Published from the PAM review flow. The article is visible in the project list; push is a separate state.',
+    summary:isGeneral?esc(a.summary):'The approved version is available to this project’s bound residents.',
     read:'2 min read', updated:'just now',
-    stats:[[String(sourceList.length),'Sources'],['S$2,040','24M median PSF']],
+    stats:[[String(sourceList.length),'Sources']],
     body:`<p>${esc(a.body)}</p><p>This is a local demo article published from the PAM console. It is not a real news story; sources and dates are sample data.</p>`,
     sources:sourceList, questions
   };
-  return true;
+  if(isGeneral) I.dailyArticleId=a.id;
 }
-function canReadArticle(a){return !!a&&(a.type!=='project'||I.boundProjects.includes(a.project));}
-function roleOptions(){return ['GENERAL',...(I.boundProjects.length?I.verifiedRoles:[]),...(I.buyerIntent?['BUYER']:[])];}
+function canReadArticle(a){return a?.type==='general'||(a?.type==='project'&&I.boundProjects.includes(a.project));}
+function roleOptions(a){
+  if(!canReadArticle(a)) return [];
+  const roles=a.type==='project'?(PROJECT_BINDINGS[a.project]||[]):[];
+  return ['GENERAL',...roles,...(I.buyerIntent===a.id?['BUYER']:[])];
+}
+function activeRole(a){return roleOptions(a).includes(I.readerRole)?I.readerRole:'GENERAL';}
 function articleQuestions(a){
- const role=roleOptions().includes(I.readerRole)?I.readerRole:'GENERAL';
- if(role==='OWNER')return a.questions;
- const label=role==='TENANT'?'as a tenant':role==='BUYER'?'for my current buying question':'about this update';
- return [Q('What is supported by this article '+label+'?',a.summary+' Sources and dates are demo evidence; no real model is connected.'),Q('Which evidence should I verify '+label+'?','Verify the dated sources attached to this article before relying on its claims. Your role does not add evidence or grant access.'),Q('What are the limits of this update '+label+'?','This article is reference information, not legal or financial advice. It does not determine an individual unit price or mandate authority.')];
+ const role=activeRole(a);
+ if(a.questions&&(role==='OWNER'||(role==='GENERAL'&&a.type!=='project'))) return a.questions;
+ if(role==='TENANT') return [
+   Q('What should I check before renewing my lease?',`Start with the dated evidence for ${a.project}. Compare it with similar rentals if the update includes rental data. If rental evidence is missing, there is no basis here to reset your rent.`),
+   Q('Could this update affect my commute or access?',`Check whether the ${a.project} update confirms a change or only describes a proposal. Verify timing against the official source. Make decisions using confirmed dates.`),
+   Q('What should I ask my landlord or managing agent?',`Ask whether the change described for ${a.project} applies to your building. Confirm the effective date and any temporary arrangements. Keep a copy of the notice.`)
+ ];
+ if(role==='BUYER') return [
+   Q('What should I verify before making an offer?',`Start with the dated sources attached to this update. Confirm comparable transactions and the period covered. Ask for unit-specific evidence before using the article to set an offer.`),
+   Q('Does this update change what I should check on a viewing?','Take the reported change as a viewing question. Ask the agent which facts are confirmed and when they take effect. Cross-check their reply against the cited source.'),
+   Q('Which evidence is still missing for my decision?','Check for the date, comparable sample and relevant project scope. One article may only support part of your decision. Treat any unsupported detail as open.')
+ ];
+ return [Q('What changed for this project?',a.summary+' Check the publication period before using the update. Open the source notes to see what each item supports.'),Q('Which source should I check first?','Start with the official source when one is attached. Check its publication date and the period the figures describe. Treat supplementary material as context.'),Q('What should I verify before acting on this update?','Confirm whether the evidence applies to your project. Check the date and look for a newer notice. Individual decisions may require more information.')];
 }
-function accessDeniedArticle(){return `${statusBar()}${nav('Property News','Access unavailable','Back','list')}<div class="phone-body"><div class="infobox">A current effective project binding is required to read this project article or ask about it. General news remains available.</div></div>${homebar()}`;}
+function clearQuestion(){
+  I.question=null; I.questionContext=null; I.chatTurns=[]; I.customError=''; I.customState='idle'; I.chatToken++;
+}
+function openArticle(id){
+  if(['list','projectDetails'].includes(I.screen)){
+    I.articleBack=I.screen;
+  }
+  const a=ART[id];
+  if(I.articleId!==id||I.screen!=='domus'){
+    I.buyerIntent=null;
+    I.readerRole=a?.type==='project'?PROJECT_BINDINGS[a.project]?.[0]||'GENERAL':'GENERAL';
+  }
+  if(canReadArticle(a)&&a.type==='project'&&!I.readArticles.includes(id)) I.readArticles.push(id);
+  I.articleId=id; I.screen='article'; clearQuestion();
+}
+function openChat(index){
+  const a=ART[I.articleId];
+  if(!canReadArticle(a)) return;
+  const q=articleQuestions(a)[index];
+  if(index!==undefined&&(!Number.isInteger(index)||!q)) return;
+  const continuing=I.screen==='domus'&&validQuestionContext(a);
+  if(continuing&&I.customState==='loading') return;
+  if(!continuing) clearQuestion();
+  const role=activeRole(a);
+  I.question=index??null;
+  I.questionContext={articleId:a.id,version:a.version||1,role,questionId:I.question===null?null:role.toLowerCase()+'-'+(I.question+1)};
+  if(q) I.chatTurns.push({...q,recommended:true});
+  I.customError='';
+  I.screen='domus';
+}
+function validQuestionContext(a){
+  const ctx=I.questionContext;
+  return canReadArticle(a)&&ctx&&ctx.articleId===a.id&&ctx.version===(a.version||1)&&ctx.role===activeRole(a);
+}
+function accessDeniedArticle(){return `${statusBar()}${nav('Property Insights','Access unavailable','Back',I.articleBack)}<div class="phone-body"><div class="infobox">A current effective project binding is required to read this project article or ask about it. Daily Brief remains available.</div></div>${homebar()}`;}
+function hasPublishedVersion(a){return !!a?.publishedVersion&&!!a.publishedAt&&a.publishedVersion===ART[a.id]?.version;}
+function hasPendingPush(a){return ['not_sent','failed','partial'].includes(a.push);}
 function firstProjectForUser(uid){
- return Object.values(PAM).filter(a=>a.project!=='—'&&a.status==='published'&&a.publishedAt&&a.publishedAt.slice(0,10)===I.pushDay&&a.publishedVersion===a.version&&['not_sent','failed'].includes(a.push)&&pushAudience(a).some(([id])=>id===uid)).sort((a,b)=>a.publishedAt.localeCompare(b.publishedAt)||a.id.localeCompare(b.id))[0];
+ return Object.values(PAM).filter(a=>a.project!=='—'&&hasPublishedVersion(a)&&a.publishedAt.slice(0,10)===I.pushDay&&hasPendingPush(a)&&!a.projectPushResults?.[uid]&&pushAudience(a).some(([id])=>id===uid)).sort((a,b)=>a.publishedAt.localeCompare(b.publishedAt)||a.id.localeCompare(b.id))[0];
+}
+function projectPushStatus(a,id,u){
+  if(a.publishedAt.slice(0,10)!==I.pushDay) return 'Outside today’s queue';
+  const result=a.projectPushResults?.[id];
+  if(result) return result;
+  if(!userPushSettings(id,u).osAllowed) return 'Device permission off';
+  if(u.projectUsed>=1) return 'Project quota used';
+  if(!hasPendingPush(a)) return 'No further submission';
+  const first=firstProjectForUser(id);
+  return first&&first.id!==a.id?'Waiting for '+first.id+' · '+first.publishedAt.slice(11,16)+' SGT':'Eligible';
 }
 
 function articleRow(id){
   const a=ART[id];if(!canReadArticle(a))return '';
-  return `<div class="row" data-action="openArticle" data-id="${id}"><div class="t">${a.title}</div><div class="m"><span class="tag ${a.type==='project'?'blue':''}">${a.type==='project'?'Project':'Market'}</span><span>${a.sources.length} sources · ${a.updated}</span></div></div>`;
+  const sourceLabel=a.sources.length===1?'source':'sources';
+  return `<div class="row" data-action="openArticle" data-id="${id}"><div class="t">${a.title}</div>${a.type==='general'?`<p class="brief-summary">${a.summary}</p>`:''}<div class="m"><span class="tag ${a.type==='project'?'blue':''}">${a.type==='project'?'Project':'Market'}</span><span>${a.sources.length} ${sourceLabel} · ${a.updated}</span></div></div>`;
 }
 
-function articlePick(a){
-  if(!canReadArticle(a))return '';
-  return `<div class="row" data-action="openArticle" data-id="${a.id}"><div class="t">${a.title}</div><div class="m"><span class="tag ${a.type==='project'?'blue':''}">${a.type==='project'?'Project':'Market'}</span><span>${a.sources.length} sources · ${a.updated}</span></div></div>`;
+function projectLink(project){
+  return `<button class="app-link-row" data-action="projectDetails" data-project="${esc(project)}">${esc(project)} <span>Project details</span></button>`;
 }
 
 function feedStateBlock(){
   if(I.feedState==='loading') return `<div class="skeleton h28"></div><div class="skeleton w70"></div><div class="skeleton w45"></div><div class="skeleton h28" style="margin-top:12px"></div><div class="skeleton w70"></div><div class="skeleton w45"></div>`;
-  if(I.feedState==='error') return `<div class="empty-state"><b>Could not load Property News</b>This is a simulated feed error. The rest of the app is still available.<button data-action="retryFeed">Retry</button></div>`;
+  if(I.feedState==='error') return `<div class="empty-state"><b>Could not load Property Insights</b>This is a simulated feed error. The rest of the app is still available.<button data-action="retryFeed">Retry</button></div>`;
   if(I.feedState==='empty') return `<div class="empty-state"><b>No published articles yet</b>When an article is published, it will appear here. Push is separate and is not required for reading.<button data-action="resetFeed">Reset demo feed</button></div>`;
   return null;
 }
 function renderAppDock(selected){
  const data=[['Home','home','ai-insights.html?view=appHome'],['Services','serves',null],['Lio','ai','ai-insights.html?view=appAssistant'],['Message','message',null],['Me','me','ai-valuation.html?view=appMe']];
- return '<nav class="app-dock" aria-label="App main navigation">'+data.map(([label,key,url])=>{const chosen=label===selected;const img=key==='ai'?'ailogo.png':'table_'+key+'_icon'+(chosen?'_s':'')+'.png';const body='<img src="app-assets/'+img+'" alt=""/><span>'+label+'</span>';return url?'<a href="'+url+'" class="'+(chosen?'selected ':'')+(key==='ai'?'lio':'')+'" '+(chosen?'aria-current="page"':'')+'>'+body+'</a>':'<button data-action="outsidePreview" aria-label="'+label+'">'+body+'</button>';}).join('')+'</nav>';
+ return '<nav class="app-dock" aria-label="App main navigation">'+data.map(([label,key,url])=>{const chosen=label===selected;const img=key==='ai'?'ailogo.png':'table_'+key+'_icon'+(chosen?'_s':'')+'.png';const body='<img src="app-assets/'+img+'" alt=""/><span>'+label+'</span>';const screen=label==='Home'?'appHome':label==='Lio'?'appAssistant':null;return url?'<a href="'+url+'" '+(screen?'data-action="appNavigate" data-screen="'+screen+'" ':'')+'class="'+(chosen?'selected ':'')+(key==='ai'?'lio':'')+'" '+(chosen?'aria-current="page"':'')+'>'+body+'</a>':'<button data-action="outsidePreview" aria-label="'+label+'">'+body+'</button>';}).join('')+'</nav>';
 }
-function renderAppHome(){return `${statusBar()}<div class="app-context"><div class="app-eyebrow">LiveoHome · Preview</div><h1>Home</h1><div class="app-card"><div class="app-project">The Landmark</div><span class="tag blue">Verified binding · demo</span><p>Your project, news and property services.</p><button class="app-link-row" data-action="listTab" data-tab="projects">Project insights <span>View</span></button></div><h2>Property News</h2><div class="app-card"><h3>Daily Brief</h3><p>Singapore residential market updates, with sources and questions you can ask.</p><button class="btn blue" data-action="listTab" data-tab="daily">Read Property News</button></div><p class="app-context-note">Demo content. Published articles stay available when notifications are off.</p></div>${renderAppDock('Home')}${homebar()}`;}
-function renderAppAssistant(){return `${statusBar()}${nav('Lio','Liveo AI','','appHome')}<div class="phone-body"><div class="app-card"><img src="app-assets/ailogo.png" width="52" height="52" alt="Lio"/><h1>How can I help?</h1><p>Choose a property task to get started.</p><button class="qchip" data-action="listTab" data-tab="daily">Read the latest Property News</button><a class="qchip" href="ai-valuation.html">Get a property valuation</a></div><div class="infobox">To ask about an article, open it and select one of its questions. The article stays attached to that conversation.</div><p class="app-context-note">Preview · Property insights and valuation.</p></div>${homebar()}`;}
+function renderAppHome(){
+  return `${statusBar()}<div class="app-context">
+    <div class="app-eyebrow">LiveoHome · Preview</div><h1>Home</h1>
+    <h2>My Projects</h2><div class="app-card">${I.boundProjects.map(projectLink).join('')||'<p>No active project binding.</p>'}</div>
+    <h2>Property Insights</h2>
+    <div class="news-section insights">
+      <p class="news-caption">AI-generated Daily Brief and updates for your bound projects.</p>
+      <button class="btn blue" data-action="listTab" data-tab="daily" style="margin-top:12px">Open Property Insights</button>
+    </div>
+  </div>${renderAppDock('Home')}${homebar()}`;
+}
+
+function editorialNewsRow(id){
+  const a=EDITORIAL_NEWS[id];
+  return `<button class="news-link" data-action="editorialArticle" data-id="${id}"><b>${esc(a.title)}</b><span>${esc(a.date)}</span></button>`;
+}
+
+function renderProjectDetails(){
+  const project=I.activeProject;
+  const ids=projectArticleIds(project);
+  return `${statusBar()}${nav(project,'Project Details','Home','appHome')}<div class="phone-body">
+    <section class="news-section" aria-labelledby="projectNewsTitle">
+      <div class="news-title"><h2 id="projectNewsTitle">Property News</h2><button class="linkbtn" data-action="editorialList" aria-label="More Property News">More ›</button></div>
+      <p class="news-caption">Manually published by the Liveo editorial team</p>
+      ${editorialNewsRow('E1')}
+    </section>
+    <section class="news-section insights" aria-labelledby="projectInsightsTitle">
+      <div class="news-title"><h2 id="projectInsightsTitle">Project Insights</h2><span class="tag blue">AI</span></div>
+      <p class="news-caption">AI-generated updates for ${esc(project)}, reviewed before publication</p>
+      ${I.boundProjects.includes(project)?
+        (ids.length?ids.map(articleRow).join(''):'<div class="infobox">No published AI insights for this project yet.</div>'):
+        '<div class="infobox">An active project binding is required to read Project Insights.</div>'}
+    </section>
+  </div>${homebar()}`;
+}
+
+function renderEditorialList(){
+  return `${statusBar()}${nav('Property News','Liveo editorial','Back','projectDetails')}<div class="phone-body">
+    <section class="news-section" aria-label="Editorial articles">
+      <p class="news-caption">Manually published articles · Demo</p>
+      ${Object.keys(EDITORIAL_NEWS).map(editorialNewsRow).join('')}
+    </section>
+  </div>${homebar()}`;
+}
+
+function renderEditorialArticle(){
+  const a=EDITORIAL_NEWS[I.editorialArticleId];
+  return `${statusBar()}${nav('Property News','Liveo editorial','Back',I.editorialBack)}<article class="phone-body">
+    <div class="article-kicker">Liveo Editorial · ${esc(a.date)} · Demo</div>
+    <h1>${esc(a.title)}</h1>
+    <p class="dek">${esc(a.lead)}</p>
+    <div class="bodytext">${a.paragraphs.map(paragraph=>`<p>${esc(paragraph)}</p>`).join('')}</div>
+  </article>${homebar()}`;
+}
+
+function renderAppAssistant(){return `${statusBar()}${nav('Lio','Liveo AI','','appHome')}<div class="phone-body"><div class="app-card"><img src="app-assets/ailogo.png" width="52" height="52" alt="Lio"/><h1>How can I help?</h1><p>Choose a property task to get started.</p><button class="qchip" data-action="listTab" data-tab="daily">Open Property Insights</button><a class="qchip" href="ai-valuation.html">Get a property valuation</a></div><div class="infobox">To ask about an insight, open it and select one of its questions. The article stays attached to that conversation.</div><p class="app-context-note">Preview · Property insights and valuation.</p></div>${homebar()}`;}
 
 function renderList(){
-  const a=ART.G1;
-  if(I.listTab==='projects'&&!I.boundProjects.length)return `${statusBar()}${nav('Property News','My Projects','Home','appHome')}<div class="phone-body"><div class="infobox">No active project binding. Project articles are unavailable.</div><button class="btn" data-action="listTab" data-tab="daily">Read Daily Brief</button></div>${homebar()}`;
+  const a=ART[I.dailyArticleId];
+  if(I.listTab==='projects'&&!I.boundProjects.length)return `${statusBar()}${nav('Property Insights','My Projects','Home','appHome')}<div class="phone-body"><div class="infobox">No active project binding. Project articles are unavailable.</div><button class="btn" data-action="listTab" data-tab="daily">Read Daily Brief</button></div>${homebar()}`;
   const state=feedStateBlock();
   if(state){
     return `${statusBar()}
-    ${nav("Property News","AI insights","Home","appHome")}<div class="appbar"><span class="demo-pill">Demo feed</span><button class="linkbtn" data-action="settings">Notifications</button></div>
+    ${nav('Property Insights','AI property updates','Home','appHome')}<div class="appbar"><span class="demo-pill">Demo feed</span><button class="linkbtn" data-action="settings">Notifications</button></div>
     <div class="phone-body">
       <div class="tabs"><button data-action="listTab" data-tab="daily" class="${I.listTab==='daily'?'on':''}">Daily Brief</button><button data-action="listTab" data-tab="projects" class="${I.listTab==='projects'?'on':''}">My Projects</button></div>
       ${state}
@@ -641,34 +789,27 @@ function renderList(){
     ${homebar()}`;
   }
   return `${statusBar()}
-  ${nav("Property News","AI insights","Home","appHome")}<div class="appbar"><span class="demo-pill">Demo feed</span><button class="linkbtn" data-action="settings">Notifications</button></div>
+  ${nav('Property Insights','AI property updates','Home','appHome')}<div class="appbar"><span class="demo-pill">Demo feed</span><button class="linkbtn" data-action="settings">Notifications</button></div>
   <div class="phone-body">
     <div class="tabs"><button data-action="listTab" data-tab="daily" class="${I.listTab==='daily'?'on':''}">Daily Brief</button><button data-action="listTab" data-tab="projects" class="${I.listTab==='projects'?'on':''}">My Projects</button></div>
     ${I.listTab==='daily'?`
-      <div class="hero" data-action="openArticle" data-id="G1">
-        <div class="eyebrow">Daily Brief · 10 Nov</div>
+      <div class="hero" data-action="openArticle" data-id="${a.id}">
+        <div class="eyebrow">Daily Brief · ${a.date||'10 Nov'}</div>
         <h4>${a.title}</h4>
+        <p class="brief-summary">${a.summary}</p>
         <div class="meta">${a.read} · ${a.sources.length} sources · Updated ${a.updated}</div>
         <span class="more">Read brief →</span>
       </div>
       <div class="section"><b>My Projects</b><span>${I.boundProjects.length} bound</span></div>
-      <div class="pcard" data-action="listTab" data-tab="projects">
-        <img src="app-assets/table_home_icon_s.png" width="24" height="24" alt=""/><div><div class="t">The Landmark</div><div class="s">${projectCount()} articles this week · ${unreadBadge()}</div></div><div class="badge">${unreadProjectCount()?unreadProjectCount()+' new':'All read'}</div>
-      </div>
-      <div class="section"><b>Latest</b><span>${4+(ART.P6?1:0)} updates</span></div>
-      ${articleRow('G2')}${articleRow('P1')}${articleRow('P2')}${articleRow('P4')}${ART.P6?articleRow('P6'):''}
-      <div class="infobox" style="margin-top:9px;margin-bottom:0">Daily Brief is generated at 08:00 SGT; no catch-up notification after 10:00. Project articles are reviewed before push. <span style="color:var(--blue)">Manage in Settings</span></div>
+      ${I.boundProjects.length?`<button class="app-link-row" data-action="listTab" data-tab="projects">View my projects <span>${projectCount()} articles · ${unreadBadge()}</span></button>`:''}
+      <div class="section"><b>Latest insights</b></div>
+      ${latestArticles().filter(item=>item.id!==a.id).map(item=>articleRow(item.id)).join('')}
+      <div class="infobox" style="margin-top:9px;margin-bottom:0">Daily Brief is generated at 08:00 SGT. From 10:00 SGT, a recovered brief is published without a catch-up notification. Project articles are reviewed before push. <button class="linkbtn" data-action="settings">Manage in Settings</button></div>
     `:`
-      <div class="pcard" style="background:#F8FBFF;border-color:#D2E3FC;cursor:default">
-        <img src="app-assets/table_home_icon_s.png" width="24" height="24" alt=""/><div><div class="t">The Landmark</div><div class="s">173 Chin Swee Road · District 3 · ${projectCount()} articles</div></div><div class="badge">${unreadBadge()}</div>
-      </div>
-      <div class="section"><b>Project insights</b><span>${projectCount()} articles · ${unreadBadge()}</span></div>
-      ${articlePick(ART.P1)}${articlePick(ART.P3)}${articlePick(ART.P4)}${articlePick(ART.P5)}${ART.P6?articlePick(ART.P6):''}
+      ${I.boundProjects.map(project=>`<div class="section"><b>${esc(project)}</b><span>${projectArticleIds(project).length} articles</span></div>${projectLink(project)}${projectArticleIds(project).map(articleRow).join('')}`).join('')}
       <div class="infobox">Only project-specific articles appear here. General briefs stay in Daily Brief.</div>
       <div class="section"><b>Sources monitored</b><span>This week</span></div>
       <div style="display:flex;flex-wrap:wrap;gap:4px"><span class="tag">URA</span><span class="tag">CNA</span><span class="tag">BT</span><span class="tag">EdgeProp</span><span class="tag">MAS</span><span class="tag">LTA</span></div>
-      <div class="section"><b>Ask Domus</b><span>About this project</span></div>
-      <div class="qchip" data-action="openArticle" data-id="P1">How is The Landmark performing vs District 3?</div>
     `}
   </div>
   
@@ -676,10 +817,10 @@ function renderList(){
 }
 
 function renderArticle(){
-  const a=ART[I.articleId] || ART.G1;
+  const a=ART[I.articleId];
   if(!canReadArticle(a))return accessDeniedArticle();
   return `${statusBar()}
-  ${nav(a.type==='project'?a.project:'Daily Brief', a.type==='project'?'Project insight':'Daily Brief', 'Back', 'list')}
+  ${nav(a.type==='project'?a.project:'Daily Brief', a.type==='project'?'Project Insights · AI':'Property Insights · AI', 'Back', I.articleBack)}
   <div class="phone-body">
     <div class="article-kicker"><span>${a.kicker}</span><span class="tag demo">DEMO CONTENT</span></div>
     <h1>${a.title}</h1>
@@ -691,8 +832,8 @@ function renderArticle(){
     <div class="sources">${a.sources.map(s=>`<div class="source"><div class="top"><span class="n">${s.name}</span><span class="d">${s.date}</span></div><div class="ev">${s.evidence} <span class="tag ${s.tag==='internal'?'internal':'demo'}">${s.tag==='internal'?'Demo internal data':'Demo / unverified'}</span></div></div>`).join('')}</div>
     <div class="disc">The information provided is for reference only and does not constitute official legal or financial advice.</div>
     <div class="ask">
-      <div class="h5">Ask AI about this</div><div class="seg">${roleOptions().map(r=>`<button data-action="readerRole" data-role="${r}" class="${I.readerRole===r?'on':''}">${r}</button>`).join('')}</div>
-      ${articleQuestions(a).map((q,i)=>`<div class="qchip" data-action="ask" data-q="${i}">${q.q}</div>`).join('')}
+      <div class="h5">Ask AI about this</div><div class="seg">${roleOptions(a).map(r=>`<button data-action="readerRole" data-role="${r}" aria-pressed="${activeRole(a)===r}" class="${activeRole(a)===r?'on':''}">${r}</button>`).join('')}</div>
+      ${articleQuestions(a).map((q,i)=>`<button class="qchip" data-action="ask" data-q="${i}">${q.q}</button>`).join('')}
     </div>
     <div class="infobox" style="margin-bottom:0">Choose a question to continue with this article attached.</div>
   </div>
@@ -701,42 +842,60 @@ function renderArticle(){
 }
 
 function renderDomus(){
-  const a=ART[I.articleId] || ART.G1;
+  const a=ART[I.articleId];
   if(!canReadArticle(a))return accessDeniedArticle();
-  const q=articleQuestions(a)[I.question];
+  if(!validQuestionContext(a))return `${statusBar()}${nav('Lio','Article context changed','Back','article')}<div class="phone-body"><div class="infobox">Reopen the current article and choose a question to start with its published version.</div></div>${homebar()}`;
   const loading=I.customState==='loading';
+  const citations=a.sources.slice(0,2).map(s=>s.name+' · '+s.date).join(' · ');
   return `${statusBar()}
   ${nav('Lio','Article question','Back','article')}
   <div class="chat-head"><img src="app-assets/ailogo.png" width="36" height="36" alt="Lio"/><div><div class="who">Lio</div><div class="sub">AI property assistant · demo</div></div></div>
   <div class="chat-body" aria-live="polite">
-    <div class="ctx">↩ Context attached: “${esc(a.short)}”</div>
-    ${q?`<div class="bub user">${esc(q.q)}</div><div class="bub ai">${esc(q.a)}<span class="cite">Source: ${esc(a.sources.slice(0,2).map(s=>s.name+' · '+s.date).join(' · '))}. Demo answer, not a live model.</span></div>`:`
-      <div class="bub ai">Ask me about this article. I can answer the suggested questions below with the article context attached. <span class="cite">Article context is passed silently; no real session is created.</span></div>
-    `}
+    <div class="ctx">↩ Context attached: “${a.short}” · v${I.questionContext.version} · ${I.questionContext.role}</div>
+    ${I.chatTurns.length?I.chatTurns.map(turn=>`<div class="bub user">${esc(turn.q)}</div><div class="bub ai">${turn.a===null?'Thinking…':`${esc(turn.a)}<span class="cite">${turn.recommended?'Source: '+esc(citations)+'. ':''}Demo answer</span>`}</div>`).join(''):
+      '<div class="bub ai">Choose a question about this article to start.</div>'}
     <div class="follow">${articleQuestions(a).map((x,i)=>i===I.question?'':`<div class="qchip" data-action="ask" data-q="${i}">${esc(x.q)}</div>`).join('')}</div>
-    ${I.customQ?`<div class="bub user" style="margin-top:8px">${esc(I.customQ)}</div>${loading?`<div class="bub ai">Thinking…<span class="cite">Simulated model latency; no live call.</span></div>`:I.customA?`<div class="bub ai">${esc(I.customA)}<span class="cite">Demo answer · not a live model.</span></div>`:''}`:''}
     ${I.customError?`<div class="infobox" style="border-color:#FAD2CF;background:#FEF7F6;color:#A50E0E">${esc(I.customError)}</div>`:''}
-    <div class="infobox" style="margin-top:8px;margin-bottom:0">The answer uses this article’s context and does not repeat the full article. This demo answers the recommended questions; a live model is not connected.</div>
   </div>
   <div class="composer"><input id="chatInput" maxlength="240" placeholder="Ask about this article…" /><div class="cbtn" data-action="openArticle" data-id="${a.id}">◉</div><div class="cbtn send" role="button" tabindex="0" data-action="sendCustom" ${loading?'aria-disabled="true"':''}>Send</div></div>
   ${homebar()}`;
 }
 
 function renderSettings(){
-  return `${statusBar()}${nav('Notifications','Existing device preference','Back','list')}<div class="phone-body">
-  <div class="setrow"><div><div class="t">Push notifications</div><div class="s">Existing master preference and OS permission</div></div><button aria-label="Push notifications" class="toggle ${I.settings.master?'on':''}" data-action="toggle" data-key="master"></button></div>
-  <div class="infobox">${I.settings.master?'Push is on.':'Push is off.'} Daily Brief: at most 1/day. Project updates: at most 1/day across all bound projects. There are no separate Daily / Project preferences.</div>
+  return `${statusBar()}${nav('Notifications','System permission preview','Back','list')}<div class="phone-body">
+  <div class="setrow"><div><div class="t">Device notification permission</div><div class="s">Simulated OS permission</div></div><button aria-label="Device notification permission" aria-pressed="${I.settings.osAllowed}" class="toggle ${I.settings.osAllowed?'on':''}" data-action="toggleOs"></button></div>
+  <div class="infobox">${I.settings.osAllowed?'System permission is on.':'System permission is off.'} Daily Brief: at most 1/day. Project updates: at most 1/day across all bound projects and devices.</div>
   <div class="section"><b>Current project bindings</b><span>${I.boundProjects.length} active</span></div>
   <div class="infobox">Published general news remains readable with notifications off. Project articles require a current effective project binding; access ends after unbinding.</div></div>${homebar()}`;
 }
 
+function readPublishedInApp(id){
+  I.tab='cend'; I.screen='list'; I.listTab=ART[id]?.type==='project'?'projects':'daily';
+  openArticle(id); syncInsightUrl(); render();
+}
+
+function renderNotificationPreview(){
+  const notice=I.notificationPreview;
+  return `${statusBar()}${nav('Notifications','Device preview','Back','list')}<div class="phone-body">
+    <section class="news-section insights"><p class="news-caption">Simulated device notification · Property Insights</p>
+      <h1>${esc(notice.title)}</h1><p class="news-caption">Published v${notice.version}</p>
+      <button class="btn blue" data-action="openNotificationArticle" style="margin-top:12px">Open article</button>
+    </section>
+  </div>${homebar()}`;
+}
+
 function phone(){
   if(I.screen==='appHome') return renderAppHome();
+  if(I.screen==='projectDetails') return renderProjectDetails();
+  if(I.screen==='editorialList') return renderEditorialList();
+  if(I.screen==='editorialArticle') return renderEditorialArticle();
   if(I.screen==='appAssistant') return renderAppAssistant();
   if(I.screen==='list') return renderList();
   if(I.screen==='article') return renderArticle();
   if(I.screen==='domus') return renderDomus();
   if(I.screen==='settings') return renderSettings();
+  if(I.screen==='notification'&&I.notificationPreview) return renderNotificationPreview();
+  if(I.screen==='staleNotice') return `${statusBar()}${nav('Property Insights','Article updated','Back','list')}<div class="phone-body"><div class="infobox">This notification refers to an earlier version. Open the list to read the current published article.</div><button class="btn" data-action="back" data-screen="list">View article list</button></div>${homebar()}`;
   return renderList();
 }
 
@@ -758,22 +917,26 @@ function authN(action, art, platformOnly=false){
   if(!perm) return {ok:false,reason:'unknown action'};
   if(!hasPerm(perm)) return {ok:false,reason:'missing '+perm};
   if(art && !inScope(art)) return {ok:false,reason:'object outside '+duty().scope};
+  if(art?.project==='—') return {ok:false,reason:'Daily Brief is managed by the system run'};
   if(platformOnly && duty().scope!=='platform') return {ok:false,reason:'platform scope required'};
   return {ok:true};
 }
 function denyN(res){ I.pamToast='Blocked: '+res.reason+'. Local state was not changed.'; render(); return false; }
-function userPushSettings(id,u){ return id==='A' ? I.settings : (u.settings||{master:false}); }
-function pushAudience(a){ return Object.entries(I.pushUsers).filter(([id,u])=>a.project==='—'||u.projects.includes(a.project)); }
+function recordReview(a,decision,reason){
+  (a.reviewHistory ||= []).push({version:a.version,actor:'demo.ops',at:I.pushDay+' '+I.pushClock+' SGT',decision,reason});
+}
+function userPushSettings(id,u){ return id==='A' ? I.settings : u.settings; }
+function pushAudience(a){ return Object.entries(I.pushUsers).filter(([id,u])=>a.project==='—'||(id==='A'?I.boundProjects:u.projects).includes(a.project)); }
 function pushEligible(a){
- if(a.status!=='published'||!a.publishedAt||a.publishedAt.slice(0,10)!==I.pushDay||a.publishedVersion!==a.version)return [];
+ if(!hasPublishedVersion(a)||!hasPendingPush(a)||a.publishedAt.slice(0,10)!==I.pushDay)return [];
  if(a.project==='—'&&I.pushClock>='10:00')return [];
- return pushAudience(a).filter(([uid,u])=>userPushSettings(uid,u).master&&(a.project==='—'?u.generalUsed<1:u.projectUsed<1&&firstProjectForUser(uid)?.id===a.id));
+ return pushAudience(a).filter(([uid,u])=>userPushSettings(uid,u).osAllowed&&(a.project==='—'?u.generalUsed<1:u.projectUsed<1&&firstProjectForUser(uid)?.id===a.id));
 }
 function pushBlockReason(a){
  if(!a.publishedAt||a.publishedAt.slice(0,10)!==I.pushDay)return 'not a newly published version today; no carryover';
  if(a.project==='—'&&I.pushClock>='10:00')return 'GENERAL catch-up cutoff 10:00 SGT; content remains readable';
  const audience=pushAudience(a);if(!audience.length)return 'no current bound users';
- if(audience.every(([id,u])=>!userPushSettings(id,u).master))return 'existing master preference is off';
+ if(audience.every(([id,u])=>!userPushSettings(id,u).osAllowed))return 'device notification permission is off';
  return 'daily quota or an earlier published project version has priority';
 }
 function pushSummary(a){ const u=pushAudience(a); const e=pushEligible(a); return e.length+'/'+u.length+' sample users eligible'; }
@@ -785,8 +948,8 @@ function lastPushLabel(){
   const r=rows[rows.length-1];
   return r.b.batchId+' · '+r.b.day+' '+r.b.at;
 }
-function projectArticleIds(){ return ['P1','P3','P4','P5'].concat(ART.P6?['P6']:[]).filter(id=>ART[id]&&ART[id].project==='The Landmark'&&canReadArticle(ART[id])); }
-function unreadProjectCount(){ return projectArticleIds().filter(id=>!I.readArticles.includes(id)).length; }
+function projectArticleIds(project){ return projectIds().filter(id=>ART[id].project===project&&canReadArticle(ART[id])); }
+function unreadProjectCount(){ return projectIds().filter(id=>canReadArticle(ART[id])&&!I.readArticles.includes(id)).length; }
 function unreadBadge(){ const n=unreadProjectCount(); return n?n+' unread':'All read'; }
 function firstAllowedId(){ const a=allowedPam()[0]; return a?a.id:null; }
 function setDuty(id){
@@ -799,8 +962,9 @@ function noAccessPanel(code){
 }
 function syncInsightUrl(){ const u=new URL(location.href); if(I.tab==='pam') u.searchParams.set('mode','pam'); else u.searchParams.delete('mode'); history.replaceState(null,'',u); }
 function pushBadge(p){
-  return ({unknown:'<span class="tag amber">Unknown · quota held</span>', sent:'<span class="tag green">Submitted · not delivery</span>', not_sent:'<span class="tag">Not sent</span>', skipped:'<span class="tag amber">Skipped</span>', failed:'<span class="tag red">Failed</span>'})[p] || p;
+  return ({unknown:'<span class="tag amber">Unknown · quota held</span>', sent:'<span class="tag green">Submitted · not delivery</span>', partial:'<span class="tag amber">Some users waiting</span>', not_sent:'<span class="tag">Not sent</span>', skipped:'<span class="tag amber">Skipped</span>', failed:'<span class="tag red">Failed</span>'})[p] || p;
 }
+function demoAcceptedBatch(a){return a.pushBatches?.findLast(b=>b.version===a.publishedVersion&&b.status==='sent'&&b.demoReaderAccepted);}
 
 function pamShell(inner){
   const d=duty();
@@ -890,13 +1054,13 @@ function renderPamReview(){
   const a=PAM[I.pamSelected] || PAM.P6;
   if(!inScope(a)) return `<div class="pam-card"><div class="h">Out of scope</div><div class="pam-preview"><p>This article belongs to <b>${a.project}</b>, outside the current simulated scope <b>${duty().scope}</b>. The detail is not rendered even if the ID is supplied directly.</p></div></div>`;
   const editing=I.pamEditing;
-  const canEdit=hasPerm('ai:insight:article:edit');
-  const canReview=hasPerm('ai:insight:article:review');
-  const canPublish=hasPerm('ai:insight:article:publish');
-  const canPush=hasPerm('ai:insight:push:send');
-  const canGen=hasPerm('ai:insight:generate');
+  const isProject=a.project!=='—';
+  const canEdit=isProject&&hasPerm('ai:insight:article:edit');
+  const canReview=isProject&&hasPerm('ai:insight:article:review');
+  const canPublish=isProject&&hasPerm('ai:insight:article:publish');
+  const canPush=isProject&&hasPerm('ai:insight:push:send');
+  const canGen=isProject&&hasPerm('ai:insight:generate');
   const reviewOk=a.reviewedVersion===a.version;
-  const canRetrySkipped=a.push==='skipped' && pushEligible(a).length>0;
   return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
   <div style="margin-bottom:8px"><button class="pam-btn" data-action="pamView" data-view="queue">‹ Back to Review Queue</button></div>
   <div class="pam-grid">
@@ -904,13 +1068,14 @@ function renderPamReview(){
       <div class="pam-card">
         <div class="h">Preview · ${a.project==='—'?'General brief':a.project} · content v${a.version}</div>
         <h2>${esc(a.title)}</h2>
+        ${a.summary?`<p class="pam-note">${esc(a.summary)}</p>`:''}
         <div style="font-size:8px;color:var(--muted);margin-bottom:6px">${a.sources} sources · generated ${a.time} · demo model v0.1 · review ${a.reviewedVersion?'v'+a.reviewedVersion:'pending'}</div>
         ${editing?`<div style="font-size:8px;color:var(--muted);margin-bottom:3px">Title</div><input class="pam-input" id="pamEditTitle" value="${esc(a.title)}" /><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Body</div><textarea class="pam-textarea" id="pamEditBody">${esc(a.body)}</textarea><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Recommended questions (one per line)</div><textarea class="pam-textarea" id="pamEditQuestions">${esc((a.pamQuestions||[]).join('\n'))}</textarea><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Source correction note</div><input class="pam-input" id="pamEditSource" value="${esc(a.editSource||'')}" /><div class="pam-actions"><button class="pam-btn primary" data-action="pamSaveEdit">Save as new version</button><button class="pam-btn" data-action="pamCancelEdit">Cancel</button></div>`:`<div class="pam-preview">${a.body?`<p>${esc(a.body)}</p>`:'<p style="color:var(--muted)">Not generated yet. Start generation to create a draft for review.</p>'}${a.pamQuestions&&a.pamQuestions.length?`<div style="font-size:7.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:5px"><b>Recommended questions</b><ul style="margin:3px 0 0;padding-left:13px">${a.pamQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div>`:''}</div>`}
       </div>
       <div class="pam-card">
         <div class="h">Source check</div>
         <div class="pam-row"><span class="k">Sources attached</span><span class="v">${a.sources}</span></div>
-        <div class="pam-row"><span class="k">Source list</span><span class="v">${a.editSource||'—'}</span></div>
+        <div class="pam-row"><span class="k">Source list</span><span class="v">${esc(a.editSource||'—')}</span></div>
         <div class="pam-row"><span class="k">No unit numbers or names</span><span class="v">✓ demo check</span></div>
         <div class="pam-row"><span class="k">Disclaimer present</span><span class="v">✓ demo check</span></div>
         <div class="pam-row"><span class="k">Source links verifiable</span><span class="v" style="color:var(--amber)">Demo / unverified</span></div>
@@ -920,9 +1085,11 @@ function renderPamReview(){
         <div class="h">Version state</div>
         <div class="pam-row"><span class="k">Current content</span><span class="v">v${a.version}</span></div>
         <div class="pam-row"><span class="k">Reviewed version</span><span class="v">${a.reviewedVersion?'v'+a.reviewedVersion:'—'}</span></div>
-        <div class="pam-row"><span class="k">Last action</span><span class="v">demo.ops · ${a.time||'—'}</span></div><div class="pam-row"><span class="k">Publish allowed for current version</span><span class="v" style="color:${reviewOk&&a.status==='approved'?'var(--green)':'var(--amber)'}">${reviewOk&&(a.status==='approved'||a.status==='published')?'Yes':'No — review current version first'}</span></div>
+        <div class="pam-row"><span class="k">Generation trigger</span><span class="v">${a.generationTrigger||'—'}</span></div>
+        <div class="pam-row"><span class="k">Publish allowed for current version</span><span class="v" style="color:${reviewOk&&a.status==='approved'?'var(--green)':'var(--amber)'}">${reviewOk&&a.status==='approved'?'Yes':a.status==='published'?'Already published':'No — review current version first'}</span></div>
         <div class="pam-note">Editing or regenerating increments the version and clears the previous review. A published article is not reverted when a new draft is created.</div>
       </div>
+      <div class="pam-card"><div class="h">Review history</div>${(a.reviewHistory||[]).slice().reverse().map(r=>`<div class="pam-row"><span class="k">v${r.version} · ${r.decision}</span><span class="v">${r.actor} · ${r.at}</span></div><div class="pam-note">${esc(r.reason)}</div>`).join('')||'<div class="pam-note">No review recorded yet.</div>'}</div>
     </div>
     <div>
       <div class="pam-card">
@@ -941,7 +1108,8 @@ function renderPamReview(){
         <div class="pam-row"><span class="k">General push today</span><span class="v">${generalPushToday()} / 1 sent</span></div>
         <div class="pam-row"><span class="k">Sample users</span><span class="v">${pushAudience(a).map(([id,u])=>u.label+' '+u.projectUsed+'/1').join(' · ')||'—'}</span></div>
         <div class="pam-row"><span class="k">Eligible today</span><span class="v">${pushEligible(a).length} / ${pushAudience(a).length} sample users · ${I.pushDay}</span></div>
-        <div class="pam-note">Per-user cap: 1 general + 1 project = 2/day. Multiple bound projects do not add quota. A user already served for one project is not counted again; other eligible users can still receive the next project push.</div>
+        <div class="pam-note">Per-user cap: 1 general + 1 project = 2/day. Project notifications use today’s published time, then article ID. Delaying one user does not block another.</div>
+        ${a.project!=='—'&&hasPublishedVersion(a)?pushAudience(a).map(([id,u])=>`<div class="pam-row"><span class="k">${u.label}</span><span class="v">${projectPushStatus(a,id,u)}</span></div>`).join(''):''}
       </div>
       ${a.status==='generating'?`<div class="pam-card"><div class="h">Generating</div><div class="pam-note">Draft is being generated. It will move to Pending review when complete; this is a local timer, not a real model call.</div></div>`:''}
       ${a.status==='pending_review'?`
@@ -956,7 +1124,7 @@ function renderPamReview(){
             <textarea class="pam-textarea" id="pamRejectNote" style="margin-top:5px">${I.pamRejectNote}</textarea>
             <div class="pam-actions"><button class="pam-btn danger" data-action="pamRejectConfirm">Confirm reject</button><button class="pam-btn" data-action="pamRejectCancel">Cancel</button></div>
           </div>`:''}
-          <div class="pam-note">Plain-text edit for demo; rich-text editor choice is not decided. Rejection must record a reason. Whether editor and reviewer must be different people is still a business rule to confirm.</div>
+          <div class="pam-note">Rejection requires a reason. Review follows the assigned action permission.</div>
         </div>`:''}
       ${a.status==='approved'?`
         <div class="pam-card"><div class="h">Approved · not published</div>
@@ -970,23 +1138,78 @@ function renderPamReview(){
       ${a.status==='generation_failed'?`<div class="pam-card"><div class="h">Generation failed</div><div class="pam-preview"><p><b>Reason:</b> ${esc(a.error||'Not recorded')}</p><p>No draft was produced. Retry creates a new generation attempt; it does not publish anything.</p></div><div class="pam-actions">${canGen?`<button class="pam-btn primary" data-action="pamGenerate" data-id="${a.id}">Retry generation</button>`:`<button class="pam-btn" disabled>Retry · no permission</button>`}</div></div>`:''}
       ${a.status==='pending_generation'?`
         <div class="pam-card"><div class="h">Not generated</div><div class="pam-note">Start a simulated generation. It will move to pending review; no real AI call is made.</div><div class="pam-actions">${canGen?`<button class="pam-btn primary" data-action="pamGenerate" data-id="${a.id}">Generate article</button>`:`<button class="pam-btn" disabled>Generate · no permission</button>`}</div></div>`:''}
-      ${a.status==='published'?`
+      ${hasPublishedVersion(a)?`
         <div class="pam-card"><div class="h">Publish result</div>
-          <div class="pam-row"><span class="k">Article</span><span class="v" style="color:var(--green)">Published v${a.version}</span></div>
+          <div class="pam-row"><span class="k">Article</span><span class="v" style="color:var(--green)">Published v${a.publishedVersion}</span></div>
+          <div class="pam-row"><span class="k">Publication day (SGT)</span><span class="v">${a.publishedAt.slice(0,10)}</span></div>
           <div class="pam-row"><span class="k">Push</span><span class="v">${pushBadge(a.push)}</span></div>
           <div class="pam-actions">
+            <button class="pam-btn" data-action="readPublished">View published in App</button>
             ${a.push==='not_sent'&&canPush?`<button class="pam-btn primary" data-action="pamPush">Send push</button>`:''}
             ${a.push==='failed'&&canPush?`<button class="pam-btn primary" data-action="pamPush">Retry push</button>`:''}
-            ${a.push==='unknown'?`<div class="pam-note">Outcome unknown. Daily quota remains occupied; reconcile the original request before any further action.</div>`:''}
-            ${!canPush?`<span class="pam-note">Push send requires ai:insight:push:send.</span>`:''}${canEdit?`<button class="pam-btn" data-action="pamEdit">New version</button>`:''}
+            ${a.push==='partial'&&canPush?`<button class="pam-btn primary" data-action="pamPush">Continue pending push</button>`:''}
+            ${demoAcceptedBatch(a)?'<button class="pam-btn" data-action="previewPush">Preview device notification</button>':''}
+            ${a.push==='unknown'?`<div class="pam-note">Outcome unknown. The original submission day’s quota remains reserved until reconciliation.</div>`:''}
+            ${!isProject?'<span class="pam-note">The system run controls Daily Brief publication and notification.</span>':!canPush?'<span class="pam-note">Push send requires ai:insight:push:send.</span>':''}${canEdit&&a.status==='published'?`<button class="pam-btn" data-action="pamEdit">New version</button>`:''}
             <button class="pam-btn" data-action="pamView" data-view="queue">Back to Review Queue</button>
           </div>
           ${a.push==='skipped'?`<div class="pam-note">Skipped: ${(a.pushBatches&&a.pushBatches.length?a.pushBatches[a.pushBatches.length-1].reason:'')||'no eligible users'}.</div>`:''}
-          ${a.push==='sent'?`<div class="pam-note">Batch sent to ${(a.pushBatches&&a.pushBatches.length?a.pushBatches[a.pushBatches.length-1].sent:0)}/${(a.pushBatches&&a.pushBatches.length?a.pushBatches[a.pushBatches.length-1].eligible:0)} eligible sample users; ${a.audienceCount.toLocaleString()} demo device estimate. Not a real delivery.</div>`:''}
+          ${a.push==='sent'||a.push==='partial'?`<div class="pam-note">Device delivery is unverified. The preview simulates tapping a notification for the demo reader.</div>`:''}
         </div>`:''}
     </div>
   </div>
-  <div class="pam-note">Publishing v${a.version} adds the article to the C-end project list when the local prototype state is shared; push is still separate. Other project articles are not auto-published. Server-side permission, idempotency and delivery are not verified.</div>`;
+  <div class="pam-note">After publication, readers with the current project binding can open the approved version. Push is a separate action.</div>`;
+}
+
+function renderGeneralRecovery(){
+  const r=I.recovery;
+  const waiting=r.original==='unknown';
+  const scheduled=r.original==='scheduled';
+  const canRecover=authN('generate',null,true).ok;
+  const options=(choices,selected)=>choices.map(([value,label])=>`<option value="${value}" ${value===selected?'selected':''}>${label}</option>`).join('');
+  const outcome=r.status==='published'?(r.sent===0?(!scheduled&&r.completion>='10:00'?'Published · push skipped at the 10:00 SGT cutoff':'Published · no eligible devices'):'Published · channel accepted for '+r.sent+' sample user(s)'):
+    r.status==='running'?'Validating brief…':r.status==='held'?'Source check failed · held from publication and push':waiting?'Unknown · reconcile the original run before any retry':scheduled?'Ready for the 08:00 scheduled run':'Ready for controlled recovery';
+  return `<div class="pam-card" id="generalRecovery"><div class="h">Daily Brief · generation and recovery</div>
+    <div class="pam-row"><span class="k">Business date / slot</span><span class="v">${GENERAL_RECOVERY_KEY}</span></div>
+    <div class="pam-row"><label class="k" for="recoveryOriginal">08:00 SGT execution</label><select class="pam-select" id="recoveryOriginal" ${canRecover&&r.status!=='running'?'':'disabled'}>${options([['scheduled','Normal scheduled run'],['not_started','Confirmed not started'],['failed','Confirmed failed'],['unknown','Unknown outcome']],r.original)}</select></div>
+    ${scheduled?'':`<div class="pam-row"><label class="k" for="recoveryCompletion">Recovery completion (SGT)</label><select class="pam-select" id="recoveryCompletion" ${canRecover&&r.status!=='running'?'':'disabled'}>${options([['09:30','09:30'],['10:00','10:00'],['10:15','10:15']],r.completion)}</select></div>`}
+    <div class="pam-row"><label class="k" for="recoveryEvidence">Source check</label><select class="pam-select" id="recoveryEvidence" ${canRecover&&r.status!=='running'?'':'disabled'}>${options([['valid','Dated, verifiable evidence'],['insufficient','Unavailable or undated evidence']],r.evidence)}</select></div>
+    <div class="pam-row"><span class="k">Outcome</span><span class="v" role="status">${outcome}</span></div>
+    <div class="pam-row"><span class="k">${scheduled?'Runs for slot':'Recovery attempts for slot'}</span><span class="v">${r.attempts}</span></div>
+    <div class="pam-actions"><button class="pam-btn primary" data-action="recoverGeneral" ${canRecover&&!waiting&&r.status==='ready'?'':'disabled'}>${scheduled?'Simulate 08:00 scheduled run':'Recover this Daily Brief'}</button>${r.status==='published'?'<button class="pam-btn" data-action="readRecovered">Read published brief</button>':''}</div>
+    <div class="pam-note">Demo scenario. Changing the test inputs resets this scenario. At 10:00 SGT and later, valid content can publish without a catch-up notification.</div>
+  </div>`;
+}
+
+function recoverGeneral(){
+  const auth=authN('generate',null,true);
+  if(!auth.ok) return denyN(auth);
+  const r=I.recovery;
+  if(r.original==='unknown'||r.status!=='ready') return;
+  const scheduled=r.original==='scheduled';
+  const time=scheduled?'08:00':r.completion;
+  r.status='running'; r.attempts++;
+  render();
+  setTimeout(()=>{
+    if(I.recovery!==r) return;
+    if(r.evidence!=='valid'){ r.status='held'; render(); return; }
+    const sample=pushAudience({project:'—'});
+    const eligible=time<'10:00'?sample.filter(([id,u])=>userPushSettings(id,u).osAllowed):[];
+    r.sent=eligible.length;
+    const a={id:'GBR',version:1,project:'—',publishedAt:GENERAL_RECOVERY_DATE+'T'+time+':00+08:00',
+      title:(scheduled?'Daily Brief · ':'Recovered Daily Brief · ')+GENERAL_RECOVERY_DATE,
+      summary:'A sample look at resale volumes and the mix of homes sold, with context for reading median prices.',
+      body:'This sample market brief looks at resale transaction volumes and changes in the mix of homes sold. Compare the same period and home types before interpreting median prices. Check the dates in the source notes.',
+      editSource:'URA sample + MAS sample + LTA sample'};
+    const push=r.sent>0?'sent':'skipped';
+    const reason=time>='10:00'?'GENERAL catch-up cutoff 10:00 SGT':!r.sent?'No eligible devices':null;
+    PAM[a.id]={...a,status:'published',reviewedVersion:1,publishedVersion:1,monitoring:false,
+      push,sources:3,time,audience:'All app users',audienceCount:sample.length,generationTrigger:scheduled?'GENERAL_SCHEDULED':'GENERAL_RECOVERY',
+      reviewHistory:[{version:1,decision:'Validated',actor:'system',at:GENERAL_RECOVERY_DATE+' '+time+' SGT',reason:'Daily Brief source and content checks passed (demo).'}],
+      pushBatches:[{batchId:GENERAL_RECOVERY_KEY+'-v1',version:1,title:a.title,project:'—',target:'All app users',status:push,eligible:sample.length,sent:r.sent,skipped:sample.length-r.sent,day:GENERAL_RECOVERY_DATE,at:time,reason,demoReaderAccepted:eligible.some(([id])=>id==='A')}]};
+    publishToCend(a);
+    r.status='published'; render();
+  },450);
 }
 
 function renderPamSettings(){
@@ -996,11 +1219,12 @@ function renderPamSettings(){
   <div class="pam-card"><div class="h">Generation settings · minimum scope</div>
     <div style="font-size:8.5px;color:#374151;line-height:1.6">Only the minimum confirmed settings are exposed. The daily cap is fixed at 1 general + 1 project per user and is not configurable here. Source links and Prompt versions are demo values.</div></div>
     <div class="pam-card"><div class="h">Daily generation</div><div class="pam-note">SG08:00 generation / SG10:00 GENERAL catch-up notification cutoff. Today-only project queue: published_at ASC, article_id ASC. Official first, seven-day news; unread or unknown-date sources are not verified. No mandatory two-person approval.</div>
-      <div class="pam-row"><span class="k">Schedule</span><span class="v"><input class="pam-input" id="cfgSchedule" value="${d.schedule}" style="width:180px" ${canWrite?'':'disabled'} /></span></div>
+      <div class="pam-row"><span class="k">Schedule</span><span class="v">08:00 Asia/Singapore</span></div>
       <div class="pam-row"><span class="k">Source scope</span><span class="v"><input class="pam-input" id="cfgSources" value="${d.sources}" style="width:300px" ${canWrite?'':'disabled'} /></span></div>
       <div class="pam-row"><span class="k">Prompt version</span><span class="v"><input class="pam-input" id="cfgPrompt" value="${d.prompt}" style="width:220px" ${canWrite?'':'disabled'} /></span></div>
       <div class="pam-row"><span class="k">Daily push cap</span><span class="v">1 general + 1 project = 2 / user / day</span></div>
     </div>
+    ${renderGeneralRecovery()}
     <div class="pam-card"><div class="h">Permission check</div>
       <div class="pam-row"><span class="k">ai:insight:config:read</span><span class="v">${hasPerm('ai:insight:config:read')?'Allowed':'Denied'}</span></div>
       <div class="pam-row"><span class="k">ai:insight:config:write</span><span class="v">${canWrite?'Allowed':'Denied'}</span></div>
@@ -1010,10 +1234,10 @@ function renderPamSettings(){
     <div class="pam-card"><div class="h">Related design</div><div style="font-size:8.5px;color:#374151;line-height:1.6">Menu: AI Property Services / Property Insights / Generation Settings. Permission: <code>ai:insight:config:read</code> / <code>ai:insight:config:write</code>. See DOC-19 for the full role/menu/permission mapping.</div></div>`;
 }
 function renderPamPushLog(){
-  const rows=allowedPam().flatMap(a=>(a.pushBatches||[]).map(b=>({a,b})));
+  const rows=allowedPam().flatMap(a=>(a.pushBatches||[]).map(b=>({a,b}))).sort((x,y)=>(y.b.day+' '+y.b.at).localeCompare(x.b.day+' '+x.b.at));
   return `<div class="pam-table">
     <div class="ptr head"><div>Batch / article</div><div>Project</div><div>Ver.</div><div>Target</div><div>Push</div><div>Retries</div></div>
-    ${rows.length?rows.map(({a,b})=>`<div class="ptr"><div><div class="ti">${b.batchId}</div><div class="sub">${a.title}</div></div><div>${b.project}</div><div>v${b.version}</div><div>${b.target} · ${b.sent}/${b.eligible} sent${b.skipped?' · '+b.skipped+' skipped':''}${b.reason?' · '+b.reason:''}</div><div>${pushBadge(b.status)}</div><div>${b.retries||0}</div></div>`).join(''):'<div class="pam-note" style="padding:12px">No push batch yet.</div>'}
+    ${rows.length?rows.map(({a,b})=>`<div class="ptr"><div><div class="ti">${b.batchId}</div><div class="sub">${esc(b.title||a.title)} · ${b.day} ${b.at} SGT</div></div><div>${b.project}</div><div>v${b.version}</div><div>${b.target} · ${b.sent}/${b.eligible} submitted${b.waiting?' · '+b.waiting+' waiting':''}${b.skipped?' · '+b.skipped+' skipped':''}${b.reason?' · '+b.reason:''}</div><div>${pushBadge(b.status)}</div><div>${b.retries||0}</div></div>`).join(''):'<div class="pam-note" style="padding:12px">No push batch yet.</div>'}
   </div>
   <div class="pam-note">Each row records a simulated attempt. The article version identifies the logical batch; a definite failed retry retains that identity. Submitted does not mean device-delivered. Editing a new draft does not rewrite an old batch. No user contact details are shown.</div>`;
 }
@@ -1026,25 +1250,31 @@ function render(){
   document.querySelectorAll('#modeTabs button').forEach(b=>b.classList.toggle('on', b.dataset.mode===I.tab));
   renderConsole();
   bind();
-  const body=document.querySelector('.phone .phone-body');if(body){const key=I.screen+':'+I.listTab+':'+(I.screen==='article'?I.articleId:'');body.dataset.readKey=key;body.scrollTop=I.readingPositions&&I.readingPositions[key]||0;}
+  const chat=$('#stage .chat-body'); if(chat&&I.chatTurns.length) chat.scrollTop=chat.scrollHeight;
+  const body=document.querySelector('.phone .phone-body');if(body){const key=I.screen+':'+I.listTab+':'+(I.screen==='article'?I.articleId:I.screen==='projectDetails'?I.activeProject:'');body.dataset.readKey=key;body.scrollTop=I.readingPositions&&I.readingPositions[key]||0;}
   document.querySelectorAll('.phone [data-action]').forEach(el=>{if(!/^(BUTTON|A|INPUT|SELECT)$/.test(el.tagName)){el.setAttribute('role','button');el.tabIndex=0;el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click();}});}});
 }
 
 function renderConsole(){
   const actions=$('#actions');
   actions.innerHTML = I.tab==='cend'
-    ? `<button data-action="demoBinding">${I.boundProjects.length?'Unbind project (demo)':'Restore binding (demo)'}</button><button data-action="demoBuyer">Current buying intent: ${I.buyerIntent?'yes':'no'}</button><button data-action="feedLoading">Feed loading</button><button data-action="feedError">Feed error</button><button data-action="feedEmpty">Feed empty</button><button data-action="feedReady">Feed ready</button><button data-action="resetCend">Reset C-end</button><button data-action="resetAll">Reset all</button>`
+    ? `<button data-action="demoBinding">${I.boundProjects.length?'Unbind project (demo)':'Restore binding (demo)'}</button><button data-action="demoMulti">${I.boundProjects.length===2?'Use one bound project':'Use two bound projects'}</button><button data-action="demoBuyer" ${['article','domus'].includes(I.screen)&&canReadArticle(ART[I.articleId])?'':'disabled'}>Current buying intent: ${I.buyerIntent?'yes':'no'}</button><button data-action="sampleNotification" ${I.settings.osAllowed&&demoAcceptedBatch(PAM[I.dailyArticleId])?'':'disabled'}>Preview current Daily Brief notification</button><button data-action="feedLoading">Feed loading</button><button data-action="feedError">Feed error</button><button data-action="feedEmpty">Feed empty</button><button data-action="feedReady">Feed ready</button><button data-action="resetCend">Reset C-end</button><button data-action="resetAll">Reset all</button>`
     : `<div class="duty-grid" style="grid-column:1/-1">${Object.entries(DUTIES).map(([id,d])=>`<button class="${I.duty===id?'on':''}" data-action="duty" data-duty="${id}">${d.label}<small>${d.role}</small></button>`).join('')}</div><button data-action="resetPam">Reset PAM</button><button data-action="scopeProbe">Probe out-of-scope T1</button><button data-action="nextDay">Next day · reset quota</button><button data-action="pushFail">Simulate next push failure</button><button data-action="pushUnknown">Simulate unknown submission</button><button data-action="resetAll">Reset all</button>`;
-  const a=I.articleId?ART[I.articleId]:null;
-  const q=a&&I.question!==null?articleQuestions(a)[I.question]:null;
+  const editorial=['editorialList','editorialArticle'].includes(I.screen);
+  const aiArticle=['article','domus'].includes(I.screen);
+  const a=aiArticle?ART[I.articleId]:null;
+  const ctx=validQuestionContext(a)?I.questionContext:null;
   const pam=PAM[I.pamSelected];
   $('#statebox').innerHTML = I.tab==='cend'
     ? `<div class="kv"><span class="k">Tab</span><span class="v">C-end</span></div>
        <div class="kv"><span class="k">Screen</span><span class="v">${I.screen}</span></div>
+       ${editorial?`<div class="kv"><span class="k">Section</span><span class="v">Property News · editorial</span></div>
+       <div class="kv"><span class="k">Article_ID</span><span class="v">${I.screen==='editorialArticle'?I.editorialArticleId:'—'}</span></div>`:`
        <div class="kv"><span class="k">List tab</span><span class="v">${I.listTab}</span></div>
-       <div class="kv"><span class="k">Article_ID</span><span class="v">${I.articleId||'—'}</span></div>
-       <div class="kv"><span class="k">Question</span><span class="v">${q?q.q.slice(0,28)+'…':'—'}</span></div>
-       <div class="kv"><span class="k">Push master</span><span class="v">${I.settings.master?'On':'Off'}</span></div>`
+       <div class="kv"><span class="k">Article_ID</span><span class="v">${aiArticle?esc(I.articleId):'—'}</span></div>
+       <div class="kv"><span class="k">Published version / role</span><span class="v">${ctx?'v'+ctx.version+' / '+ctx.role:'—'}</span></div>
+       <div class="kv"><span class="k">Question_ID</span><span class="v">${ctx?.questionId||'—'}</span></div>
+       <div class="kv"><span class="k">Device notifications</span><span class="v">${I.settings.osAllowed?'Allowed':'Off'}</span></div>`}`
     : `<div class="kv"><span class="k">Duty</span><span class="v">${duty().label}</span></div>
        <div class="kv"><span class="k">Role</span><span class="v">${duty().role}</span></div>
        <div class="kv"><span class="k">Scope</span><span class="v">${duty().scope}</span></div>
@@ -1055,17 +1285,19 @@ function renderConsole(){
        <div class="kv"><span class="k">Push</span><span class="v">${pam?pam.push:'—'}</span></div>
        <div class="kv"><span class="k">Eligible users</span><span class="v">${pam&&pam.project!=='—'?pushSummary(pam):'—'}</span></div>`;
   $('#checklist').innerHTML = I.tab==='cend'
-    ? `<div><b>N1</b> · Daily Brief / My Projects 切换，列表仍可打开项目文章。</div>
-       <div><b>N2</b> · 3 个推荐问题、来源数与列表一致、项目归属和 Demo 标识。</div>
-       <div><b>N3</b> · 点不同文章/问题，回答不串上下文；Article_ID 在右侧状态栏。</div>
-       <div><b>N4</b> · 项目页只出现 The Landmark 的专属文章。</div>
-       <div><b>N6</b> · 关 Push 后回列表，文章仍然可读。</div>`
+    ? `<div><b>人工新闻</b> · Project Details → Property News → More → 阅读原 CMS 稿件样例。</div>
+       <div><b>AI 舆情</b> · Home → Property Insights，切换 Daily Brief / My Projects。</div>
+       <div><b>来源</b> · 文章含来源、日期、免责声明及 3～4 个推荐问题。</div>
+       <div><b>追问</b> · Landmark 的业主／租客问组与 Tembusu 的租客问组分开。右侧显示文章、版本和问题 ID。</div>
+       <div><b>项目</b> · Project Details → Project Insights。解绑后，项目 AI 文章及追问失效。</div>
+       <div><b>通知</b> · 关闭模拟系统权限后，已发布文章仍可阅读。</div>`
     : `<div><b>RBAC</b> · 未知职责 fail-closed；只读/编辑/审核/项目范围/物业无权限。</div>
        <div><b>菜单</b> · 无 ai:insight:view 时不显示 AI Property Services。</div>
        <div><b>动作</b> · 每个写动作检查权限 + 对象范围 + 业务状态，失败不改状态。</div>
-       <div><b>版本</b> · 编辑/重写 +1 版本并清空 review；旧审核不能发布新版本。</div>
+       <div><b>版本</b> · 编辑/重写后重新审核；保留旧审核记录及已发布快照。</div>
+       <div><b>补跑</b> · Generation Settings 中分别演示未执行、确定失败和未知；10:00 起只发布有效内容。</div>
        <div><b>状态</b> · Approved ≠ Published；Published ≠ Push sent。</div>
-       <div><b>推送</b> · 按模拟用户/日期/项目额度；同人多项目不叠加，其他用户不被误伤。</div>
+       <div><b>推送</b> · 开启双项目样例，先发布 P6，再发布 T1。尝试先推 T1，查看两个用户的资格差异。</div>
        <div><b>闭环</b> · Publish P6 后 C-end 使用已审核快照；Push 独立批次。</div>`;
 }
 
@@ -1073,17 +1305,37 @@ function bind(){
   document.querySelectorAll('#stage [data-action]').forEach(el=>{
     el.addEventListener('click', e=>{
       const a=el.dataset.action;
-      if(a==='outsidePreview'){alert('This preview covers AI Property News and AI Valuation.');return;}
-      if(a==='back'){ I.screen=el.dataset.screen||'list'; I.question=null; I.customQ=''; I.customA=''; I.customError=''; I.customState='idle'; render(); return; }
-      if(a==='readerRole'){if(roleOptions().includes(el.dataset.role)){I.readerRole=el.dataset.role;I.question=null;I.customQ='';I.customA='';}render();return;}
-      if(a==='openArticle'){ if(!canReadArticle(ART[el.dataset.id])){I.screen='article';I.articleId=el.dataset.id;render();return;} I.articleId=el.dataset.id; I.screen='article'; I.question=null; I.customQ=''; I.customA=''; I.customError=''; I.customState='idle'; const art=ART[el.dataset.id]; if(art && art.project && I.boundProjects.includes(art.project) && !I.readArticles.includes(art.id)) I.readArticles.push(art.id); render(); return; }
-      if(a==='ask'){ I.question=Number(el.dataset.q); I.screen='domus'; I.customQ=''; I.customA=''; I.customError=''; I.customState='idle'; render(); return; }
-      if(a==='openDomus'){ I.screen='domus'; I.question=null; I.customQ=''; I.customA=''; I.customError=''; I.customState='idle'; render(); return; }
+      if(a==='appNavigate'){
+        if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey) return;
+        e.preventDefault();
+        I.screen=el.dataset.screen; clearQuestion();
+        const url=new URL(el.href);
+        if(new URLSearchParams(location.search).get('sample')==='twoProjects') url.searchParams.set('sample','twoProjects');
+        history.replaceState(null,'',url); render(); return;
+      }
+      if(a==='outsidePreview'){alert('This preview covers Property Insights and AI Valuation.');return;}
+      if(a==='back'){
+        const leavingArticle=['article','domus'].includes(I.screen)&&el.dataset.screen!=='article';
+        if(leavingArticle) I.buyerIntent=null;
+        I.screen=el.dataset.screen||'list'; clearQuestion(); render(); return;
+      }
+      if(a==='projectDetails'){ I.activeProject=el.dataset.project; I.screen='projectDetails'; clearQuestion(); render(); return; }
+      if(a==='editorialList'){ I.screen='editorialList'; clearQuestion(); render(); return; }
+      if(a==='editorialArticle'){
+        if(!Object.hasOwn(EDITORIAL_NEWS,el.dataset.id)) return;
+        I.editorialArticleId=el.dataset.id;
+        I.editorialBack=I.screen;
+        I.screen='editorialArticle'; clearQuestion(); render(); return;
+      }
+      if(a==='readerRole'){if(roleOptions(ART[I.articleId]).includes(el.dataset.role)){I.readerRole=el.dataset.role;clearQuestion();}render();return;}
+      if(a==='openArticle'){ openArticle(el.dataset.id); render(); return; }
+      if(a==='ask'){ openChat(Number(el.dataset.q)); render(); return; }
+      if(a==='openDomus'){ openChat(); render(); return; }
       if(a==='listTab'){ I.listTab=el.dataset.tab; I.screen='list'; render(); return; }
       if(a==='settings'){ I.screen='settings'; render(); return; }
-      if(a==='toggle'){ I.settings[el.dataset.key]=!I.settings[el.dataset.key]; render(); return; }
+      if(a==='toggleOs'){ I.settings.osAllowed=!I.settings.osAllowed; render(); return; }
       if(a==='sendCustom'){
-        if(!canReadArticle(ART[I.articleId])){render();return;}
+        if(!validQuestionContext(ART[I.articleId])){render();return;}
         if(I.customState==='loading') return;
         const input=$('#chatInput'); const val=input?input.value.trim():'';
         if(!val){ I.customError='Enter a question first.'; render(); return; }
@@ -1094,9 +1346,10 @@ function bind(){
         if(lower.includes('value')||lower.includes('worth')||lower.includes('range')) ans=articleQuestions(art)[0].a;
         else if(lower.includes('sell')) ans=articleQuestions(art)[1].a;
         else if(lower.includes('rent')||lower.includes('yield')) ans=articleQuestions(art)[2].a;
-        I.customQ=val; I.customA=''; I.customError=''; I.customState='loading';
+        const turn={q:val,a:null,recommended:false};
+        I.chatTurns.push(turn); I.customError=''; I.customState='loading';
         const token=(I.chatToken||0)+1; I.chatToken=token; render();
-        setTimeout(()=>{ if(I.chatToken!==token) return; I.customA=ans; I.customState='ready'; render(); },650);
+        setTimeout(()=>{ if(I.chatToken!==token) return; turn.a=ans; I.customState='ready'; render(); },650);
         return;
       }
       if(a==='mode'){ I.tab=el.dataset.mode; syncInsightUrl(); render(); return; }
@@ -1128,10 +1381,16 @@ function bind(){
         if(!auth.ok) return denyN(auth);
         const t=$('#pamEditBody'), ti=$('#pamEditTitle'), qs=$('#pamEditQuestions'), sr=$('#pamEditSource');
         const nextTitle=ti?ti.value.trim():''; const nextBody=t?t.value.trim():'';
-        if(!nextTitle || !nextBody){ I.pamToast='Blocked: title and body are required.'; render(); return; }
+        const questions=qs?qs.value.split('\n').map(x=>x.trim()).filter(Boolean):[];
+        const sources=sr?sr.value.split('+').map(x=>x.trim()).filter(Boolean):[];
+        if(!nextTitle||!nextBody||!sources.length||questions.length<3||questions.length>4){
+          let error=$('#editValidation');
+          if(!error){ error=document.createElement('p'); error.id='editValidation'; error.className='pam-note'; error.setAttribute('role','alert'); el.closest('.pam-actions').after(error); }
+          error.textContent='Enter a title, body, source and 3–4 recommended questions.'; return;
+        }
         if(t) art.body=nextBody;
         if(ti) art.title=nextTitle;
-        if(qs) art.pamQuestions=qs.value.split('\n').map(x=>x.trim()).filter(Boolean);
+        art.pamQuestions=questions;
         if(sr) art.editSource=sr.value;
         art.sources=(art.editSource||'').split('+').map(x=>x.trim()).filter(Boolean).length;
         if(art.status==='published') art.publishedVersion=art.version;
@@ -1146,23 +1405,27 @@ function bind(){
         const r=$('#pamRejectReason'), n=$('#pamRejectNote'); const note=n?n.value.trim():'';
         if(!note){ I.pamToast='Blocked: a written reject reason is required.'; render(); return; }
         art.status='rejected'; art.rejectReason=(r&&r.value?r.value:'Other')+' — '+note; art.reviewedVersion=null;
+        recordReview(art,'Rejected',art.rejectReason);
         I.pamRejectOpen=false; I.pamToast='Rejected. Reason recorded; next version must be reviewed.'; render(); return;
       }
       if(a==='pamApprove'){
         const art=PAM[I.pamSelected]; const auth=authN('approve',art);
         if(!auth.ok) return denyN(auth);
-        if(art.status!=='pending_review' || art.version<1 || !art.body || !art.body.trim() || art.sources<1){
-          I.pamToast='Blocked: only a generated pending-review version with body and sources can be approved.'; render(); return;
+        if(art.status!=='pending_review'||art.version<1||!art.body?.trim()||art.sources<1||art.pamQuestions.length<3||art.pamQuestions.length>4){
+          I.pamToast='Blocked: the pending-review version needs a body, sources and 3–4 recommended questions.'; render(); return;
         }
         art.status='approved'; art.reviewedVersion=art.version;
+        recordReview(art,'Approved','Source and content checked (demo).');
         I.pamToast='Approved v'+art.version+'. Not published; publish is a separate permission.'; render(); return;
       }
       if(a==='pamPublish'){
         const art=PAM[I.pamSelected]; const auth=authN('publish',art);
         if(!auth.ok) return denyN(auth);
         if(art.status!=='approved' || art.reviewedVersion!==art.version){ I.pamToast='Blocked: current v'+art.version+' has no matching approval.'; render(); return; }
-        art.status='published'; art.publishedVersion=art.version; art.publishedAt=I.pushDay+'T08:'+String(10+(I.publishSeq++%50)).padStart(2,'0')+':00+08:00'; art.push='not_sent'; const synced=publishToCend(art);
-        I.pamToast=synced?'Published v'+art.version+'. C-end now uses this approved snapshot; push is still separate.':'Published v'+art.version+'. No C-end page is mapped for '+art.project+'; the article is not shown on C-end. Push is separate.';
+        art.status='published'; art.publishedVersion=art.version; art.publishedTitle=art.title;
+        art.publishedAt=I.pushDay+'T'+I.pushClock+':'+String(I.publishSeq++).padStart(2,'0')+'+08:00';
+        art.push='not_sent'; art.retries=0; art.projectPushResults={}; publishToCend(art);
+        I.pamToast='Published v'+art.version+'. Readers now see this approved snapshot. Push is separate.';
         render(); return;
       }
       if(a==='pamGenerate'){ pamGenerate(el.dataset.id); return; }
@@ -1173,17 +1436,32 @@ function bind(){
       }
       if(a==='pamSaveSettings'){
         const auth=authN('settings',null,true); if(!auth.ok) return denyN(auth);
-        const sch=$('#cfgSchedule'), src=$('#cfgSources'), pr=$('#cfgPrompt');
-        const schedule=sch?sch.value.trim():''; const sources=src?src.value.trim():''; const prompt=pr?pr.value.trim():'';
-        if(schedule && !/^([01]\d|2[0-3]):[0-5]\d$/.test(schedule)){ I.pamToast='Blocked: schedule must be HH:MM (24h).'; render(); return; }
+        const sources=$('#cfgSources').value.trim(); const prompt=$('#cfgPrompt').value.trim();
         if(!sources || !prompt){ I.pamToast='Blocked: source scope and prompt version are required.'; render(); return; }
-        I.pamSettings={schedule,sources,prompt};
-        I.pamToast=schedule?'Demo settings saved; production schedule still requires business confirmation.':'Schedule remains pending confirmation. No automatic daily job is enabled.'; render(); return;
+        I.pamSettings={sources,prompt};
+        I.pamToast='Demo settings saved.'; render(); return;
       }
       if(a==='pamPush'){ pamPush(I.pamSelected); return; }
-      if(a==='demoBinding'){I.boundProjects=I.boundProjects.length?[]:['The Landmark'];render();return;}
-  if(a==='demoBuyer'){I.buyerIntent=!I.buyerIntent;I.readerRole=I.buyerIntent?'BUYER':'GENERAL';I.question=null;render();return;}
-  if(a==='feedLoading'){ I.feedState='loading'; render(); return; }
+      if(a==='recoverGeneral'){ recoverGeneral(); return; }
+      if(a==='readRecovered'&&I.recovery.status==='published'){ readPublishedInApp('GBR'); return; }
+      if(a==='readPublished'||a==='previewPush'){
+        const art=PAM[I.pamSelected];
+        if(!hasPerm('ai:insight:article:read')||!inScope(art)||!hasPublishedVersion(art)) return;
+        if(a==='readPublished'){ readPublishedInApp(art.id); return; }
+        const batch=demoAcceptedBatch(art); if(!batch) return;
+        I.notificationPreview={id:art.id,title:batch.title,version:batch.version};
+        I.tab='cend'; I.screen='notification'; clearQuestion(); syncInsightUrl(); render(); return;
+      }
+      if(a==='openNotificationArticle'&&I.notificationPreview){
+        const notice=I.notificationPreview;
+        const article=ART[notice.id];
+        if(canReadArticle(article)&&article.version!==notice.version){
+          I.listTab=article.type==='project'?'projects':'daily';
+          I.screen='staleNotice'; I.articleId=null; clearQuestion(); render(); return;
+        }
+        readPublishedInApp(notice.id); return;
+      }
+      if(a==='feedLoading'){ I.feedState='loading'; render(); return; }
       if(a==='feedError'){ I.feedState='error'; render(); return; }
       if(a==='feedEmpty'){ I.feedState='empty'; render(); return; }
       if(a==='feedReady'){ I.feedState='ready'; render(); return; }
@@ -1209,7 +1487,7 @@ function bind(){
         const project=el.dataset.project;
         if(!inScope({project})){ I.pamToast='Blocked: project is outside '+duty().scope+'.'; render(); return; }
         I.targetProjects=I.targetProjects.filter(p=>p!==project);
-        Object.values(PAM).forEach(x=>{ if(x.project===project && x.status!=='published') delete PAM[x.id]; });
+        Object.values(PAM).filter(x=>x.project===project).forEach(x=>{ x.monitoring=false; });
         if(I.pamSelected && PAM[I.pamSelected] && PAM[I.pamSelected].project===project) I.pamSelected=firstAllowedId();
         I.pamView='projects'; I.pamToast='Removed '+project+' from monitoring. Published articles are kept.'; render(); return;
       }
@@ -1221,17 +1499,28 @@ function bind(){
   if(qs) qs.addEventListener('change', e=>{ I.queueQuery=e.target.value; setTimeout(render,0); });
   const ps=$('#pamProjectSearch');
   if(ps) ps.addEventListener('change', e=>{ I.projectQuery=e.target.value; setTimeout(render,0); });
+  for(const [selector,key] of [['#recoveryOriginal','original'],['#recoveryCompletion','completion'],['#recoveryEvidence','evidence']]){
+    $(selector)?.addEventListener('change',e=>{
+      if(!authN('generate',null,true).ok||I.recovery.status==='running') return;
+      I.recovery={...I.recovery,[key]:e.target.value,status:'ready',attempts:0};
+      delete ART.GBR; delete PAM.GBR;
+      if(I.dailyArticleId==='GBR') I.dailyArticleId='G1';
+      render();
+    });
+  }
 }
 
 function generatedBody(id){
-  if(id==='T1') return 'A new MRT exit within 400m of Tembusu Grand could shorten the walk for residents. The timeline is demo content and is not a confirmed LTA announcement. This draft needs source verification before approval.';
+  if(id==='T1') return 'The sample considers how to compare walking routes from Tembusu Grand to MRT entrances. Follow the pedestrian route from the project gate and check the station map for entrances currently open. A proposed exit or opening date needs an official announcement before residents can rely on it.';
   if(id==='C1') return 'Rental yields at Parc Clematis slipped to 3.1% in October as asking rents softened. The change is small and based on a thin sample; this draft uses the latest demo URA rental data and still needs source verification before approval.';
   if(id==='F1') return 'Three-bedroom rents at Normanton Park rose about 4% quarter on quarter in this demo. The sample is thin and the source feed timed out on the first attempt; this regenerated draft still needs source verification before approval.';
   return 'Updated draft: three 3-bedroom units at The Landmark changed hands at S$2,080–2,120 psf in October, around the 24-month median of S$2,040. Mid-floor stacks led the activity, while high-floor units continued to clear at a premium. This version was regenerated after review and still needs source verification.';
 }
 function pamGenerate(id,trigger){
   const a=PAM[id]; if(!a) return;
-  const auth=authN(trigger==='PROJECT_FIRST_ENABLE'?'monitor':'generate',a); if(!auth.ok) return denyN(auth); if(a.status==='generating') return; a.generationTrigger=trigger||'MANUAL_REWRITE';
+  const auth=authN(trigger==='PROJECT_FIRST_ENABLE'?'monitor':'generate',a); if(!auth.ok) return denyN(auth);
+  if(!a.monitoring||!['pending_generation','rejected','generation_failed','published'].includes(a.status)) return;
+  a.generationTrigger=trigger||({pending_generation:'MANUAL_GENERATE',rejected:'MANUAL_REWRITE',generation_failed:'MANUAL_RETRY',published:'MANUAL_GENERATE'})[a.status];
   I.pamGenerating=id; I.pamSelected=id; I.pamToast='Generating draft… no real AI call.';
   if(a.status==='published') a.publishedVersion=a.version;
   a.status='generating'; render();
@@ -1240,31 +1529,51 @@ function pamGenerate(id,trigger){
     if(a.generationToken!==token || (I.pamResetEpoch||0)!==epoch || PAM[id]!==a) return;
     a.status='pending_review'; a.version=(a.version||0)+1; a.reviewedVersion=null; a.time='06:31';
     a.sources=(a.editSource||'').split('+').map(x=>x.trim()).filter(Boolean).length;
-    a.body=id.startsWith('N')?'Demo draft for '+a.project+'. No live project event is asserted. Sources and project facts require verification before approval.':generatedBody(id);
+    a.body=id.startsWith('N')?'Demo draft for '+a.project+'. This sample shows how to read a project update. Check the dated sources for the period covered and the details that apply to your building.':generatedBody(id);
+    if(!a.pamQuestions.length) a.pamQuestions=['What does the latest update say?','Which sources support this update?','What should a resident check next?'];
     I.pamGenerating=null; I.pamSelected=id; I.pamView='review'; I.pamToast='Draft generated. Moved to pending review.'; render();
   }, 1100);
 }
 function pamPush(id){
   const a=PAM[id]; if(!a) return;
   const auth=authN('push',a); if(!auth.ok) return denyN(auth);
-  if(a.status!=='published'){ I.pamToast='Blocked: push requires a published article.'; render(); return; } if(['sent','unknown','skipped'].includes(a.push)){ I.pamToast='No new send: this version is already submitted, unknown, or skipped. Only a definite failed attempt may be retried.'; render(); return; }
-  const audience=pushAudience(a); const eligible=pushEligible(a);
-  const base={batchId:a.id+'-v'+a.publishedVersion,version:a.version,project:a.project,target:a.audience,day:I.pushDay,at:I.pushDay+' 10:12'};
+  if(!hasPublishedVersion(a)){ I.pamToast='Blocked: push requires a published article.'; render(); return; }
+  if(!hasPendingPush(a)){ I.pamToast='No pending recipients for this published version.'; render(); return; }
+  const pending=pushAudience(a).filter(([uid])=>!a.projectPushResults?.[uid]);
+  const eligible=pushEligible(a);
+  const waiting=a.project==='—'?0:pending.filter(([uid,u])=>projectPushStatus(a,uid,u).startsWith('Waiting for')).length;
+  const base={batchId:a.id+'-v'+a.publishedVersion,version:a.publishedVersion,title:a.publishedTitle||a.title,
+    project:a.project,target:a.audience,day:I.pushDay,at:I.pushClock,
+    eligible:pending.length,waiting,skipped:pending.length-eligible.length-waiting};
   if(!eligible.length){
+    if(waiting){
+      I.pamToast='Waiting for the earlier published article. No quota reserved for this attempt.'; render(); return;
+    }
     const reason=pushBlockReason(a);
-    const batch={...base,status:'skipped',eligible:audience.length,sent:0,skipped:audience.length,retries:a.retries||0,reason};
-    a.pushBatches.push(batch); a.push='skipped'; I.pamToast='Skipped: '+reason+'.'; render(); return;
+    const existing=a.pushBatches.findLast(b=>b.version===a.publishedVersion&&['sent','unknown'].includes(b.status));
+    a.pushBatches.push({...base,status:'skipped',sent:0,retries:a.retries||0,reason});
+    a.push=existing?.status||'skipped'; I.pamToast='Skipped: '+reason+'.'; render(); return;
   }
-  if(I.pamPushUnknownNext){ I.pamPushUnknownNext=false; eligible.forEach(([uid,u])=>{ if(a.project==='—')u.generalUsed+=1;else u.projectUsed+=1; }); const batch={...base,status:'unknown',eligible:audience.length,sent:0,unknown:eligible.length,skipped:audience.length-eligible.length,retries:a.retries||0,reason:'Submission outcome unknown; daily quota remains reserved; no automatic resend'}; a.pushBatches.push(batch); a.push='unknown'; I.pamToast='Submission unknown. Quota remains occupied; retry is blocked until reconciliation.'; render(); return; }
   if(I.pamPushFailNext){
     a.retries=(a.retries||0)+1; I.pamPushFailNext=false;
-    const batch={...base,status:'failed',eligible:audience.length,sent:0,skipped:audience.length-eligible.length,retries:a.retries,reason:'simulated push gateway failure'};
-    a.pushBatches.push(batch); a.push='failed'; I.pamToast='Push failed in the demo. The batch is recorded; retry is available.'; render(); return;
+    a.pushBatches.push({...base,status:'failed',sent:0,retries:a.retries,reason:'simulated push gateway failure'});
+    a.push='failed'; I.pamToast='Push failed in the demo. The batch is recorded; retry is available.'; render(); return;
   }
-  eligible.forEach(([uid,u])=>{ if(a.project==='—')u.generalUsed+=1;else u.projectUsed+=1; });
-  const batch={...base,status:'sent',eligible:audience.length,sent:eligible.length,skipped:audience.length-eligible.length,retries:a.retries||0};
-  a.pushBatches.push(batch); a.push='sent';
-  I.pamToast='Push simulated for '+eligible.length+'/'+audience.length+' eligible sample users; batch '+batch.batchId+'.'; render();
+  const unknown=I.pamPushUnknownNext;
+  I.pamPushUnknownNext=false;
+  const result=unknown?'Unknown · quota held':'Channel accepted · device delivery unverified';
+  eligible.forEach(([uid,u])=>{
+    if(a.project==='—') u.generalUsed+=1;
+    else { u.projectUsed+=1; a.projectPushResults[uid]=result; }
+  });
+  const status=unknown?'unknown':'sent';
+  a.pushBatches.push({...base,status,sent:unknown?0:eligible.length,unknown:unknown?eligible.length:0,retries:a.retries||0,
+    demoReaderAccepted:!unknown&&eligible.some(([uid])=>uid==='A'),
+    reason:unknown?'Submission outcome unknown; daily quota remains reserved; no automatic resend':null});
+  a.push=waiting?'partial':status;
+  I.pamToast=unknown?'Submission unknown. Quota remains occupied; retry is blocked until reconciliation.':
+    'Channel accepted for '+eligible.length+'/'+pending.length+' sample users; batch '+base.batchId+'.';
+  render();
 }
 
 document.querySelectorAll('#modeTabs button').forEach(b=>{
@@ -1279,23 +1588,31 @@ document.addEventListener('click', e=>{
     if(!hasPerm('ai:insight:article:read') || !inScope(art)){ I.pamToast='Blocked: T1 is outside '+duty().scope+'. Local detail was not changed.'; render(); return; }
     I.pamSelected='T1'; I.pamView='review'; I.pamEditing=false; I.pamRejectOpen=false; render(); return;
   }
-  if(a==='demoBinding'){I.boundProjects=I.boundProjects.length?[]:['The Landmark'];render();return;}
-  if(a==='demoBuyer'){I.buyerIntent=!I.buyerIntent;I.readerRole=I.buyerIntent?'BUYER':'GENERAL';I.question=null;render();return;}
+  if(a==='demoBinding'){I.boundProjects=I.boundProjects.length?[]:['The Landmark'];I.buyerIntent=null;clearQuestion();render();return;}
+  if(a==='demoMulti'){I.boundProjects=I.boundProjects.length===2?['The Landmark']:Object.keys(PROJECT_BINDINGS);I.buyerIntent=null;clearQuestion();render();return;}
+  if(a==='demoBuyer'&&canReadArticle(ART[I.articleId])){I.buyerIntent=I.buyerIntent?null:I.articleId;I.readerRole=I.buyerIntent?'BUYER':'GENERAL';clearQuestion();if(I.screen==='domus') I.screen='article';render();return;}
+  if(a==='sampleNotification'){
+    const brief=PAM[I.dailyArticleId], batch=demoAcceptedBatch(brief);
+    if(!I.settings.osAllowed||!batch) return;
+    I.notificationPreview={id:brief.id,title:batch.title,version:batch.version};
+    I.screen='notification'; clearQuestion(); render(); return;
+  }
   if(a==='feedLoading'){ I.feedState='loading'; render(); return; }
   if(a==='feedError'){ I.feedState='error'; render(); return; }
   if(a==='feedEmpty'){ I.feedState='empty'; render(); return; }
   if(a==='feedReady'){ I.feedState='ready'; render(); return; }
-  if(a==='resetCend'){ I.screen='list'; I.listTab='daily'; I.articleId=null; I.question=null; I.customQ=''; I.customA=''; I.customError=''; I.customState='idle'; I.feedState='ready'; I.readArticles=['P3','P4']; render(); }
+  if(a==='resetCend'){ I.screen='list'; I.listTab='daily'; I.articleId=null; I.buyerIntent=null; clearQuestion(); I.feedState='ready'; I.readArticles=['P3','P4']; render(); }
   if(a==='resetPam'){
     I.pamGenToken=(I.pamGenToken||0)+1;
     PAM=JSON.parse(JSON.stringify(PAM_INIT));PAM.G1.publishedAt='2026-11-10T08:04:00+08:00';PAM.G1.publishedVersion=PAM.G1.version;
-    if(ART.P6) delete ART.P6;
+    Object.keys(ART).filter(id=>!FIXTURE_ARTICLES.has(id)).forEach(id=>{delete ART[id];});
+    ART.G1=INITIAL_BRIEF; I.dailyArticleId='G1'; I.recovery=newRecovery(); I.publishSeq=0;
     I.pushDay='2026-11-10';
-    I.pushUsers={A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{master:true}},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{master:true}}};
+    I.pushUsers={A:{label:'Demo user A',generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}};
     I.targetProjects=['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park']; I.queueFilter='all'; I.queueQuery=''; I.projectQuery=''; I.pamView='queue'; I.pamSelected='P6'; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; I.pamPushFailNext=false; I.pamPushUnknownNext=false; I.pamResetEpoch=(I.pamResetEpoch||0)+1; render();
   }
   if(a==='nextDay'){
-    I.pushDay='2026-11-11';
+    const day=new Date(I.pushDay+'T00:00:00Z');day.setUTCDate(day.getUTCDate()+1);I.pushDay=day.toISOString().slice(0,10);I.publishSeq=0;
     Object.values(I.pushUsers).forEach(u=>{ u.generalUsed=1; u.projectUsed=0; });
     I.pamToast='Advanced to '+I.pushDay+'; per-user project quota reset.'; render();
   }
@@ -1305,11 +1622,14 @@ document.addEventListener('click', e=>{
 });
 
 const qp = new URLSearchParams(location.search);
-if(['appHome','appAssistant'].includes(qp.get('view'))) I.screen=qp.get('view');
-if(qp.get('mode')==='pam'){ I.tab='pam'; I.pamView=qp.get('pam')||'queue'; }
-if(qp.get('article')){ I.articleId=qp.get('article'); I.screen='article'; }
-if(qp.get('q')!==null && I.articleId){ I.question=Number(qp.get('q')); I.screen='domus'; }
+if(qp.get('sample')==='twoProjects') I.boundProjects=Object.keys(PROJECT_BINDINGS);
+if(['appHome','appAssistant','projectDetails','editorialList'].includes(qp.get('view'))) I.screen=qp.get('view');
+if(qp.get('project')==='tembusu') I.activeProject='Tembusu Grand';
+if(qp.get('mode')==='pam'){ I.tab='pam'; I.pamView=qp.get('pam')||'queue'; if(Object.hasOwn(PAM,qp.get('review'))) I.pamSelected=qp.get('review'); }
+if(qp.get('article')) openArticle(qp.get('article'));
+if(qp.get('q')!==null&&I.articleId) openChat(Number(qp.get('q')));
 render();
+if(qp.get('focus')==='recovery') $('#generalRecovery')?.scrollIntoView({block:'nearest'});
 </script>
 </body>
 </html>
