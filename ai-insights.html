@@ -1084,8 +1084,7 @@ function renderDailyBriefFeed(){
         <div class="meta">${lead.read} · ${lead.sources.length} sources · Updated ${lead.updated}</div>
         <span class="more">Read brief →</span>
       </div>
-    ${earlierBriefs.length?`<div class="section"><b>Earlier briefs</b></div>${earlierBriefs.map(briefRow).join('')}`:''}
-      <div class="infobox" style="margin-top:9px;margin-bottom:0">Daily Brief is generated at 08:00 SGT. From 10:00 SGT, a recovered brief is published without a catch-up notification. <button class="linkbtn" data-action="settings">Manage in Settings</button></div>`;
+    ${earlierBriefs.length?`<div class="section"><b>Earlier briefs</b></div>${earlierBriefs.map(briefRow).join('')}`:''}`;
 }
 
 function renderList(){
@@ -1131,7 +1130,7 @@ function renderArticle(){
       ${I.pamSettings.enabled?'':'<p class="article-ask-status">Article answers are currently paused.</p>'}
     </section>
   </div>
-  <div class="cta"><button data-action="openDomus" ${I.pamSettings.enabled?'':'disabled'}>Ask AI</button></div>
+  <div class="cta"><button data-action="openDomus" ${I.pamSettings.enabled?'':'disabled'}>Ask your own question</button></div>
   ${homebar()}`;
 }
 
@@ -1148,7 +1147,7 @@ function renderDomus(){
   <div class="chat-body" aria-live="polite">
     <div class="ctx">↩ Context attached: ${a.type==='project'?esc(a.project)+' · ':''}“${a.short}” · v${I.questionContext.version}</div>
     ${I.chatTurns.length?I.chatTurns.map(turn=>`<div class="bub user">${esc(turn.q)}</div><div class="bub ai">${turn.a===null?'Thinking…':`${esc(turn.a)}<span class="cite">${turn.recommended?'Source: '+esc(citations)+'. ':''}Demo answer</span>`}</div>`).join(''):
-      '<div class="bub ai">Choose a question about this article to start.</div>'}
+      '<div class="bub ai">Type your question or choose a suggestion below.</div>'}
     <div class="follow">${articleQuestions(a).map((x,i)=>i===I.question?'':`<div class="qchip" data-action="ask" data-q="${i}">${esc(x.q)}</div>`).join('')}</div>
     ${I.customError?`<div class="infobox" style="border-color:#FAD2CF;background:#FEF7F6;color:#A50E0E">${esc(I.customError)}</div>`:''}
   </div>
@@ -1159,9 +1158,7 @@ function renderDomus(){
 function renderSettings(){
   return `${statusBar()}${nav('Notifications','System permission preview','Back','list')}<div class="phone-body">
   <div class="setrow"><div><div class="t">Device notification permission</div><div class="s">Simulated OS permission</div></div><button aria-label="Device notification permission" aria-pressed="${I.settings.osAllowed}" class="toggle ${I.settings.osAllowed?'on':''}" data-action="toggleOs"></button></div>
-  <div class="infobox">${I.settings.osAllowed?'System permission is on.':'System permission is off.'} Daily Brief: at most 1/day. Project updates: at most 1/day across all bound projects and devices.</div>
-  <div class="section"><b>Current project bindings</b><span>${I.boundProjects.length} active</span></div>
-  <div class="infobox">Published general news remains readable with notifications off. Project articles require a current effective project binding; access ends after unbinding.</div></div>${homebar()}`;
+  <div class="infobox">Turning off notifications on this device leaves your published articles available to read.</div></div>${homebar()}`;
 }
 
 function readPublishedInApp(id){
@@ -1308,7 +1305,6 @@ function renderPamQueue(){
     <div class="kpi"><div class="v">${articles.filter(a=>a.status==='pending_review').length}</div><div class="k">Pending review</div></div>
     <div class="kpi"><div class="v">${articles.filter(a=>a.status==='approved').length}</div><div class="k">Approved · not published</div></div>
     <div class="kpi"><div class="v">${articles.filter(a=>a.status==='published').length}</div><div class="k">Published</div></div>
-    <div class="kpi"><div class="v">1 + 1</div><div class="k">Push cap / user / day</div></div>
   </div>
   <div class="pam-filters">
     <select id="pamQueueType" aria-label="Content type">${typeOptions.map(([v,l])=>`<option value="${v}" ${I.queueType===v?'selected':''}>${l}</option>`).join('')}</select>
@@ -1704,7 +1700,7 @@ function renderPamSettings(){
       <div><dt>Daily Brief</dt><dd>08:00 SGT daily</dd><p>Publish after the evidence check passes.</p></div>
       <div><dt>Catch-up notification cutoff</dt><dd>10:00 SGT</dd><p>From 10:00, publish for reading only.</p></div>
       <div><dt>Project articles</dt><dd>Manual review before publication</dd><p>Generate the first draft on enrolment and later drafts on request.</p></div>
-      <div><dt>Daily notification limit per user</dt><dd>1 general + 1 project</dd><p>Shared across projects and devices.</p></div></dl></aside></div>${audit}`;
+      <div><dt>Default daily notification limits in this preview</dt><dd>1 general + 1 project per user</dd><p>Both limits apply across devices. The project limit also applies across bound projects.</p></div></dl></aside></div>${audit}`;
   }
   return `<div class="gset"><nav class="gset-nav" aria-label="Generation settings sections">${tabs}</nav>${panel}</div>`;
 }
