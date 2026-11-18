@@ -356,6 +356,8 @@
 .gset code{font-size:12px;overflow-wrap:anywhere}.gset-prompt-scope{border-top:1px solid var(--gs-line);padding-top:12px;margin:12px 0}.gset-prompt-scope h3{font-size:14px;margin:0 0 5px}.gset [hidden]{display:none!important}
 .prompt-preview{background:#f6f8fb;border-radius:6px;padding:10px 12px;margin:8px 0 0;min-width:0}
 .prompt-preview p{margin:4px 0 8px}.prompt-preview strong{display:block;overflow-wrap:anywhere}
+.prompt-preview details{margin:4px 0 8px}.prompt-preview summary{font-size:13px}
+.prompt-preview pre{margin:6px 0;font:inherit;font-size:13px;color:#142038;white-space:pre-wrap;overflow-wrap:anywhere}
 .prompt-management{width:min(640px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid #b9c6d6;border-radius:10px;color:#142038}
 .prompt-management::backdrop{background:#16243f66}
 .prompt-management pre{margin:8px 0 16px;padding:12px;background:#f6f8fb;border-radius:6px;font:inherit;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}
@@ -717,7 +719,7 @@ const I = {
   settings:{osAllowed:true}, dailyArticleId:'G1', recovery:newRecovery(),
   pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}},
   boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueType:'all', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
-  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', promptProject:'', promptDrafts:{}, configDraft:null, settingsNotice:'', scenarioOpen:false
+  targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', promptProject:'', promptDrafts:{}, promptPreviewScope:'public', promptBindingDraft:null, configDraft:null, settingsNotice:'', scenarioOpen:false
 };
 
 const PROJECT_CATALOG = [
@@ -1245,7 +1247,7 @@ function lastPushLabel(){
 function projectArticleIds(project){ return projectIds().filter(id=>ART[id].project===project&&canReadArticle(ART[id])); }
 function firstAllowedId(){ const a=allowedPam()[0]; return a?a.id:null; }
 function setDuty(id){
-  I.promptProject=''; I.configDraft=null; I.settingsNotice='';
+  I.promptProject=''; I.promptPreviewScope='public'; I.promptBindingDraft=null; I.configDraft=null; I.settingsNotice='';
   I.duty=id; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast='';
   const first=firstAllowedId(); I.pamSelected=first; I.pamView=hasPerm('ai:insight:view')?'queue':'noaccess';
   render();
@@ -1557,9 +1559,16 @@ function recoverGeneral(){
   },450);
 }
 
-function settingsSaveControls(draft,dirty,canWrite){
-  return `<div class="gset-save-fields">${canWrite?`<div id="cfgReasonRow" ${dirty?'':'hidden'}><label for="cfgReason"><strong>Reason for change</strong> (required)</label><textarea class="gset-text" id="cfgReason" maxlength="500" rows="2">${esc(draft.reason||'')}</textarea></div>`:''}
-    <p id="cfgFeedback" class="gset-message" role="status">${esc(I.settingsNotice)}</p></div>
+function settingsDraftPatch(){
+  if(I.settingsView==='sources'){
+    return I.promptBindingDraft?{promptBindings:I.promptBindingDraft}:{};
+  }
+  return I.configDraft||{};
+}
+
+function settingsSaveControls(draft,dirty,canWrite,requiresReason){
+  return `<div class="gset-save-fields">${canWrite&&requiresReason?`<div id="cfgReasonRow" ${dirty?'':'hidden'}><label for="cfgReason"><strong>Reason for change</strong> (required)</label><textarea class="gset-text" id="cfgReason" maxlength="500" rows="2">${esc(draft.reason||'')}</textarea></div>`:''}
+    <p id="cfgFeedback" class="gset-message" role="status">${esc(I.settingsNotice||(dirty?'Unsaved changes.':''))}</p></div>
     <footer class="gset-foot"><small>${canWrite?'Changes apply to this preview until reload.':'Read-only access'}</small>${canWrite?`<div class="gset-actions"><button class="pam-btn" data-action="discardSettings" ${dirty?'':'disabled'}>Discard</button><button class="pam-btn primary" data-action="pamSaveSettings" ${dirty?'':'disabled'}>Save changes</button></div>`:''}</footer>`;
 }
 
@@ -1567,10 +1576,12 @@ function renderPromptPreview(prompt,scope){
   const effective=scope==='project-override';
   const identity=`${effective?esc(prompt.binding)+': ':''}<code>${esc(prompt.code)}</code> · v${prompt.version}`;
   if(!hasPerm('user:aiPrompt:detail')) return `<p ${effective?'data-effective-prompt':''}>${identity}</p>`;
-  const excerpt=PROMPT_SAMPLES[prompt.code][prompt.version].split('\n\n')[0];
+  const body=PROMPT_SAMPLES[prompt.code][prompt.version];
+  const selected=I.promptPreviewScope===scope;
   return `<div class="prompt-preview" data-prompt-preview="${scope}" aria-live="polite">
     <strong ${effective?'data-effective-prompt':''}>${identity}</strong>
-    <p>${esc(excerpt)}</p>
+    ${selected?'':`<p>${esc(body.split('\n\n')[0])}</p>`}
+    <details ${selected?'open':''}><summary>Prompt text</summary><pre>${esc(body)}</pre></details>
     <button type="button" class="pam-btn" data-action="managePrompt" data-code="${esc(prompt.code)}" data-version="${prompt.version}">${hasPerm('user:aiPrompt:save')?'Manage prompt':'View prompt'}</button>
   </div>`;
 }
@@ -1652,13 +1663,13 @@ function renderPromptBindings(config,draft,dirty,canWrite){
       </div>
       <p>Article follow-up uses <code>ai_insight_followup</code>. Saved bindings apply to new generation runs.</p>
     </div>
-    ${settingsSaveControls(draft,dirty,canWrite)}
+    ${settingsSaveControls(draft,dirty,canWrite,false)}
     <dialog class="prompt-management" id="promptManagement" aria-labelledby="promptManagementTitle"></dialog>
     </section>`;
 }
 
 function renderPamSettings(){
-  const config=I.pamSettings, draft=I.configDraft||config;
+  const config=I.pamSettings, draft={...config,...settingsDraftPatch()};
   const canWrite=authN('settings',null,true).ok;
   const dirty=configurationChanges(draft,config).length>0;
   const views=[['controls','Configuration'],['sources','Prompt bindings'],['runs','Daily Brief runs']];
@@ -1683,12 +1694,12 @@ function renderPamSettings(){
   }else{
     const switchRow=(id,key,name,help)=>`<div class="gset-switchrow"><div><label for="${id}">${name}</label><p id="${id}Help">${help}</p></div>
       <input type="checkbox" role="switch" class="gset-switch" id="${id}" data-setting="${key}" aria-describedby="${id}Help" ${draft[key]?'checked':''} ${canWrite?'':'disabled'}></div>`;
-    const audit=config.history.length?`<section class="gset-card"><header class="gset-head"><h3>Change history</h3><small>This preview</small></header><ul class="gset-list gset-body">${config.history.slice().reverse().map(h=>`<li><strong>Revision ${h.revision} · ${esc(h.changes.join(' / '))}</strong><p>${esc(h.reason)}</p><small>${esc(h.actor)} · <time>${esc(h.at)} SGT</time></small></li>`).join('')}</ul></section>`:'';
+    const audit=config.history.length?`<section class="gset-card"><header class="gset-head"><h3>Change history</h3><small>This preview</small></header><ul class="gset-list gset-body">${config.history.slice().reverse().map(h=>`<li><strong>Revision ${h.revision} · ${esc(h.changes.join(' / '))}</strong>${h.reason?`<p>${esc(h.reason)}</p>`:''}<small>${esc(h.actor)} · <time>${esc(h.at)} SGT</time></small></li>`).join('')}</ul></section>`:'';
     panel=`<div class="gset-grid"><section class="gset-card"><header class="gset-head"><h3>Service controls</h3><small>Platform-wide · Rev. ${config.revision}</small></header><div class="gset-body">
       ${switchRow('cfgEnabled','enabled','AI Property Insights','Allow new AI articles and follow-up answers on insights. Published articles remain readable.')}
       ${switchRow('cfgPush','pushEnabled','Push notifications','Allow notifications for published insights when AI Property Insights is enabled.')}
     </div>
-      ${settingsSaveControls(draft,dirty,canWrite)}</section>
+      ${settingsSaveControls(draft,dirty,canWrite,true)}</section>
       <aside class="gset-card"><header class="gset-head"><h3>Publication rules</h3></header><dl class="gset-body">
       <div><dt>Daily Brief</dt><dd>08:00 SGT daily</dd><p>Publish after the evidence check passes.</p></div>
       <div><dt>Catch-up notification cutoff</dt><dd>10:00 SGT</dd><p>From 10:00, publish for reading only.</p></div>
@@ -1848,7 +1859,7 @@ function bind(){
         if(vp && !hasPerm(vp)){ I.pamToast='Blocked: missing '+vp+'. The local state was not changed.'; render(); return; }
         I.pamView=el.dataset.view;
         const opensPromptBindings=I.pamView==='settings'&&el.dataset.section==='sources';
-        if(opensPromptBindings) I.settingsView='sources';
+        if(opensPromptBindings){ I.settingsView='sources'; I.settingsNotice=''; }
         I.pamEditing=false; I.pamRejectOpen=false; I.pamToast='';
         render();
         if(opensPromptBindings) $('#stage [data-action="settingsView"][data-view="sources"]')?.focus();
@@ -1928,27 +1939,32 @@ function bind(){
       }
       if(a==='settingsView'){
         if(!hasPerm('ai:insight:config:read')||!['controls','sources','runs'].includes(el.dataset.view)) return;
-        I.settingsView=el.dataset.view; render();
+        I.settingsView=el.dataset.view; I.settingsNotice=''; render();
         $('#stage [data-action="settingsView"][aria-pressed="true"]')?.focus(); return;
       }
       if(a==='managePrompt'){ openPromptManagement(el); return; }
       if(a==='discardSettings'){
-        I.configDraft=null; I.settingsNotice='Changes discarded.'; render(); return;
+        if(I.settingsView==='sources') I.promptBindingDraft=null;
+        else I.configDraft=null;
+        I.settingsNotice='Changes discarded.'; render(); return;
       }
       if(a==='pamSaveSettings'){
         const auth=authN('settings',null,true); if(!auth.ok) return denyN(auth);
-        const d=I.configDraft, config=I.pamSettings;
-        if(!d) return;
+        const config=I.pamSettings, d={...config,...settingsDraftPatch()};
         const changes=configurationChanges(d,config);
         if(!changes.length) return;
-        if(!d.reason.trim()){
+        const savesBindings=I.settingsView==='sources';
+        const reason=savesBindings?'':(d.reason||'').trim();
+        if(!savesBindings&&!reason){
           const feedback=$('#cfgFeedback'); feedback.textContent='Enter a reason to save these changes.'; feedback.className='gset-error';
           $('#cfgReason').setAttribute('aria-invalid','true'); $('#cfgReason').focus(); return;
         }
         const revision=config.revision+1;
         const at=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Singapore',dateStyle:'medium',timeStyle:'medium'}).format(new Date());
-        I.pamSettings={enabled:d.enabled,pushEnabled:d.pushEnabled,promptBindings:d.promptBindings,revision,history:[...config.history,{revision,at,actor:duty().label,changes,reason:d.reason.trim()}]};
-        I.configDraft=null; I.settingsNotice='Changes saved · revision '+revision+'.'; render(); return;
+        I.pamSettings={enabled:d.enabled,pushEnabled:d.pushEnabled,promptBindings:d.promptBindings,revision,history:[...config.history,{revision,at,actor:duty().label,changes,reason}]};
+        if(savesBindings) I.promptBindingDraft=null;
+        else I.configDraft=null;
+        I.settingsNotice='Changes saved · revision '+revision+'.'; render(); return;
       }
       if(a==='pamPush'){ pamPush(I.pamSelected); return; }
       if(a==='recoverGeneral'){ recoverGeneral(); return; }
@@ -2014,42 +2030,20 @@ function bind(){
   if(cfgReason){
     const getDraft=()=>{
       if(!I.configDraft){
-        const {enabled,pushEnabled,promptBindings}=I.pamSettings;
-        I.configDraft={enabled,pushEnabled,promptBindings:structuredClone(promptBindings),reason:''};
+        const {enabled,pushEnabled}=I.pamSettings;
+        I.configDraft={enabled,pushEnabled,reason:''};
       }
       return I.configDraft;
     };
     for(const control of document.querySelectorAll('#stage [data-setting]')){
       control.addEventListener('change',()=>{
         const draft=getDraft(); draft[control.dataset.setting]=control.checked;
-        const dirty=configurationChanges(draft,I.pamSettings).length>0;
+        const dirty=configurationChanges({...I.pamSettings,...draft},I.pamSettings).length>0;
         $('#cfgReasonRow').hidden=!dirty;
         if(!dirty){ I.configDraft=null; cfgReason.value=''; }
         $('#cfgFeedback').className='gset-message'; $('#cfgFeedback').textContent=dirty?'Unsaved changes.':'';
         I.settingsNotice=''; cfgReason.removeAttribute('aria-invalid');
         for(const action of ['discardSettings','pamSaveSettings']) $('#stage [data-action="'+action+'"]').disabled=!dirty;
-      });
-    }
-    for(const control of document.querySelectorAll('#stage [data-prompt-binding]')){
-      control.addEventListener('change',()=>{
-        if(!authN('settings',null,true).ok) return;
-        const id=control.dataset.promptBinding;
-        const value=control.value;
-        if(id==='promptGeneral' && !PUBLIC_BRIEF_VERSIONS.includes(value)) return;
-        if(id!=='promptGeneral' && value && !Object.hasOwn(PROJECT_PROMPTS,value)) return;
-        if(id==='promptProjectOverride' && !PROJECT_CATALOG.some(item=>item.project===I.promptProject&&inScope(item))) return;
-        const draft=getDraft();
-        if(id==='promptProjectOverride'){
-          if(value) draft.promptBindings.overrides[I.promptProject]=value;
-          else delete draft.promptBindings.overrides[I.promptProject];
-        }else{
-          if(!value) return;
-          draft.promptBindings[id==='promptGeneral'?'generalVersion':'project']=value;
-        }
-        const dirty=configurationChanges(draft,I.pamSettings).length>0;
-        if(!dirty) I.configDraft=null;
-        I.settingsNotice=dirty?'Unsaved changes.':'';
-        render(); $('#'+id)?.focus();
       });
     }
     cfgReason.addEventListener('input',()=>{
@@ -2059,10 +2053,35 @@ function bind(){
       }
     });
   }
+  for(const control of document.querySelectorAll('#stage [data-prompt-binding]')){
+    control.addEventListener('change',()=>{
+      if(!authN('settings',null,true).ok) return;
+      const id=control.dataset.promptBinding;
+      const value=control.value;
+      if(id==='promptGeneral' && !PUBLIC_BRIEF_VERSIONS.includes(value)) return;
+      if(id!=='promptGeneral' && value && !Object.hasOwn(PROJECT_PROMPTS,value)) return;
+      if(id==='promptProjectOverride' && !PROJECT_CATALOG.some(item=>item.project===I.promptProject&&inScope(item))) return;
+      const config=I.pamSettings;
+      const bindings=I.promptBindingDraft||structuredClone(config.promptBindings);
+      if(id==='promptProjectOverride'){
+        if(value) bindings.overrides[I.promptProject]=value;
+        else delete bindings.overrides[I.promptProject];
+      }else{
+        if(!value) return;
+        bindings[id==='promptGeneral'?'generalVersion':'project']=value;
+      }
+      const dirty=configurationChanges({...config,promptBindings:bindings},config).length>0;
+      I.promptBindingDraft=dirty?bindings:null;
+      I.promptPreviewScope={promptGeneral:'public',promptProjectDefault:'project-default',promptProjectOverride:'project-override'}[id];
+      I.settingsNotice='';
+      render(); $('#'+id)?.focus();
+    });
+  }
   $('#promptProjectChoice')?.addEventListener('change',event=>{
     const project=event.target.value;
     if(project && !PROJECT_CATALOG.some(item=>item.project===project&&inScope(item))) return;
     I.promptProject=project;
+    I.promptPreviewScope=project?'project-override':'project-default';
     render(); $('#promptProjectChoice')?.focus();
   });
   const scenario=$('#scenarioInputs');
@@ -2201,7 +2220,7 @@ document.addEventListener('click', e=>{
   if(a==='feedReady'){ I.feedState='ready'; render(); return; }
   if(a==='resetCend'){ I.screen='list'; I.listTab='daily'; I.articleId=null; I.buyerIntent=null; clearQuestion(); I.feedState='ready'; I.readArticles=['P3','P4']; render(); }
   if(a==='resetPam'){
-    I.pamSettings=defaultInsightSettings(); I.configDraft=null; I.promptProject=''; I.promptDrafts={}; I.settingsView='controls'; I.settingsNotice=''; I.scenarioOpen=false;
+    I.pamSettings=defaultInsightSettings(); I.configDraft=null; I.promptBindingDraft=null; I.promptProject=''; I.promptPreviewScope='public'; I.promptDrafts={}; I.settingsView='controls'; I.settingsNotice=''; I.scenarioOpen=false;
     I.pamGenToken=(I.pamGenToken||0)+1;
     PAM=JSON.parse(JSON.stringify(PAM_INIT));PAM.G1.publishedAt='2026-11-10T08:04:00+08:00';PAM.G1.publishedVersion=PAM.G1.version;
     Object.keys(ART).filter(id=>!FIXTURE_ARTICLES.has(id)).forEach(id=>{delete ART[id];});
