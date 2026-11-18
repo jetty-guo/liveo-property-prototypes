@@ -248,7 +248,7 @@
   @media(max-width:960px){.demo-wrap{grid-template-columns:1fr;justify-items:center}.phone-col{position:static}.console{max-width:600px}}
   @media(max-width:900px){.vside{width:150px}}
 
-/* RE8/RE9 App preview: source color #0355D5, existing Home/Services/Lio/Message/Me structure. */
+/* RE8/RE9 App preview: source color #0355D5, existing Home/Services/Domus/Message/Me structure. */
 .phone{--blue:#0355D5;--blue-dark:#0346AC;--blue-soft:#EAF1FC;--ink:#181818;--muted:#666;--bg:#F5F5F5}
 .phone .nav{min-height:54px;flex-basis:54px}.phone .nav .t{font-size:17px}.phone .nav .s{font-size:11px}
 .phone .nav .back,.phone .nav .r{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
@@ -772,7 +772,7 @@ function nav(title, sub='', right='', back='entry'){
 function homebar(){ return `<div class="homebar"></div>`; }
 
 function renderAppDock(selected){
- const data=[['Home','home','ai-insights.html?view=appHome'],['Services','serves',null],['Lio','ai','ai-insights.html?view=appAssistant'],['Message','message',null],['Me','me','ai-valuation.html?view=appMe']];
+ const data=[['Home','home','ai-insights.html?view=appHome'],['Services','serves',null],['Domus','ai','ai-insights.html?view=appAssistant'],['Message','message',null],['Me','me','ai-valuation.html?view=appMe']];
  return '<nav class="app-dock" aria-label="App main navigation">'+data.map(([label,key,url])=>{const chosen=label===selected;const img=key==='ai'?'ailogo.png':'table_'+key+'_icon'+(chosen?'_s':'')+'.png';const body='<img src="app-assets/'+img+'" alt=""/><span>'+label+'</span>';return url?'<a href="'+url+'" class="'+(chosen?'selected ':'')+(key==='ai'?'lio':'')+'" '+(chosen?'aria-current="page"':'')+'>'+body+'</a>':'<button data-action="outsidePreview" aria-label="'+label+'">'+body+'</button>';}).join('')+'</nav>';
 }
 function renderAppMe(){return `${statusBar()}<div class="app-context"><div class="app-eyebrow">LiveoHome · Preview</div><h1>Me</h1><div class="app-card"><div class="app-project">The Landmark</div><span class="tag blue">Verified binding · demo</span><p>Property services and saved reports.</p><button class="app-link-row" data-action="go" data-screen="entry">Property Valuation <span>Open</span></button><button class="app-link-row" data-action="history">Valuation history <span>View</span></button></div><div class="app-card"><h3>AI property valuation</h3><p>Confirm the project and floor area. View the transaction reference before a complete estimate is available.</p><button class="btn blue" data-action="go" data-screen="entry">Start a valuation</button></div><p class="app-context-note">No current valuation is assumed from an older report. Saved reports retain their original date and data cutoff.</p></div>${renderAppDock('Me')}${homebar()}`;}

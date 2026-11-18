@@ -257,7 +257,7 @@
   @media(max-width:1200px){.pam:not(.demo-wrap){width:100%;min-width:0}.demo-wrap.pam{grid-template-columns:1fr;justify-items:start}}
   @media(max-width:900px){.pam-side{width:150px}}
 
-/* RE8/RE9 App preview: source color #0355D5, existing Home/Services/Lio/Message/Me structure. */
+/* RE8/RE9 App preview: source color #0355D5, existing Home/Services/Domus/Message/Me structure. */
 .phone{--blue:#0355D5;--blue-dark:#0346AC;--blue-soft:#EAF1FC;--ink:#181818;--muted:#666;--bg:#F5F5F5}
 .phone .nav{min-height:54px;flex-basis:54px}.phone .nav .t{font-size:17px}.phone .nav .s{font-size:11px}
 .phone .nav .back,.phone .nav .r{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
@@ -388,7 +388,7 @@
 .phone .project-article-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px}
 .phone .project-reading h1{font-weight:650;color:#172b33;font-size:24px;line-height:1.25;letter-spacing:-.023em;margin:7px 0}
 .phone .project-reading .dek{color:#45555f;line-height:1.5}
-/* Resident App: Lio recommended question header and rows. */
+/* Resident App: Domus recommended question header and rows. */
 .phone .article-questions{margin:16px 0 0}
 .phone .article-questions h2{display:flex;align-items:center;gap:8px;min-height:48px;margin:0;font-size:16px;font-weight:500;color:#181818}
 .phone .article-question{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:44px;margin:0;padding:8px 0;border:0;border-bottom:1px solid #f5f5f5;border-radius:0;background:white;text-align:left;color:#181818;font-size:14px;font-weight:400;line-height:1.5;cursor:pointer}
@@ -447,7 +447,7 @@
     <tr><td><b>N1</b> Property Insights</td><td>Home → Property Insights → Daily Brief / My Projects</td><td>RE9 general and project articles with separate notification rules.</td></tr>
     <tr><td><b>N2</b> Article</td><td>3 recommended questions; source list; project attribution; demo disclaimer.</td><td>3–4 questions; source count matches list; name/date/evidence; project-only isolation.</td></tr>
     <tr><td><b>N3</b> Domus</td><td>Question → article-specific answer; different articles keep different contexts; custom input.</td><td>Silent Article_ID; 3–4 sentence answer; no article re-telling; sources separated.</td></tr>
-    <tr><td><b>N4</b> Project Insights</td><td>Project Details → Project Insights → article → Lio</td><td>Published AI articles scoped to the current project and active binding.</td></tr>
+    <tr><td><b>N4</b> Project Insights</td><td>Project Details → Project Insights → article → Domus</td><td>Published AI articles scoped to the current project and active binding.</td></tr>
     <tr><td><b>N5</b> AI Insights Admin</td><td>Projects → generate → review → publish → notify</td><td>AI review and notification run independently from the existing news CMS.</td></tr>
     <tr><td><b>N6</b> Settings</td><td>Device notification permission and its effect on the feed.</td><td>At most one general and one project notification per day. Published articles remain readable.</td></tr>
   </table>
@@ -996,8 +996,8 @@ function feedStateBlock(){
   return null;
 }
 function renderAppDock(selected){
- const data=[['Home','home','ai-insights.html?view=appHome'],['Services','serves',null],['Lio','ai','ai-insights.html?view=appAssistant'],['Message','message',null],['Me','me','ai-valuation.html?view=appMe']];
- return '<nav class="app-dock" aria-label="App main navigation">'+data.map(([label,key,url])=>{const chosen=label===selected;const img=key==='ai'?'ailogo.png':'table_'+key+'_icon'+(chosen?'_s':'')+'.png';const body='<img src="app-assets/'+img+'" alt=""/><span>'+label+'</span>';const screen=label==='Home'?'appHome':label==='Lio'?'appAssistant':null;return url?'<a href="'+url+'" '+(screen?'data-action="appNavigate" data-screen="'+screen+'" ':'')+'class="'+(chosen?'selected ':'')+(key==='ai'?'lio':'')+'" '+(chosen?'aria-current="page"':'')+'>'+body+'</a>':'<button data-action="outsidePreview" aria-label="'+label+'">'+body+'</button>';}).join('')+'</nav>';
+ const data=[['Home','home','ai-insights.html?view=appHome'],['Services','serves',null],['Domus','ai','ai-insights.html?view=appAssistant'],['Message','message',null],['Me','me','ai-valuation.html?view=appMe']];
+ return '<nav class="app-dock" aria-label="App main navigation">'+data.map(([label,key,url])=>{const chosen=label===selected;const img=key==='ai'?'ailogo.png':'table_'+key+'_icon'+(chosen?'_s':'')+'.png';const body='<img src="app-assets/'+img+'" alt=""/><span>'+label+'</span>';const screen=label==='Home'?'appHome':key==='ai'?'appAssistant':null;return url?'<a href="'+url+'" '+(screen?'data-action="appNavigate" data-screen="'+screen+'" ':'')+'class="'+(chosen?'selected ':'')+(key==='ai'?'lio':'')+'" '+(chosen?'aria-current="page"':'')+'>'+body+'</a>':'<button data-action="outsidePreview" aria-label="'+label+'">'+body+'</button>';}).join('')+'</nav>';
 }
 function renderAppHome(){
   return `${statusBar()}<div class="app-context">
@@ -1062,7 +1062,7 @@ function renderEditorialAsk(){
   const article=EDITORIAL_NEWS[I.editorialArticleId];
   const index=I.editorialQuestion;
   if(!article||!Number.isInteger(index)||!article.answers[index]) return renderEditorialList();
-  return `${statusBar()}${nav('Lio','Editorial article · Demo','Back',I.editorialAskFrom)}
+  return `${statusBar()}${nav('Domus','Editorial article · Demo','Back',I.editorialAskFrom)}
     <div class="chat-body" aria-live="polite">
       <div class="ctx">Context attached: "${esc(article.title)}"</div>
       <div class="bub user">${esc(EDITORIAL_QUESTIONS[index])}</div>
@@ -1072,7 +1072,7 @@ function renderEditorialAsk(){
     ${homebar()}`;
 }
 
-function renderAppAssistant(){return `${statusBar()}${nav('Lio','Liveo AI','','appHome')}<div class="phone-body"><div class="app-card"><img src="app-assets/ailogo.png" width="52" height="52" alt="Lio"/><h1>How can I help?</h1><p>Choose a property task to get started.</p><button class="qchip" data-action="listTab" data-tab="daily">Open Property Insights</button><a class="qchip" href="ai-valuation.html">Get a property valuation</a></div><div class="infobox">You can ask about an insight or an editorial article. The article stays attached to that conversation.</div><p class="app-context-note">Preview · Property insights and valuation.</p></div>${homebar()}`;}
+function renderAppAssistant(){return `${statusBar()}${nav('Domus','Liveo AI','','appHome')}<div class="phone-body"><div class="app-card"><img src="app-assets/ailogo.png" width="52" height="52" alt="Domus"/><h1>How can I help?</h1><p>Choose a property task to get started.</p><button class="qchip" data-action="listTab" data-tab="daily">Open Property Insights</button><a class="qchip" href="ai-valuation.html">Get a property valuation</a></div><div class="infobox">You can ask about an insight or an editorial article. The article stays attached to that conversation.</div><p class="app-context-note">Preview · Property insights and valuation.</p></div>${homebar()}`;}
 
 function renderDailyBriefFeed(){
   const [lead,...earlierBriefs]=latestArticles().filter(article=>article.type==='general');
@@ -1137,13 +1137,13 @@ function renderArticle(){
 function renderDomus(){
   const a=ART[I.articleId];
   if(!canReadArticle(a))return accessDeniedArticle();
-  if(!I.pamSettings.enabled)return `${statusBar()}${nav('Lio','Article question','Back','article')}<div class="phone-body"><div class="infobox">Article answers are currently paused.</div></div>${homebar()}`;
-  if(!validQuestionContext(a))return `${statusBar()}${nav('Lio','Article context changed','Back','article')}<div class="phone-body"><div class="infobox">Reopen the current article and choose a question to start with its published version.</div></div>${homebar()}`;
+  if(!I.pamSettings.enabled)return `${statusBar()}${nav('Domus','Article question','Back','article')}<div class="phone-body"><div class="infobox">Article answers are currently paused.</div></div>${homebar()}`;
+  if(!validQuestionContext(a))return `${statusBar()}${nav('Domus','Article context changed','Back','article')}<div class="phone-body"><div class="infobox">Reopen the current article and choose a question to start with its published version.</div></div>${homebar()}`;
   const loading=I.customState==='loading';
   const citations=a.sources.slice(0,2).map(s=>s.name+' · '+s.date).join(' · ');
   return `${statusBar()}
-  ${nav('Lio','Article question','Back','article')}
-  <div class="chat-head"><img src="app-assets/ailogo.png" width="36" height="36" alt="Lio"/><div><div class="who">Lio</div><div class="sub">AI property assistant · demo</div></div></div>
+  ${nav('Domus','Article question','Back','article')}
+  <div class="chat-head"><img src="app-assets/ailogo.png" width="36" height="36" alt="Domus"/><div><div class="who">Domus</div><div class="sub">AI property assistant · demo</div></div></div>
   <div class="chat-body" aria-live="polite">
     <div class="ctx">↩ Context attached: ${a.type==='project'?esc(a.project)+' · ':''}“${a.short}” · v${I.questionContext.version}</div>
     ${I.chatTurns.length?I.chatTurns.map(turn=>`<div class="bub user">${esc(turn.q)}</div><div class="bub ai">${turn.a===null?'Thinking…':`${esc(turn.a)}<span class="cite">${turn.recommended?'Source: '+esc(citations)+'. ':''}Demo answer</span>`}</div>`).join(''):
