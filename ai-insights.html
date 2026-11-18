@@ -57,6 +57,8 @@
   .hero .eyebrow{font-size:7.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);font-weight:700}
   .hero h4{margin:4px 0 4px;font-size:14.5px;line-height:1.35;font-weight:700;letter-spacing:-.01em}
   .hero .meta{font-size:8px;color:var(--muted)}
+  .brief-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .brief-meta [data-brief-topic]{text-transform:none;letter-spacing:normal}
   .hero .more{font-size:8.5px;color:var(--blue);font-weight:650;margin-top:6px;display:inline-block}
   .section{display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px}
   .section b{font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -110,6 +112,9 @@
   .empty-state button{margin-top:8px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 9px;font-size:8px;font-weight:650;color:var(--blue-dark);cursor:pointer}
   .pam-filters{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
   .pam-filters input,.pam-filters select{border:1px solid var(--line);border-radius:5px;padding:5px 6px;font-size:7.5px;background:#fff;color:var(--ink);font-family:inherit}
+  .pam-filters.brief-topic-form{gap:8px;margin:8px 0 10px}
+  .brief-topic-form label{font-weight:650}
+  .brief-topic-form label,.brief-topic-form select,.brief-topic-form .pam-btn{font-size:12px}
   .navbar{flex:0 0 56px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;padding-bottom:10px;font-size:7.5px;color:var(--muted)}
   .navbar .item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
   .navbar .dot{width:16px;height:16px;border-radius:5px;border:1.4px solid #9AA0A6}
@@ -464,9 +469,17 @@ function nav(title, sub='', right='', back='list'){
 const ART = {};
 const S = (name, date, evidence, tag='demo') => ({name, date, evidence, tag});
 const Q = (q, a) => ({q, a});
+const BRIEF_TOPICS = {
+  policy:'Policy & Regulation',
+  financing:'Rates & Financing',
+  sales:'Sales & Prices',
+  rentals:'Rental Market',
+  supply:'Housing Supply',
+  transport:'Transport & Planning'
+};
 
 ART.G1 = {
-  id:'G1', type:'general', project:null, date:'10 Nov 2026', publishedAt:'2026-11-10T08:04:00+08:00',
+  id:'G1', version:3, type:'general', project:null, topic:'sales', date:'10 Nov 2026', publishedAt:'2026-11-10T08:04:00+08:00',
   kicker:'Daily Brief · 10 Nov 2026', title:'Prices up 0.8%, volume down 6%: what October’s resale data says',
   short:'Prices up 0.8%, volume down 6%', summary:'Districts 3 and 15 led the slowdown in sales. With fewer transactions, the mix of homes sold matters more when reading the median.',
   read:'3 min read', updated:'08:04 SGT',
@@ -488,8 +501,8 @@ ART.G1 = {
 };
 
 ART.G2 = {
-  id:'G2', type:'general', project:null, date:'9 Nov 2026', publishedAt:'2026-11-09T08:04:00+08:00',
-  kicker:'Daily Brief · Policy · 9 Nov 2026', title:'MAS holds SORA outlook steady for Q4',
+  id:'G2', version:1, type:'general', project:null, topic:'financing', date:'9 Nov 2026', publishedAt:'2026-11-09T08:04:00+08:00',
+  kicker:'Daily Brief · 9 Nov 2026', title:'MAS holds SORA outlook steady for Q4',
   short:'MAS holds SORA outlook steady for Q4', summary:'Rates stay elevated, but the near-term path is steadier than last quarter.',
   read:'2 min read', updated:'9 Nov',
   stats:[['3.5%','Demo 3M SORA'],['0 bps','Q4 change'],['Q4 2026','Outlook']],
@@ -530,8 +543,8 @@ ART.P1 = {
 };
 
 ART.P2 = {
-  id:'P2', type:'general', project:null, date:'8 Nov 2026', publishedAt:'2026-11-08T08:05:00+08:00',
-  kicker:'Daily Brief · Market · 8 Nov 2026', title:'District 3 resale supply climbs 9% in October',
+  id:'P2', version:1, type:'general', project:null, topic:'supply', date:'8 Nov 2026', publishedAt:'2026-11-08T08:05:00+08:00',
+  kicker:'Daily Brief · 8 Nov 2026', title:'District 3 resale supply climbs 9% in October',
   short:'District 3 resale supply climbs 9% in October', summary:'More choice for buyers, longer time-on-market for sellers.',
   read:'2 min read', updated:'8 Nov',
   stats:[['412','Listings'],['+9%','Month on month'],['11 days','Longer to move']],
@@ -636,7 +649,6 @@ ART.TP1 = {
     Q("Was the S$5,000 home furnished?", "The register gives the bedroom count and monthly rent. It omits furnishing details and lease terms. It cannot show whether furnishing explains the higher rent.")
   ]
 };
-ART.G1.version=3;
 const FIXTURE_ARTICLES = new Set(Object.keys(ART));
 const INITIAL_BRIEF = ART.G1;
 const PROJECT_BINDINGS = {
@@ -716,7 +728,7 @@ const I = {
   tab:'cend', screen:'list', listTab:'daily', articleId:null, question:null, chatTurns:[], notificationPreview:null,
   activeProject:'The Landmark', articleBack:'list', questionContext:null, editorialArticleId:null, editorialBack:'editorialList',
   editorialQuestion:null, editorialAskFrom:'editorialArticle',
-  settings:{osAllowed:true}, dailyArticleId:'G1', recovery:newRecovery(),
+  settings:{osAllowed:true}, dailyArticleId:'G1', recovery:newRecovery(), briefTopicOverrides:new Map(),
   pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}},
   boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueType:'all', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
   targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:defaultInsightSettings(), settingsView:'controls', promptProject:'', promptDrafts:{}, promptPreviewScope:'public', promptBindingDraft:null, configDraft:null, settingsNotice:'', scenarioOpen:false
@@ -809,20 +821,34 @@ function sampleDraft(project){
   };
 }
 
+function publishedBriefForAdmin(brief){
+  const {version}=brief;
+  const time=brief.publishedAt.slice(11,16);
+  const html=new DOMParser().parseFromString(brief.body,'text/html');
+  return {
+    id:brief.id, project:'—', topic:brief.topic, title:brief.title, summary:brief.summary,
+    body:Array.from(html.querySelectorAll('p,li'),node=>node.textContent).join(' '),
+    version, reviewedVersion:version, publishedVersion:version, publishedAt:brief.publishedAt,
+    status:'published', monitoring:false, time, sources:brief.sources.length,
+    editSource:brief.sources.map(source=>source.name).join(' + '),
+    pamQuestions:brief.questions.map(item=>item.q),
+    audience:'All app users', audienceCount:12400, push:'not_sent', pushBatches:[]
+  };
+}
+
 const PAM_INIT = {
-  G1:{id:'G1', title:ART.G1.title, project:'—', sources:ART.G1.sources.length, version:3, reviewedVersion:3, monitoring:false, status:'published', push:'sent', pushBatches:[{batchId:'G1-B1',version:3,title:ART.G1.title,demoReaderAccepted:true,project:'—',target:'All app users',status:'sent',eligible:12400,sent:12400,skipped:0,retries:0,day:'2026-11-10',at:'08:05'}], time:'08:00', audience:'All app users', audienceCount:12400, summary:ART.G1.summary, body:Array.from(new DOMParser().parseFromString(ART.G1.body,'text/html').querySelectorAll('p,li'),node=>node.textContent).join(' ')},
+  G1:{...publishedBriefForAdmin(ART.G1), time:'08:00', push:'sent', pushBatches:[{batchId:'G1-B1',version:3,title:ART.G1.title,demoReaderAccepted:true,project:'—',target:'All app users',status:'sent',eligible:12400,sent:12400,skipped:0,retries:0,day:'2026-11-10',at:'08:05'}]},
+  G2:publishedBriefForAdmin(ART.G2),
+  P2:publishedBriefForAdmin(ART.P2),
   P6:{id:'P6', project:'The Landmark', ...sampleDraft('The Landmark'), version:1, reviewedVersion:null, monitoring:true, status:'pending_review', push:'not_sent', pushBatches:[], time:'06:20', audience:'Verified owners & residents', audienceCount:420, rejectReason:''},
   T1:{id:'T1', title:'Tembusu Grand: first update pending generation', project:'Tembusu Grand', sources:0, version:0, reviewedVersion:null, monitoring:true, status:'pending_generation', push:'not_sent', pushBatches:[], time:'—', audience:'Verified owners & residents', audienceCount:310, body:'', rejectReason:'', pamQuestions:[], editSource:'URA caveats (internal baseline)'},
   C1:{id:'C1', title:'Parc Clematis: October median at S$2,165 psf, 5% above the 24-month level', project:'Parc Clematis', sources:1, version:1, reviewedVersion:null, monitoring:true, status:'rejected', push:'not_sent', pushBatches:[], time:'06:22', audience:'Verified owners & residents', audienceCount:280, body:'Four units at Parc Clematis sold in October at a median of S$2,165 psf, against a 24-month median of S$2,060 psf. The deals ranged from 452 to 915 sqft and from S$2,035 to S$2,388 psf. The October spread between the smallest and largest unit was S$353 psf, wider than the month-on-month move.', rejectReason:'Unit mix not disclosed: the median move is driven by 452 sqft units.', pamQuestions:['Does this change the range for a 452–915 sqft unit?','Is four deals a month normal for Parc Clematis?','Why is the small-unit spread so wide here?'], editSource:'URA caveats (internal baseline) · cutoff 2025-10-07'},
   F1:{id:'F1', title:'Normanton Park: first update failed during generation', project:'Normanton Park', sources:0, version:0, reviewedVersion:null, monitoring:true, status:'generation_failed', push:'not_sent', pushBatches:[], time:'06:25', audience:'Verified owners & residents', audienceCount:180, body:'', error:'Source timeout during generation', rejectReason:'', pamQuestions:[], editSource:'URA caveats (internal baseline)'}
 };
-PAM_INIT.G1.editSource=ART.G1.sources.map(source=>source.name).join(' + ');
-PAM_INIT.G1.pamQuestions=ART.G1.questions.map(q=>q.q);
 PAM_INIT.G1.reviewHistory=[{version:3,actor:'system',at:'2026-11-10 08:04 SGT',decision:'Validated',reason:'Daily Brief source and content checks passed (demo).'}];
 PAM_INIT.C1.reviewHistory=[{version:1,actor:'demo.ops',at:'2026-11-10 07:10 SGT',decision:'Rejected',reason:PAM_INIT.C1.rejectReason}];
 Object.values(PAM_INIT).filter(a=>a.monitoring).forEach(a=>{a.firstGenerationRequested=true;});
 let PAM = JSON.parse(JSON.stringify(PAM_INIT));
-PAM.G1.publishedAt='2026-11-10T08:04:00+08:00';PAM.G1.publishedVersion=PAM.G1.version;
 const DUTIES = {
   full:{label:'Platform full duties', role:'PLATFORM_ADMIN (System Role) · demo duty', scope:'platform',
     perms:['ai:insight:view','ai:insight:project:configure','ai:insight:generate','ai:insight:article:read','ai:insight:article:edit','ai:insight:article:review','ai:insight:article:publish','ai:insight:push:send','ai:insight:push:read','ai:insight:config:read','ai:insight:config:write','user:aiPrompt:detail','user:aiPrompt:save']},
@@ -863,6 +889,7 @@ function publishToCend(a){
     `Check the publication period and the sources attached to this article. Compare the figures only with the same type of evidence. Use the original source if you need unit-level detail.`));
   ART[a.id]={
     id:a.id, version:a.version, type:isGeneral?'general':'project', project:isGeneral?null:a.project, date, publishedAt:a.publishedAt,
+    ...(isGeneral?{topic:a.topic}:{}),
     kicker:isGeneral?'Daily Brief · '+date:'Project insight · '+a.project+' · '+date,
     title:esc(a.title), short:esc(a.title),
     summary:isGeneral||a.historicalSample?esc(a.summary):'The approved version is available to this project’s bound residents.',
@@ -980,9 +1007,16 @@ function projectArticleGroup(project){
     <span class="project-details-link">Project details ›</span></button>
     ${ids.length?ids.map(id=>projectArticleRow(ART[id])).join(''):'<p class="story-summary">No published articles for this project yet.</p>'}</section>`;
 }
+function briefTopic(a){
+  return I.briefTopicOverrides.get(a.id) ?? a.topic;
+}
+function briefTopicTag(a){
+  const label=BRIEF_TOPICS[briefTopic(a)];
+  return label?`<span class="tag blue" data-brief-topic>${esc(label)}</span>`:'';
+}
 function briefRow(a){
   const sourceLabel=a.sources.length===1?'source':'sources';
-  return `<div class="row" data-action="openArticle" data-id="${esc(a.id)}"><div class="t">${a.title}</div><p class="brief-summary">${a.summary}</p><div class="m"><span class="tag">Market</span><span>${a.sources.length} ${sourceLabel} · ${a.updated}</span></div></div>`;
+  return `<div class="row" data-action="openArticle" data-id="${esc(a.id)}"><div class="t">${a.title}</div><p class="brief-summary">${a.summary}</p><div class="m">${briefTopicTag(a)}<span>${a.sources.length} ${sourceLabel} · ${a.updated}</span></div></div>`;
 }
 
 function projectLink(project){
@@ -1081,7 +1115,7 @@ function renderDailyBriefFeed(){
         <div class="eyebrow">Daily Brief · ${lead.date}</div>
         <h4>${lead.title}</h4>
         <p class="brief-summary">${lead.summary}</p>
-        <div class="meta">${lead.read} · ${lead.sources.length} sources · Updated ${lead.updated}</div>
+        <div class="meta brief-meta">${briefTopicTag(lead)}<span>${lead.read} · ${lead.sources.length} sources · Updated ${lead.updated}</span></div>
         <span class="more">Read brief →</span>
       </div>
     ${earlierBriefs.length?`<div class="section"><b>Earlier briefs</b></div>${earlierBriefs.map(briefRow).join('')}`:''}`;
@@ -1116,7 +1150,7 @@ function renderArticle(){
   ${nav(a.type==='project'?'Project Insights':'Daily Brief', a.type==='project'?'':'Property Insights · AI', 'Back', I.articleBack)}
   <div class="phone-body${a.type==='project'?' project-reading':''}">
     ${a.type==='project'?`<div class="project-article-head"><span class="project-label">${projectMark()}${esc(a.project)}</span></div>
-    <div class="project-byline">Published ${projectPublished(a,true)}</div>`:`<div class="article-kicker"><span>${a.kicker}</span></div>`}
+    <div class="project-byline">Published ${projectPublished(a,true)}</div>`:`<div class="article-kicker brief-meta"><span>${a.kicker}</span>${briefTopicTag(a)}</div>`}
     <h1>${a.title}</h1>
     <div class="dek">${a.summary}</div>
     <div class="stats">${a.stats.map(s=>`<div class="stat"><div class="v">${s[0]}</div><div class="k">${s[1]}</div></div>`).join('')}</div>
@@ -1204,13 +1238,14 @@ function inScope(a){
   return false;
 }
 function allowedPam(){ return Object.values(PAM).filter(inScope); }
-const N_ACTION_PERM={monitor:'ai:insight:project:configure',generate:'ai:insight:generate',edit:'ai:insight:article:edit',saveEdit:'ai:insight:article:edit',reject:'ai:insight:article:review',approve:'ai:insight:article:review',publish:'ai:insight:article:publish',push:'ai:insight:push:send',settings:'ai:insight:config:write'};
+const N_ACTION_PERM={monitor:'ai:insight:project:configure',generate:'ai:insight:generate',edit:'ai:insight:article:edit',saveEdit:'ai:insight:article:edit',reject:'ai:insight:article:review',approve:'ai:insight:article:review',publish:'ai:insight:article:publish',push:'ai:insight:push:send',settings:'ai:insight:config:write',briefTopic:'ai:insight:article:edit'};
 function authN(action, art, platformOnly=false){
   const perm=N_ACTION_PERM[action];
   if(!perm) return {ok:false,reason:'unknown action'};
   if(!hasPerm(perm)) return {ok:false,reason:'missing '+perm};
   if(art && !inScope(art)) return {ok:false,reason:'object outside '+duty().scope};
-  if(art?.project==='—') return {ok:false,reason:'Daily Brief is managed by the system run'};
+  if(action==='briefTopic' && (art?.project!=='—'||!hasPublishedVersion(art))) return {ok:false,reason:'select a published Daily Brief'};
+  if(art?.project==='—' && action!=='briefTopic') return {ok:false,reason:'Daily Brief is managed by the system run'};
   if(platformOnly && duty().scope!=='platform') return {ok:false,reason:'platform scope required'};
   return {ok:true};
 }
@@ -1314,7 +1349,7 @@ function renderPamQueue(){
   </div>
   <div class="pam-table">
     <div class="ptr head"><div>Title</div><div>Project</div><div>Ver.</div><div>Article</div><div>Push submission</div><div>Time</div></div>
-    ${rows.length?rows.map(a=>`<div class="ptr" data-action="pamSelect" data-id="${a.id}"><div><div class="ti">${esc(a.title)}</div><div class="sub">${a.project==='—'?'General brief · system auto-publish':a.status==='pending_generation'?'Not generated yet':a.status==='generating'?'Generating draft':a.status==='generation_failed'?'Generation failed':'Project-specific'}</div></div><div>${a.project}</div><div>v${a.version}</div><div>${pamBadge(a.status)}</div><div>${pushBadge(a.push)}</div><div>${a.time}</div></div>`).join(''):`<div class="empty-state" style="margin:0"><b>No articles match these filters</b>Reset the filters or generate a new article.<button data-action="pamQueueReset">Reset filters</button></div>`}
+    ${rows.length?rows.map(a=>`<div class="ptr" data-action="pamSelect" data-id="${a.id}"><div><div class="ti">${esc(a.title)}</div><div class="sub">${a.project==='—'?'General brief · system auto-publish':a.status==='pending_generation'?'Not generated yet':a.status==='generating'?'Generating draft':a.status==='generation_failed'?'Generation failed':'Project-specific'} ${a.project==='—'?briefTopicTag(a):''}</div></div><div>${a.project}</div><div>v${a.version}</div><div>${pamBadge(a.status)}</div><div>${pushBadge(a.push)}</div><div>${a.time}</div></div>`).join(''):`<div class="empty-state" style="margin:0"><b>No articles match these filters</b>Reset the filters or generate a new article.<button data-action="pamQueueReset">Reset filters</button></div>`}
   </div>
   <div class="pam-note">Article status, version and push status are separate. “Published” does not mean every device received a notification. This list is filtered by the current simulated duty and project scope.</div>`;
 }
@@ -1381,6 +1416,21 @@ function configurationChanges(draft,config){
   return changes;
 }
 
+function renderBriefTopicForm(article){
+  const current=briefTopic(article);
+  if(!authN('briefTopic',article,true).ok){
+    return `<p>Topic · ${BRIEF_TOPICS[current]?briefTopicTag(article):'No topic'}</p>`;
+  }
+  return `<div class="pam-filters brief-topic-form">
+    <label for="briefTopicSelect">Topic</label>
+    <select id="briefTopicSelect">
+      <option value="">No topic</option>
+      ${Object.entries(BRIEF_TOPICS).map(([code,label])=>`<option value="${code}" ${code===current?'selected':''}>${esc(label)}</option>`).join('')}
+    </select>
+    <button type="button" class="pam-btn" data-action="saveBriefTopic">Save topic</button>
+  </div>`;
+}
+
 function renderPamReview(){
   const a=PAM[I.pamSelected] || PAM.P6;
   if(!inScope(a)) return `<div class="pam-card"><div class="h">Out of scope</div><div class="pam-preview"><p>This article belongs to <b>${a.project}</b>, outside the current simulated scope <b>${duty().scope}</b>. The detail is not rendered even if the ID is supplied directly.</p></div></div>`;
@@ -1401,6 +1451,7 @@ function renderPamReview(){
         <h2>${esc(a.title)}</h2>
         ${a.historicalSample?'<span class="tag demo">Historical sales sample</span>':''}
         ${a.summary?`<p class="pam-note">${esc(a.summary)}</p>`:''}
+        ${isProject?'':renderBriefTopicForm(a)}
         <div style="font-size:8px;color:var(--muted);margin-bottom:6px">${a.sources} sources · generated ${a.time} · demo model v0.1 · review ${a.reviewedVersion?'v'+a.reviewedVersion:'pending'}</div>
         ${editing?`<div style="font-size:8px;color:var(--muted);margin-bottom:3px">Title</div><input class="pam-input" id="pamEditTitle" value="${esc(a.title)}" /><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Body</div><textarea class="pam-textarea" id="pamEditBody">${esc(a.body)}</textarea><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Recommended questions (one per line)</div><textarea class="pam-textarea" id="pamEditQuestions">${esc((a.pamQuestions||[]).join('\n'))}</textarea><div style="font-size:8px;color:var(--muted);margin:5px 0 3px">Source correction note</div><input class="pam-input" id="pamEditSource" value="${esc(a.editSource||'')}" /><div class="pam-actions"><button class="pam-btn primary" data-action="pamSaveEdit">Save as new version</button><button class="pam-btn" data-action="pamCancelEdit">Cancel</button></div>`:`<div class="pam-preview">${a.body?`${articleParagraphs(a.body)}`:'<p style="color:var(--muted)">Not generated yet. Start generation to create a draft for review.</p>'}${a.pamQuestions&&a.pamQuestions.length?`<div style="font-size:7.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:5px"><b>Recommended questions</b><ul style="margin:3px 0 0;padding-left:13px">${a.pamQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div>`:''}</div>`}
       </div>
@@ -1538,7 +1589,7 @@ function recoverGeneral(){
     const pushOn=I.pamSettings.enabled&&I.pamSettings.pushEnabled;
     const eligible=pushOn&&time<'10:00'?sample.filter(([id,u])=>userPushSettings(id,u).osAllowed):[];
     r.sent=eligible.length;
-    const a={id:'GBR',version:1,project:'—',publishedAt:GENERAL_RECOVERY_DATE+'T'+time+':00+08:00',
+    const a={id:'GBR',version:1,project:'—',topic:'sales',publishedAt:GENERAL_RECOVERY_DATE+'T'+time+':00+08:00',
       title:(scheduled?'Daily Brief · ':'Recovered Daily Brief · ')+GENERAL_RECOVERY_DATE,
       summary:'A sample look at resale volumes and the mix of homes sold, with context for reading median prices.',
       body:'This sample market brief looks at resale transaction volumes and changes in the mix of homes sold. Compare the same period and home types before interpreting median prices. Check the dates in the source notes.',
@@ -1867,6 +1918,18 @@ function bind(){
         if(!art || !inScope(art)){ I.pamToast='Blocked: article is outside the current project scope.'; render(); return; }
         I.pamSelected=el.dataset.id; I.pamView='review'; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; render(); return;
       }
+      if(a==='saveBriefTopic'){
+        const art=PAM[I.pamSelected];
+        const auth=authN('briefTopic',art,true);
+        if(!auth.ok) return denyN(auth);
+        const topic=$('#briefTopicSelect')?.value;
+        if(topic===undefined || (topic!==''&&!Object.hasOwn(BRIEF_TOPICS,topic))){
+          return denyN({reason:'choose one topic from the list'});
+        }
+        I.briefTopicOverrides.set(art.id,topic);
+        I.pamToast=topic?'Topic saved.':'Topic removed.';
+        render(); return;
+      }
       if(a==='pamEdit'){
         const art=PAM[I.pamSelected]; const auth=authN('edit',art);
         if(!auth.ok) return denyN(auth);
@@ -2116,7 +2179,7 @@ function bind(){
       if(!I.pamSettings.enabled||!authN('generate',null,true).ok||I.recovery.status==='running') return;
       I.scenarioOpen=true;
       I.recovery={...I.recovery,[key]:e.target.value,status:'ready',attempts:0};
-      delete ART.GBR; delete PAM.GBR;
+      delete ART.GBR; delete PAM.GBR; I.briefTopicOverrides.delete('GBR');
       if(I.dailyArticleId==='GBR') I.dailyArticleId='G1';
       render();
     });
@@ -2218,7 +2281,7 @@ document.addEventListener('click', e=>{
   if(a==='resetPam'){
     I.pamSettings=defaultInsightSettings(); I.configDraft=null; I.promptBindingDraft=null; I.promptProject=''; I.promptPreviewScope='public'; I.promptDrafts={}; I.settingsView='controls'; I.settingsNotice=''; I.scenarioOpen=false;
     I.pamGenToken=(I.pamGenToken||0)+1;
-    PAM=JSON.parse(JSON.stringify(PAM_INIT));PAM.G1.publishedAt='2026-11-10T08:04:00+08:00';PAM.G1.publishedVersion=PAM.G1.version;
+    PAM=JSON.parse(JSON.stringify(PAM_INIT)); I.briefTopicOverrides.clear();
     Object.keys(ART).filter(id=>!FIXTURE_ARTICLES.has(id)).forEach(id=>{delete ART[id];});
     ART.G1=INITIAL_BRIEF; I.dailyArticleId='G1'; I.recovery=newRecovery(); I.publishSeq=0;
     I.pushDay='2026-11-10';
