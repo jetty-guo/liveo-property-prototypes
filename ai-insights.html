@@ -1078,10 +1078,9 @@ function renderPamProjects(){
   <div class="pam-card"><div class="h">Target project configuration</div><div style="font-size:8.5px;color:#374151;line-height:1.6">Add or remove demo target projects. The first enable creates one simulated generation request. Repeat saves and re-enabling a project with existing content do not create another first request. No real scheduler or project config is called. Removing a project stops future monitoring; published articles stay in the queue and push log.</div>
     <div class="pam-filters" style="margin-top:8px">
       <input id="pamProjectSearch" placeholder="Search target projects" value="${esc(I.projectQuery)}" style="width:180px" />
-      <select id="pamAddProject" ${addable.length&&canCfg?'':'disabled'}>${addable.length?addable.map(x=>`<option value="${x.project}">${x.project}</option>`).join(''):'<option>All demo projects added</option>'}</select>
-      <button class="pam-btn primary" data-action="pamAddProject" ${addable.length&&canCfg?'':'disabled'}>Add project</button>
+      <button class="pam-btn primary" data-action="pamAddProject" ${addable.length&&canCfg?'':'disabled'}>${addable.length?'Add project':'All demo projects added'}</button>
     </div>
-    <div class="pam-note">Candidate list is limited to the current duty scope. HDB, commercial and industrial projects are excluded. Project IDs are demo labels, not real lvoprop IDs.</div>
+    <div class="pam-note">Demo adds the next eligible candidate only; production uses an authorized project search with paging. HDB, commercial and industrial projects are excluded. Project IDs are demo labels, not real lvoprop IDs.</div>
   </div>
   ${rows||`<div class="empty-state"><b>No target projects</b>Add a project to start monitoring.<button data-action="pamProjectClearSearch">Clear search</button></div>`}
   <div class="pam-note">Button disabled = current simulated duty lacks the permission; a direct request would also be rejected.</div>`;
@@ -1515,8 +1514,9 @@ function bind(){
       if(a==='pamProjectClearSearch'){ I.projectQuery=''; render(); return; }
       if(a==='pamAddProject'){
         const auth=authN('monitor',null); if(!auth.ok) return denyN(auth);
-        const sel=$('#pamAddProject'); const project=sel?sel.value:'';
-        if(!project || I.targetProjects.includes(project)){ I.pamToast='Blocked: project is already a target or not selected.'; render(); return; }
+        const candidate=PROJECT_CATALOG.map(x=>x.project).filter(p=>!I.targetProjects.includes(p) && inScope({project:p}))[0];
+        const project=candidate||'';
+        if(!project){ I.pamToast='Blocked: no eligible candidate project in the current scope.'; render(); return; }
         if(!inScope({project})){ I.pamToast='Blocked: project is outside '+duty().scope+'.'; render(); return; }
         const meta=PROJECT_CATALOG.find(x=>x.project===project); if(!meta){ I.pamToast='Unknown demo project. No request was created.'; render(); return; }
         const existing=Object.values(PAM).find(x=>x.project===project);
