@@ -382,7 +382,7 @@ const S = (name, date, evidence, tag='demo') => ({name, date, evidence, tag});
 const Q = (q, a) => ({q, a});
 
 ART.G1 = {
-  id:'G1', type:'general', project:null,
+  id:'G1', type:'general', project:null, date:'10 Nov 2026', publishedAt:'2026-11-10T08:04:00+08:00',
   kicker:'Daily Brief · 10 Nov 2026', title:'Prices up 0.8%, volume down 6%: what October’s resale data says',
   short:'Prices up 0.8%, volume down 6%', summary:'Slower but steadier: what October’s data means for D03 owners.',
   read:'3 min read', updated:'08:04 SGT',
@@ -404,10 +404,10 @@ ART.G1 = {
 };
 
 ART.G2 = {
-  id:'G2', type:'general', project:null,
-  kicker:'Policy · 10 Nov 2026', title:'MAS holds SORA outlook steady for Q4',
+  id:'G2', type:'general', project:null, date:'9 Nov 2026', publishedAt:'2026-11-09T08:04:00+08:00',
+  kicker:'Daily Brief · Policy · 9 Nov 2026', title:'MAS holds SORA outlook steady for Q4',
   short:'MAS holds SORA outlook steady for Q4', summary:'Rates stay elevated, but the near-term path is steadier than last quarter.',
-  read:'2 min read', updated:'07:00',
+  read:'2 min read', updated:'9 Nov',
   stats:[['3.5%','Demo 3M SORA'],['0 bps','Q4 change'],['Q4 2026','Outlook']],
   body:`<p>MAS kept its SORA outlook steady, pointing to a slower but still elevated rate environment in Q4. That is a pause, not a cut.</p><p>For owners with floating loans, the practical takeaway is to budget for a small buffer rather than assume financing costs will fall quickly. Fixed packages may still price in a premium for certainty.</p>`,
   sources:[
@@ -423,10 +423,10 @@ ART.G2 = {
 };
 
 ART.P1 = {
-  id:'P1', type:'project', project:'The Landmark',
+  id:'P1', type:'project', project:'The Landmark', publishedAt:'2026-11-10T08:30:00+08:00',
   kicker:'Project insight · The Landmark · 10 Nov 2026', title:'The Landmark: two units transact above S$2,100 psf',
   short:'Two units transact above S$2,100 psf', summary:'Two mid-floor 3-bedroom sales cleared the 24-month median. A signal, not yet a trend.',
-  read:'3 min read', updated:'2h ago',
+  read:'3 min read', updated:'10 Nov',
   stats:[['S$2,120','psf · unit 1'],['S$2,145','psf · unit 2'],['S$2,040','24M median']],
   body:`<p>Two 3-bedroom units at The Landmark changed hands at S$2,120 and S$2,145 psf in the first week of November, both above the project’s 24-month median of S$2,040 psf.</p><p>Both were mid-floor stacks facing the city, which typically clear 4–5% above the block median. That puts the transactions in line with the better stacks rather than a new price floor for the whole project.</p><ul><li>Both sales are within the 968–1,184 sqft area band used by the valuation.</li><li>Two transactions are a useful signal; they are not enough to re-rate every mid-floor unit.</li></ul>`,
   sources:[
@@ -443,10 +443,10 @@ ART.P1 = {
 };
 
 ART.P2 = {
-  id:'P2', type:'general', project:null,
-  kicker:'Market · 10 Nov 2026', title:'District 3 resale supply climbs 9% in October',
+  id:'P2', type:'general', project:null, date:'8 Nov 2026', publishedAt:'2026-11-08T08:05:00+08:00',
+  kicker:'Daily Brief · Market · 8 Nov 2026', title:'District 3 resale supply climbs 9% in October',
   short:'District 3 resale supply climbs 9% in October', summary:'More choice for buyers, longer time-on-market for sellers.',
-  read:'2 min read', updated:'5h ago',
+  read:'2 min read', updated:'8 Nov',
   stats:[['412','Listings'],['+9%','Month on month'],['11 days','Longer to move']],
   body:`<p>District 3 resale listings rose 9% in October to 412 units. The increase is broad across older 99-year projects, with the sharpest jumps in the 1,000–1,200 sqft band.</p><p>More supply usually softens the top of the range before it moves the median. Buyers gain negotiating room; sellers face longer time-on-market unless the unit is priced to the block median.</p>`,
   sources:[
@@ -462,10 +462,10 @@ ART.P2 = {
 };
 
 ART.P3 = {
-  id:'P3', type:'project', project:'The Landmark',
+  id:'P3', type:'project', project:'The Landmark', publishedAt:'2026-11-10T08:12:00+08:00',
   kicker:'Project insight · The Landmark · 10 Nov 2026', title:'How might a different walking route affect access to Havelock MRT?',
   short:'How might a different walking route affect access to Havelock MRT?', summary:'This sample compares walking routes. The exit and opening date are hypothetical.',
-  read:'3 min read', updated:'1d ago',
+  read:'3 min read', updated:'10 Nov',
   stats:[['420m','To Havelock MRT'],['2027','Demo timeline'],['5','Sources']],
   body:`<p>This sample asks how a hypothetical Havelock MRT exit might change the walk from The Landmark. The answer depends on the entrance used and the pedestrian route.</p><p>The effect is usually gradual and partly priced in before opening. Treat the 2027 date as illustrative until LTA publishes a confirmed project timeline.</p><div class="demobanner" style="margin-top:6px">Demo/unverified: this article is not a confirmed LTA announcement. Do not use it as a factual planning basis.</div>`,
   sources:[
@@ -483,10 +483,10 @@ ART.P3 = {
 };
 
 ART.P4 = {
-  id:'P4', type:'project', project:'The Landmark',
+  id:'P4', type:'project', project:'The Landmark', publishedAt:'2026-11-10T08:07:00+08:00',
   kicker:'Project insight · The Landmark · 10 Nov 2026', title:'The Landmark: rental yields hold at 3.2%',
   short:'Rental yields hold at 3.2%', summary:'Gross yield is stable; net yield is lower after costs and vacancy.',
-  read:'2 min read', updated:'1d ago',
+  read:'2 min read', updated:'10 Nov',
   stats:[['3.2%','Gross yield'],['S$4,200','Median rent'],['3','Sources']],
   body:`<p>Gross rental yields at The Landmark are holding near 3.2%, with a median monthly rent of about S$4,200 for a 3-bedroom unit in this demo set.</p><p>Net yield after maintenance, property tax, agent fees and vacancy is lower. A conservative underwrite is closer to 2.6–2.9%.</p>`,
   sources:[
@@ -502,10 +502,10 @@ ART.P4 = {
 };
 
 ART.P5 = {
-  id:'P5', type:'project', project:'The Landmark',
+  id:'P5', type:'project', project:'The Landmark', publishedAt:'2026-11-10T08:06:00+08:00',
   kicker:'Project insight · The Landmark · 10 Nov 2026', title:'The Landmark: what 6 recent sales say about pricing',
   short:'What 6 recent sales say about pricing', summary:'The 24-month median is S$2,040 psf; the spread is wider than the headline.',
-  read:'3 min read', updated:'1d ago',
+  read:'3 min read', updated:'10 Nov',
   stats:[['6','Matched sales'],['S$2,040','Median PSF'],['S$2,105','High PSF']],
   body:`<p>Six matched transactions in the last 24 months put The Landmark’s median at S$2,040 psf, with a range from S$2,000 to S$2,105 psf.</p><p>Floor, stack and view explain most of the spread. A mid-floor unit should be priced within the band unless it has a special view or renovation.</p>`,
   sources:[
@@ -524,7 +524,7 @@ ART.P5 = {
 };
 
 ART.TP1 = {
-  id:'TP1', type:'project', project:'Tembusu Grand',
+  id:'TP1', type:'project', project:'Tembusu Grand', publishedAt:'2026-11-10T08:15:00+08:00',
   kicker:'Project insight · Tembusu Grand · demo', title:'Tembusu Grand: reading the project update',
   short:'Tembusu Grand project update', summary:'A demo project update for checking resident access and tenant questions.',
   read:'2 min read', updated:'10 Nov', stats:[['1','Demo source']],
@@ -794,7 +794,7 @@ function renderList(){
     <div class="tabs"><button data-action="listTab" data-tab="daily" class="${I.listTab==='daily'?'on':''}">Daily Brief</button><button data-action="listTab" data-tab="projects" class="${I.listTab==='projects'?'on':''}">My Projects</button></div>
     ${I.listTab==='daily'?`
       <div class="hero" data-action="openArticle" data-id="${a.id}">
-        <div class="eyebrow">Daily Brief · ${a.date||'10 Nov'}</div>
+        <div class="eyebrow">Daily Brief · ${a.date}</div>
         <h4>${a.title}</h4>
         <p class="brief-summary">${a.summary}</p>
         <div class="meta">${a.read} · ${a.sources.length} sources · Updated ${a.updated}</div>
@@ -1512,9 +1512,9 @@ function bind(){
 
 function generatedBody(id){
   if(id==='T1') return 'The sample considers how to compare walking routes from Tembusu Grand to MRT entrances. Follow the pedestrian route from the project gate and check the station map for entrances currently open. A proposed exit or opening date needs an official announcement before residents can rely on it.';
-  if(id==='C1') return 'Rental yields at Parc Clematis slipped to 3.1% in October as asking rents softened. The change is small and based on a thin sample; this draft uses the latest demo URA rental data and still needs source verification before approval.';
-  if(id==='F1') return 'Three-bedroom rents at Normanton Park rose about 4% quarter on quarter in this demo. The sample is thin and the source feed timed out on the first attempt; this regenerated draft still needs source verification before approval.';
-  return 'Updated draft: three 3-bedroom units at The Landmark changed hands at S$2,080–2,120 psf in October, around the 24-month median of S$2,040. Mid-floor stacks led the activity, while high-floor units continued to clear at a premium. This version was regenerated after review and still needs source verification.';
+  if(id==='C1') return 'Rental yields at Parc Clematis slipped to 3.1% in October as asking rents softened. The October sample is small. Compare leases of similar size over the same period before interpreting the change.';
+  if(id==='F1') return 'Three-bedroom rents at Normanton Park rose about 4% quarter on quarter in this demo. The sample covers three-bedroom units only. Check the lease dates and compare similar floor areas before applying the quarterly figure to a unit.';
+  return 'In the sample, three 3-bedroom units at The Landmark changed hands at S$2,080–2,120 psf in October, around the 24-month median of S$2,040. Mid-floor stacks led the activity, while high-floor units continued to clear at a premium. Three sales give a snapshot of activity and are too few to establish a new project-wide price floor.';
 }
 function pamGenerate(id,trigger){
   const a=PAM[id]; if(!a) return;
@@ -1529,7 +1529,7 @@ function pamGenerate(id,trigger){
     if(a.generationToken!==token || (I.pamResetEpoch||0)!==epoch || PAM[id]!==a) return;
     a.status='pending_review'; a.version=(a.version||0)+1; a.reviewedVersion=null; a.time='06:31';
     a.sources=(a.editSource||'').split('+').map(x=>x.trim()).filter(Boolean).length;
-    a.body=id.startsWith('N')?'Demo draft for '+a.project+'. This sample shows how to read a project update. Check the dated sources for the period covered and the details that apply to your building.':generatedBody(id);
+    a.body=id.startsWith('N')?'Project update for '+a.project+'. This sample shows how to read a project update. Check the dated sources for the period covered and the details that apply to your building.':generatedBody(id);
     if(!a.pamQuestions.length) a.pamQuestions=['What does the latest update say?','Which sources support this update?','What should a resident check next?'];
     I.pamGenerating=null; I.pamSelected=id; I.pamView='review'; I.pamToast='Draft generated. Moved to pending review.'; render();
   }, 1100);
