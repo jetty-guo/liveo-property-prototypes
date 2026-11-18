@@ -214,7 +214,7 @@
   .pam-row .v{font-weight:600;text-align:right;max-width:60%;overflow-wrap:anywhere}
   .project-card{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:7px;display:flex;justify-content:space-between;gap:10px;align-items:center}
   .project-group-title{margin:16px 0 8px;font-size:14px}
-  [data-project-group][hidden],[data-project-result][hidden],#noProjectMatches[hidden]{display:none}
+  [data-project-result][hidden],#noProjectMatches[hidden]{display:none}
   .project-card .t{font-size:10px;font-weight:650}
   .project-card .s{font-size:7.5px;color:var(--muted);margin-top:1px}
   .project-card .right{display:flex;gap:5px;align-items:center}
@@ -577,7 +577,7 @@ const I = {
   editorialQuestion:null, editorialAskFrom:'editorialArticle',
   settings:{osAllowed:true}, dailyArticleId:'G1', recovery:newRecovery(),
   pushDay:'2026-11-10', pushUsers:{A:{label:'Demo user A',projects:['The Landmark','Tembusu Grand'],generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}},
-  boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
+  boundProjects:['The Landmark'], readArticles:['P3','P4'], feedState:'ready', queueType:'all', queueFilter:'all', queueQuery:'', projectQuery:'', customState:'idle', customError:'', chatToken:0,
   targetProjects:['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park'], pamView:'queue', pamSelected:'P6', pamEditing:false, pamDraft:'', pamRejectOpen:false, pamRejectReason:'Source date mismatch', pamRejectNote:'URA figure is from August, not October.', pamGenerating:null, pamPushFailNext:false, pamPushUnknownNext:false, pamToast:'', duty:'full', readerRole:'OWNER',buyerIntent:false,pushClock:'09:00',publishSeq:0, pamSettings:{sources:'Official first: URA + MAS + LTA + gov.sg; supplementary CNA + BT + EdgeProp; news 7 days', prompt:'ai_insight_general / ai_insight_project / ai_insight_followup · drafts prepared'}
 };
 
@@ -1129,19 +1129,21 @@ function renderPam(){
   return pamShell(renderPamQueue());
 }
 function renderPamQueue(){
-  const all=allowedPam();
+  const typeOptions=[['all','All content types'],['project','Project insights'],['general','General briefs']];
+  const articles=allowedPam().filter(a=>I.queueType==='all'||I.queueType===(a.project==='—'?'general':'project'));
   const q=(I.queueQuery||'').trim().toLowerCase();
-  const rows=all.filter(a=> (I.queueFilter==='all'||a.status===I.queueFilter) && (!q || (a.title+' '+a.project).toLowerCase().includes(q)));
+  const rows=articles.filter(a=> (I.queueFilter==='all'||a.status===I.queueFilter) && (!q || (a.title+' '+a.project).toLowerCase().includes(q)));
   const statusOptions=[['all','All statuses'],['pending_review','Pending review'],['approved','Approved · not published'],['published','Published'],['rejected','Rejected & rewrite'],['generation_failed','Generation failed'],['pending_generation','Pending generation'],['generating','Generating']];
   return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
   <div class="kpis">
-    <div class="kpi"><div class="v">${all.filter(a=>a.status==='pending_review').length}</div><div class="k">Pending review</div></div>
-    <div class="kpi"><div class="v">${all.filter(a=>a.status==='approved').length}</div><div class="k">Approved · not published</div></div>
-    <div class="kpi"><div class="v">${all.filter(a=>a.status==='published').length}</div><div class="k">Published</div></div>
+    <div class="kpi"><div class="v">${articles.filter(a=>a.status==='pending_review').length}</div><div class="k">Pending review</div></div>
+    <div class="kpi"><div class="v">${articles.filter(a=>a.status==='approved').length}</div><div class="k">Approved · not published</div></div>
+    <div class="kpi"><div class="v">${articles.filter(a=>a.status==='published').length}</div><div class="k">Published</div></div>
     <div class="kpi"><div class="v">1 + 1</div><div class="k">Push cap / user / day</div></div>
   </div>
   <div class="pam-filters">
-    <select id="pamQueueFilter">${statusOptions.map(([v,l])=>`<option value="${v}" ${I.queueFilter===v?'selected':''}>${l}</option>`).join('')}</select>
+    <select id="pamQueueType" aria-label="Content type">${typeOptions.map(([v,l])=>`<option value="${v}" ${I.queueType===v?'selected':''}>${l}</option>`).join('')}</select>
+    <select id="pamQueueFilter" aria-label="Article status">${statusOptions.map(([v,l])=>`<option value="${v}" ${I.queueFilter===v?'selected':''}>${l}</option>`).join('')}</select>
     <input id="pamQueueSearch" placeholder="Search title or project" value="${esc(I.queueQuery)}" style="width:190px" />
     <button class="pam-btn" data-action="pamQueueReset">Reset</button>
   </div>
@@ -1164,14 +1166,14 @@ function renderPamProjects(){
   }).join('');
   return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
   <div class="pam-card"><div class="h">Project monitoring</div>
-    <div class="pam-filters"><input type="search" id="pamProjectSearch" aria-label="Search projects" placeholder="Search projects" value="${esc(I.projectQuery)}" /></div>
-    <div class="pam-note">Add a project to generate its first draft. Residents can read it after review and publication.</div>
+    <div class="pam-filters"><input type="search" id="pamProjectSearch" aria-label="Search projects" placeholder="Search by project name" value="${esc(I.projectQuery)}" /></div>
+    <div class="pam-note">Search by name to add a project. Its first draft will go to the review queue.</div>
   </div>
-  <section data-project-group aria-label="Available to add"><h3 class="project-group-title">Available to add</h3>
-    ${addable.map(x=>`<div class="project-card" data-project-result="${esc(x.project)}"><div class="t">${esc(x.project)}</div><button class="pam-btn primary" type="button" data-action="pamAddProject" data-project="${esc(x.project)}" ${canCfg?'':'disabled'}>Add project</button></div>`).join('')}
+  <section aria-labelledby="projectListTitle"><h3 class="project-group-title" id="projectListTitle">Monitored projects</h3>
+    ${rows}
+    ${addable.map(x=>`<div class="project-card" data-project-result="${esc(x.project)}" data-candidate hidden><div class="t">${esc(x.project)}</div><button class="pam-btn primary" type="button" data-action="pamAddProject" data-project="${esc(x.project)}" ${canCfg?'':'disabled'}>Add project</button></div>`).join('')}
   </section>
-  <section data-project-group aria-label="Monitored projects"><h3 class="project-group-title">Monitored projects</h3>${rows}</section>
-  <div id="noProjectMatches" class="empty-state" hidden><b>No matching projects</b><button data-action="pamProjectClearSearch">Clear search</button></div>`;
+  <div id="noProjectMatches" class="empty-state" hidden><b></b><button data-action="pamProjectClearSearch">Clear search</button></div>`;
 }
 
 function renderPamReview(){
@@ -1610,7 +1612,7 @@ function bind(){
       if(a==='feedReady'){ I.feedState='ready'; render(); return; }
       if(a==='retryFeed'){ I.feedState='loading'; render(); setTimeout(()=>{ I.feedState='ready'; render(); },700); return; }
       if(a==='resetFeed'){ I.feedState='ready'; render(); return; }
-      if(a==='pamQueueReset'){ I.queueFilter='all'; I.queueQuery=''; render(); return; }
+      if(a==='pamQueueReset'){ I.queueType='all'; I.queueFilter='all'; I.queueQuery=''; render(); return; }
       if(a==='pamProjectClearSearch'){ I.projectQuery=''; render(); return; }
       if(a==='pamAddProject'){
         const auth=authN('monitor',null); if(!auth.ok) return denyN(auth);
@@ -1637,6 +1639,8 @@ function bind(){
       }
     });
   });
+  const qt=$('#pamQueueType');
+  if(qt) qt.addEventListener('change', e=>{ I.queueType=e.target.value; render(); });
   const qf=$('#pamQueueFilter');
   if(qf) qf.addEventListener('change', e=>{ I.queueFilter=e.target.value; setTimeout(render,0); });
   const qs=$('#pamQueueSearch');
@@ -1646,14 +1650,20 @@ function bind(){
     const applyProjectSearch=()=>{
       I.projectQuery=ps.value;
       const filter=ps.value.trim().toLowerCase();
-      const groups=document.querySelectorAll('#stage [data-project-group]');
-      for(const group of groups){
-        for(const row of group.querySelectorAll('[data-project-result]')){
-          row.hidden=!row.dataset.projectResult.toLowerCase().includes(filter);
-        }
-        group.hidden=!group.querySelector('[data-project-result]:not([hidden])');
+      const rows=document.querySelectorAll('#stage [data-project-result]');
+      let visibleCount=0;
+      for(const row of rows){
+        const matches=filter?row.dataset.projectResult.toLowerCase().includes(filter):!row.hasAttribute('data-candidate');
+        row.hidden=!matches;
+        if(matches) visibleCount++;
       }
-      $('#noProjectMatches').hidden=Array.from(groups).some(group=>!group.hidden);
+      $('#projectListTitle').textContent=filter?'Search results':'Monitored projects';
+      const empty=$('#noProjectMatches');
+      empty.hidden=visibleCount>0;
+      if(!empty.hidden){
+        empty.querySelector('b').textContent=filter?'No matching projects':'No monitored projects. Search by name to add one.';
+        empty.querySelector('button').hidden=!filter;
+      }
     };
     ps.addEventListener('input',applyProjectSearch);
     applyProjectSearch();
@@ -1764,7 +1774,7 @@ document.addEventListener('click', e=>{
     ART.G1=INITIAL_BRIEF; I.dailyArticleId='G1'; I.recovery=newRecovery(); I.publishSeq=0;
     I.pushDay='2026-11-10';
     I.pushUsers={A:{label:'Demo user A',generalUsed:1,projectUsed:0},B:{label:'Demo user B',projects:['Tembusu Grand'],generalUsed:1,projectUsed:0,settings:{osAllowed:true}}};
-    I.targetProjects=['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park']; I.queueFilter='all'; I.queueQuery=''; I.projectQuery=''; I.pamView='queue'; I.pamSelected='P6'; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; I.pamPushFailNext=false; I.pamPushUnknownNext=false; I.pamResetEpoch=(I.pamResetEpoch||0)+1; render();
+    I.targetProjects=['The Landmark','Tembusu Grand','Parc Clematis','Normanton Park']; I.queueType='all'; I.queueFilter='all'; I.queueQuery=''; I.projectQuery=''; I.pamView='queue'; I.pamSelected='P6'; I.pamEditing=false; I.pamRejectOpen=false; I.pamToast=''; I.pamPushFailNext=false; I.pamPushUnknownNext=false; I.pamResetEpoch=(I.pamResetEpoch||0)+1; render();
   }
   if(a==='nextDay'){
     const day=new Date(I.pushDay+'T00:00:00Z');day.setUTCDate(day.getUTCDate()+1);I.pushDay=day.toISOString().slice(0,10);I.publishSeq=0;
