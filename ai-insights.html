@@ -225,6 +225,7 @@
   .pam-row .v{font-weight:600;text-align:right;max-width:60%;overflow-wrap:anywhere}
   .project-card{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:7px;display:flex;justify-content:space-between;gap:10px;align-items:center}
   .project-group-title{margin:16px 0 8px;font-size:14px}
+  .pam-card>.project-group-title{margin-top:0}
   [data-project-result][hidden],#noProjectMatches[hidden]{display:none}
   .project-card .t{font-size:10px;font-weight:650}
   .project-card .s{font-size:7.5px;color:var(--muted);margin-top:1px}
@@ -1371,11 +1372,11 @@ function renderPamProjects(){
     return `<div class="project-card" data-project-result="${esc(a.project)}"><div><div class="t">${esc(a.project)}</div><div class="s">${a.title}</div><div class="s">Source ref: lvoprop.project_info(id) · ${a.audienceCount} demo devices</div><div class="s">Last generated: ${a.time||'—'} · ${a.status}</div></div><div class="right"><span class="tag ${a.monitoring?'green':''}">${a.monitoring?'Monitoring':'Not monitored'}</span>${a.status==='pending_review'||a.status==='approved'?`<button class="pam-btn" data-action="pamSelect" data-id="${a.id}">Open review</button>`:a.status==='generating'?`<button class="pam-btn" disabled>Generating…</button>`:`<button class="pam-btn" data-action="pamGenerate" data-id="${a.id}" ${canGen?'':'disabled'}>${a.status==='pending_generation'?'Generate':a.status==='generation_failed'?'Retry generation':a.status==='rejected'?'Regenerate':'New version'}</button>`}<button class="pam-btn" data-action="pamMonitor" data-id="${a.id}" ${canCfg?'':'disabled'}>${a.monitoring?'Pause':'Monitor'}</button><button class="pam-btn danger" data-action="pamRemoveProject" data-project="${a.project}" ${canCfg?'':'disabled'}>Remove</button></div></div>`;
   }).join('');
   return `${I.pamToast?`<div class="toast">${I.pamToast}</div>`:''}
-  <div class="pam-card"><div class="h">Project monitoring</div>
+  <div class="pam-card"><h3 class="project-group-title">Add a project</h3>
     <div class="pam-filters">
-      <input type="search" id="pamProjectSearch" aria-label="Search projects" placeholder="Search projects" value="${esc(I.projectQuery)}" />
+      <input type="search" id="pamProjectSearch" aria-label="Search projects" placeholder="Enter project name" value="${esc(I.projectQuery)}" />
     </div>
-    <div class="pam-note">Search by name to add a project. Its first draft will go to the review queue.</div>
+    <div class="pam-note">Select Add project in the matching row. The first draft goes to review.</div>
   </div>
   <section aria-labelledby="projectListTitle"><h3 class="project-group-title" id="projectListTitle">Monitored projects</h3>
     ${rows}
